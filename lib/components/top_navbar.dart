@@ -8,14 +8,31 @@ class TopNavbar extends StatelessWidget implements PreferredSizeWidget{
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       child: AppBar(
-        centerTitle: false,
+        centerTitle: true,
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Text(
-              'MiYO',
-            ),
+        title: Column(
+          children: [
+            Text(
+                  'MiYO',
+                  style: TextStyle(
+                    color: Color(0xff00AA5D),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+            Text(
+              'Map it Your Own',
+              style: TextStyle(
+                fontSize: 10,
+                color: Color(0xff00AA5D),
+                fontWeight: FontWeight.w400,
+              )
+            )
+          ],
+        ),
       
       ),
     );
