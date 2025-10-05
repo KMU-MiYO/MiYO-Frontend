@@ -5,12 +5,14 @@ class ChallengeItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final String location;
+  final bool isTitleBox;
 
   const ChallengeItem({
     super.key,
     required this.icon,
     required this.title,
     required this.location,
+    this.isTitleBox = false,
   });
 
   @override
@@ -47,18 +49,19 @@ class ChallengeItem extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right, size: 37),
-            color: const Color(0xff757575),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ChallengeDetailScreen(),
-                ),
-              );
-            },
-          ),
+          if (!isTitleBox)
+            IconButton(
+              icon: const Icon(Icons.chevron_right, size: 37),
+              color: const Color(0xff757575),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChallengeDetailScreen(),
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
