@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/layout.dart';
+import 'package:miyo/screens/onboarding/initial_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'MiYO',
       theme: ThemeData(
         primaryColor: Color(0xff00AA5D),
         fontFamily: 'Pretendard',
@@ -34,7 +35,8 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
-      home: Layout(),
+      // home: Layout(),
+      home: InitialScreen(),
     );
   }
 }
