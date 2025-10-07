@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/screens/onboarding/login_screen.dart';
+import 'package:miyo/screens/onboarding/signup_complete_screen.dart';
 
 class SignupButton extends StatefulWidget {
   const SignupButton({super.key});
@@ -505,7 +506,7 @@ class _SignupButtonState extends State<SignupButton> {
             ),
             onPressed: _isAllValid ? () {
               Navigator.push(
-                context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                context, MaterialPageRoute(builder: (context) => SignupCompleteScreen()));
             } : null,
             child: Text(
               '회원가입',
