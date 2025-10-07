@@ -183,7 +183,7 @@ class _SignupButtonState extends State<SignupButton> {
           children: [
             SizedBox(
               height: height * 0.06,
-              width: width * 0.51,
+              width: width * 0.56,
               child: TextField(
                 controller: idController,
                 style: TextStyle(
@@ -210,17 +210,18 @@ class _SignupButtonState extends State<SignupButton> {
             SizedBox(width: width * 0.02),
             SizedBox(
               height: height * 0.06,
-              width: width * 0.27,
+              width: width * 0.22,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xff00AA5D),
+                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 onPressed: () {
-                  print('아이디 중복 확인');                
-                }, 
+                  print('아이디 중복 확인');
+                },
                 child: Text(
                   '중복 확인',
                   style: TextStyle(
@@ -257,7 +258,7 @@ class _SignupButtonState extends State<SignupButton> {
           children: [
             SizedBox(
               height: height * 0.06,
-              width: width * 0.51,
+              width: width * 0.56,
               child: TextField(
                 controller: emailController,
                 style: TextStyle(
@@ -284,17 +285,18 @@ class _SignupButtonState extends State<SignupButton> {
             SizedBox(width: width * 0.02),
             SizedBox(
               height: height * 0.06,
-              width: width * 0.27,
+              width: width * 0.22,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xff00AA5D),
+                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 onPressed: () {
-                  print('코드 전송');                
-                }, 
+                  print('코드 전송');
+                },
                 child: Text(
                   '코드 전송',
                   style: TextStyle(
@@ -331,7 +333,7 @@ class _SignupButtonState extends State<SignupButton> {
           children: [
             SizedBox(
               height: height * 0.06,
-              width: width * 0.4,
+              width: width * 0.46,
               child: TextField(
                 controller: verificationCodeController,
                 style: TextStyle(
@@ -358,17 +360,18 @@ class _SignupButtonState extends State<SignupButton> {
             SizedBox(width: width * 0.02),
             SizedBox(
               height: height * 0.06,
-              width: width * 0.38,
+              width: width * 0.32,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xff00AA5D),
+                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 onPressed: () {
-                  print('인증 코드 입력');                
-                }, 
+                  print('인증 코드 입력');
+                },
                 child: Text(
                   '이메일 인증하기',
                   style: TextStyle(
