@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/screens/onboarding/login_screen.dart';
+import 'package:miyo/screens/onboarding/signup_screen.dart';
 
 class InitialButtons extends StatelessWidget {
   const InitialButtons({super.key});
@@ -53,8 +54,12 @@ class InitialButtons extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
             ),
-            onPressed: () {}, 
-            child: Text(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SignupScreen()),
+              );
+            },            child: Text(
               '회원가입',
             style: TextStyle(
               color: Colors.white,
