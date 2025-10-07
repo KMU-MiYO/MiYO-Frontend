@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/screens/onboarding/login_button.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: TitleAppbar(title: '로그인', leadingType: LeadingType.back),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
