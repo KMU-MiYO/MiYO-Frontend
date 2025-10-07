@@ -41,6 +41,7 @@ class _LayoutState extends State<Layout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       // 상단 네비게이션 바는 영속적으로 유지됩니다.
       appBar: TopNavbar(),
       // body 부분은 IndexedStack을 사용하여 선택된 페이지만 보여줍니다.
