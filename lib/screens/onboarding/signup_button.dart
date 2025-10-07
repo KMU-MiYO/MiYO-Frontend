@@ -453,6 +453,7 @@ class _SignupButtonState extends State<SignupButton> {
           height: height * 0.06,
           width: width * 0.8,
           child: TextField(
+            obscureText: true,
             controller: passwordVerificationController,
             style: TextStyle(
               fontSize: 15,
