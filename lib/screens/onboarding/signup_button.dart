@@ -1,15 +1,129 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/screens/onboarding/login_screen.dart';
 
-class SignupButton extends StatelessWidget {
-  SignupButton({super.key});
+class SignupButton extends StatefulWidget {
+  const SignupButton({super.key});
 
+  @override
+  State<SignupButton> createState() => _SignupButtonState();
+}
+
+class _SignupButtonState extends State<SignupButton> {
   final TextEditingController idController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nicknameController = TextEditingController();
   final TextEditingController verificationCodeController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordVerificationController = TextEditingController();
+
+  // text 조건 달성 여부
+  bool? isIdValid; // null: 회색, true: 초록, false: 빨강
+  bool? isEmailValid;
+  bool? isVerificationCodeValid;
+  bool? isPasswordValid;
+  bool? isPasswordConfirmValid;
+
+  @override
+  void initState() {
+    super.initState();
+
+    idController.addListener(_validateId);
+
+    emailController.addListener(_validateEmail);
+    verificationCodeController.addListener(_validateVerificationCode);
+    passwordController.addListener(_validatePassword);
+    passwordVerificationController.addListener(_validatePasswordConfirm);
+  }
+
+  @override
+  void dispose() {
+    idController.dispose();
+    passwordController.dispose();
+    nicknameController.dispose();
+    verificationCodeController.dispose();
+    emailController.dispose();
+    passwordVerificationController.dispose();
+    super.dispose();
+  }
+
+  void _validateId() {
+    setState(() {
+      final id = idController.text;
+      if (id.isEmpty) {
+        isIdValid = null;
+      } else {
+        // TODO: API 호출로 중복 확인 후 결과에 따라 isIdValid 설정
+        // 임시: 영어/숫자 4자리 이상 체크
+        isIdValid = RegExp(r'^[a-zA-Z0-9]{4,}$').hasMatch(id);
+      }
+    });
+  }
+
+  void _validateEmail() {
+    setState(() {
+      final email = emailController.text;
+      if (email.isEmpty) {
+        isEmailValid = null;
+      } else {
+        // TODO: API 호출로 이메일 형식 및 중복 확인 후 결과에 따라 isEmailValid 설정
+        // 임시: 이메일 형식 체크
+        isEmailValid = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+      }
+    });
+  }
+
+  void _validateVerificationCode() {
+    setState(() {
+      final code = verificationCodeController.text;
+      if (code.isEmpty) {
+        isVerificationCodeValid = null;
+      } else {
+        // TODO: API 호출로 인증 코드 확인 후 결과에 따라 isVerificationCodeValid 설정
+        // 임시: 6자리 숫자 체크
+        isVerificationCodeValid = RegExp(r'^\d{6}$').hasMatch(code);
+      }
+    });
+  }
+
+  void _validatePassword() {
+    setState(() {
+      final password = passwordController.text;
+      if (password.isEmpty) {
+        isPasswordValid = null;
+      } else {
+        // 영어/숫자/특수문자 2가지 이상 조합 8자리 이상
+        int typeCount = 0;
+        if (RegExp(r'[a-zA-Z]').hasMatch(password)) typeCount++;
+        if (RegExp(r'[0-9]').hasMatch(password)) typeCount++;
+        if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) typeCount++;
+        isPasswordValid = password.length >= 8 && typeCount >= 2;
+      }
+    });
+  }
+
+  void _validatePasswordConfirm() {
+    setState(() {
+      final confirm = passwordVerificationController.text;
+      if (confirm.isEmpty) {
+        isPasswordConfirmValid = null;
+      } else {
+        isPasswordConfirmValid = confirm == passwordController.text;
+      }
+    });
+  }
+
+  Color _getValidationColor(bool? isValid) {
+    if (isValid == null) return Color(0xff757575);
+    return isValid ? Color(0xff00AA5D) : Colors.red;
+  }
+
+  bool get _isAllValid {
+    return isIdValid == true &&
+           isEmailValid == true &&
+           isVerificationCodeValid == true &&
+           isPasswordValid == true &&
+           isPasswordConfirmValid == true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +132,7 @@ class SignupButton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        SizedBox(height: height * 0.05),
         SizedBox(
           height: height * 0.06,
           width: width * 0.8,
@@ -68,7 +183,7 @@ class SignupButton extends StatelessWidget {
           children: [
             SizedBox(
               height: height * 0.06,
-              width: width * 0.52,
+              width: width * 0.51,
               child: TextField(
                 controller: idController,
                 style: TextStyle(
@@ -128,7 +243,7 @@ class SignupButton extends StatelessWidget {
                 '아이디는 영어/숫자 4자리 이상으로 설정해 주세요.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xffACACAC),
+                  color: _getValidationColor(isIdValid),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -142,7 +257,7 @@ class SignupButton extends StatelessWidget {
           children: [
             SizedBox(
               height: height * 0.06,
-              width: width * 0.52,
+              width: width * 0.51,
               child: TextField(
                 controller: emailController,
                 style: TextStyle(
@@ -202,7 +317,7 @@ class SignupButton extends StatelessWidget {
                 '이메일을 입력해 주세요.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xffACACAC),
+                  color: _getValidationColor(isEmailValid),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -243,7 +358,7 @@ class SignupButton extends StatelessWidget {
             SizedBox(width: width * 0.02),
             SizedBox(
               height: height * 0.06,
-              width: width * 0.4,
+              width: width * 0.38,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xff00AA5D),
@@ -276,7 +391,7 @@ class SignupButton extends StatelessWidget {
                 '인증 코드를 입력해 주세요.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xffACACAC),
+                  color: _getValidationColor(isVerificationCodeValid),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -322,7 +437,7 @@ class SignupButton extends StatelessWidget {
                 '영어/숫자/특수문자 2가지 이상 조합 8자리 이상으로 설정해 주세요.',
                 style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xffACACAC),
+                  color: _getValidationColor(isPasswordValid),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -366,7 +481,7 @@ class SignupButton extends StatelessWidget {
                 '비밀번호를 한 번 더 입력해 주세요.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xffACACAC),
+                  color: _getValidationColor(isPasswordConfirmValid),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -380,15 +495,15 @@ class SignupButton extends StatelessWidget {
           width: width * 0.8,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xff00AA5D),
+              backgroundColor: _isAllValid ? Color(0xff00AA5D) : Color(0xff757575),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
+            onPressed: _isAllValid ? () {
               Navigator.push(
-                context, MaterialPageRoute(builder: (context) => LoginScreen()));                
-            }, 
+                context, MaterialPageRoute(builder: (context) => LoginScreen()));
+            } : null,
             child: Text(
               '회원가입',
               style: TextStyle(
