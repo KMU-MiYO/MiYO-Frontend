@@ -4,7 +4,7 @@ import 'package:miyo/screens/onboarding/login_screen.dart';
 class LoginButtons extends StatelessWidget {
   LoginButtons({super.key});
 
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController idController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   @override
@@ -17,7 +17,7 @@ class LoginButtons extends StatelessWidget {
           height: height * 0.06,
           width: width * 0.8,
           child: TextField(
-            controller: emailController,
+            controller: idController,
             style: TextStyle(
               fontSize: 15,
               color: Color(0xff757575),
@@ -28,7 +28,7 @@ class LoginButtons extends StatelessWidget {
                 horizontal: 12, 
                 vertical: 15
               ),
-              hintText: '이메일',
+              hintText: '아이디',
               hintStyle: const TextStyle(
                 fontSize: 15,
                 color: Color(0xff757575),
