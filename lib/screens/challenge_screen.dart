@@ -62,7 +62,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               ),
               const SizedBox(height: 12),
               const ChallengeItem(
-                icon: Icons.park_rounded,
+                categoryType: CategoryType.NaturePark,
                 title: '2026 우리 동네 공원 상상하기',
                 location: '서울시',
               ),
@@ -95,13 +95,13 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               ),
               const SizedBox(height: 12),
               const ChallengeItem(
-                icon: Icons.apartment_rounded,
+                categoryType: CategoryType.Life,
                 title: '2026 성북구 편의시설 상상하기',
                 location: '성북구',
               ),
               const SizedBox(height: 12),
               const ChallengeItem(
-                icon: Icons.water,
+                categoryType: CategoryType.EnvironSustain,
                 title: '2026 한강변 상상하기',
                 location: '서울시',
               ),

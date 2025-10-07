@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:miyo/screens/challenge_detail_screen.dart';
 
 class ChallengeItem extends StatelessWidget {
-  final IconData icon;
+  // final IconData icon;
+  final CategoryType? categoryType;
   final String title;
   final String location;
 
   const ChallengeItem({
     super.key,
-    required this.icon,
+    required this.categoryType,
     required this.title,
     required this.location,
   });
@@ -25,7 +26,7 @@ class ChallengeItem extends StatelessWidget {
               color: Color(0xffF0F2F5),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, size: 28, color: Colors.black),
+            child: _buildIcon(context),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -63,4 +64,41 @@ class ChallengeItem extends StatelessWidget {
       ),
     );
   }
+
+  Widget? _buildIcon(BuildContext context) {
+    if (categoryType == null) return null;
+
+    switch (categoryType!) {
+      case CategoryType.NaturePark:
+        return Icon(Icons.park_rounded);
+
+      case CategoryType.CultureArts:
+        return Icon(Icons.color_lens);
+
+      case CategoryType.Transport:
+        return Icon(Icons.directions_bus);
+
+      case CategoryType.Life:
+        return Icon(Icons.house_rounded);
+
+      case CategoryType.Commercial:
+        return Icon(Icons.attach_money_rounded);
+
+      case CategoryType.NightLandscape:
+        return Icon(Icons.landscape_rounded);
+
+      case CategoryType.EnvironSustain:
+        return Icon(Icons.eco_rounded);
+    }
+  }
+}
+
+enum CategoryType {
+  NaturePark, // 자연/공원
+  CultureArts, // 문화/예술
+  Transport, // 교통/이동
+  Life, // 주거/생활
+  Commercial, // 상권/시장
+  NightLandscape, // 야간/경관
+  EnvironSustain, // 환경/지속가능
 }
