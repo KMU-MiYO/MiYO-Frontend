@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miyo/screens/onboarding/login_screen.dart';
 
 class SignupCompleteScreen extends StatefulWidget {
   const SignupCompleteScreen({super.key});
@@ -42,8 +43,11 @@ class _SignupCompleteScreenState extends State<SignupCompleteScreen> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst); 
-                  // 초기 화면으로 돌아가기 회원가입 -> 로그인 절차라면. 아니면 그냥 홈화면으로 이동해도 됨
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => route.isFirst,
+                  );
                 },
                 child: Text(
                   '회원가입 완료',
