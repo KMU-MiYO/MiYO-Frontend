@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/screens/onboarding/login_screen.dart';
+import 'package:miyo/screens/onboarding/signup_screen.dart';
 
 class LoginButtons extends StatelessWidget {
   LoginButtons({super.key});
@@ -107,7 +108,12 @@ class LoginButtons extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {}, 
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SignupScreen()),
+                );
+              }, 
               child: Text(
                 '회원가입 하기',
                 style: TextStyle(
