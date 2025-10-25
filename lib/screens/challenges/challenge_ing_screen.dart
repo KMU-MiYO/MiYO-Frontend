@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:miyo/components/challenge_item.dart';
+import 'package:miyo/screens/challenges/challenge_item.dart';
 import 'package:miyo/components/title_appbar.dart';
 
 class ChallengeIngScreen extends StatefulWidget {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
-import 'package:miyo/components/challenge_mission.dart';
-import 'package:miyo/components/challenge_item.dart';
-import 'package:miyo/screens/challenge_all_screen.dart';
-import 'package:miyo/screens/challenge_ing_screen.dart';
+import 'package:miyo/screens/challenges/challenge_mission.dart';
+import 'package:miyo/screens/challenges/challenge_item.dart';
+import 'package:miyo/screens/challenges/challenge_all_screen.dart';
+import 'package:miyo/screens/challenges/challenge_ing_screen.dart';
 
 class ChallengeScreen extends StatefulWidget {
   const ChallengeScreen({super.key});
