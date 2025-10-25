@@ -5,6 +5,7 @@ class SettingButton extends StatelessWidget {
   final VoidCallback? onTap;
   final bool showTrailingIcon;
   final Color? textColor;
+  final bool showBorder;
 
   const SettingButton({
     super.key,
@@ -12,6 +13,7 @@ class SettingButton extends StatelessWidget {
     this.onTap,
     this.showTrailingIcon = true,
     this.textColor,
+    this.showBorder = true,
   });
 
   @override
@@ -21,7 +23,9 @@ class SettingButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color(0xffDBE0E5), width: 1),
+        border: showBorder
+            ? Border.all(color: Color(0xffDBE0E5), width: 1)
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -29,7 +33,7 @@ class SettingButton extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 10, 16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 10, 16),
             child: Row(
               children: [
                 Expanded(
