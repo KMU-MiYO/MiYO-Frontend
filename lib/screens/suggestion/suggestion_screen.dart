@@ -160,7 +160,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         fixedSize: Size(
-                          87, 
+                          85, 
                           27,
                           ),
                         padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
@@ -371,6 +371,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                     ),
                   ),
                 ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
               ],
             ),
           ),
