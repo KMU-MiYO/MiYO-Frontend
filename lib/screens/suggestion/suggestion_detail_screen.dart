@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 
-class SuggestionDetail extends StatefulWidget {
-  const SuggestionDetail({super.key});
+class SuggestionDetailScreen extends StatefulWidget {
+  const SuggestionDetailScreen({super.key});
 
   @override
-  State<SuggestionDetail> createState() => _SuggestionDetailState();
+  State<SuggestionDetailScreen> createState() => _SuggestionDetailScreenState();
 }
 
-class _SuggestionDetailState extends State<SuggestionDetail> {
+class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
   // 임시 데이터
   final Map<String, dynamic> postData = {
     "postId": 0,
