@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/screens/challenges/challenge_item.dart';
 import 'package:miyo/components/title_appbar.dart';
+import 'package:miyo/data/dummy/dummy_challenges.dart';
 
 class ChallengeIngScreen extends StatefulWidget {
   const ChallengeIngScreen({super.key});
@@ -12,35 +13,23 @@ class ChallengeIngScreen extends StatefulWidget {
 class _ChallengeIngScreen extends State<ChallengeIngScreen> {
   @override
   Widget build(BuildContext context) {
+    final participatingChallenges = getParticipatingChallenges();
+
     return Scaffold(
       appBar: TitleAppbar(title: '참가 중인 챌린지', leadingType: LeadingType.close),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const ChallengeItem(
-                categoryType: CategoryType.NaturePark,
-                title: "2026 우리 동네 공원 상상하기",
-                location: "서울시",
-              ),
-              const SizedBox(height: 16),
-              const ChallengeItem(
-                categoryType: CategoryType.Life,
-                title: "2026 성북구 편의시설 상상하기",
-                location: "성북구",
-              ),
-              const SizedBox(height: 16),
-              const ChallengeItem(
-                categoryType: CategoryType.EnvironSustain,
-                title: "2026 한강변 상상하기",
-                location: "서울시",
-              ),
-            ],
-          ),
-        ),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16.0),
+        itemCount: participatingChallenges.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 20),
+        itemBuilder: (context, index) {
+          final challenge = participatingChallenges[index];
+          return ChallengeItem(
+            categoryType: challenge['categoryType'] as CategoryType,
+            title: challenge['title'] as String,
+            location: challenge['location'] as String,
+          );
+        },
       ),
     );
   }
