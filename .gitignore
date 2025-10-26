@@ -13,6 +13,7 @@
 .buildlog/
 .history
 
+<<<<<<< HEAD
 # Visual Studio Code related
 .classpath
 .project
@@ -29,6 +30,14 @@
 #
 # See https://github.com/flutter/flutter/blob/main/docs/tool/Engine-artifacts.md.
 /bin/internal/engine.version
+=======
+# Flutter/Dart 자동 생성 파일
+**/generated_plugin_registrant.cc
+**/generated_plugin_registrant.h
+**/generated_plugin_registrant.swift
+**/generated_plugins.cmake
+**/GeneratedPluginRegistrant.*
+>>>>>>> 08ad5ebb7bb7aaf3e20a971e5fc447da25de49af
 
 # Flutter repo-specific
 /bin/cache/

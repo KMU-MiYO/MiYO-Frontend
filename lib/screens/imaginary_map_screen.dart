@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:miyo/services/imaginary_service.dart';
 import 'package:miyo/services/marker_image_generator.dart';
-import 'package:miyo/screens/challenge_detail_screen.dart';  //챌린지 작성글 페이지로 수정 필요
+import 'package:miyo/screens/challenges/challenge_detail_screen.dart'; //챌린지 작성글 페이지로 수정 필요
 
 class ImaginaryMapScreen extends StatefulWidget {
   const ImaginaryMapScreen({super.key});
@@ -69,7 +69,9 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
 
   Future<void> _addMarkersToMap(NaverMapController controller) async {
     // 배치로 모든 마커 이미지를 한번에 생성 (최적화)
-    final markerImagePaths = await _imageGenerator.generateBatchMarkerImages(_markers);
+    final markerImagePaths = await _imageGenerator.generateBatchMarkerImages(
+      _markers,
+    );
 
     // 생성된 이미지로 마커 추가
     for (var data in _markers) {
@@ -92,15 +94,16 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ChallengeDetailScreen(), // 작성글 페이지 왕성되면 작성글 페이지로 이동으로 수정 필요
+        builder: (context) =>
+            const ChallengeDetailScreen(), // 작성글 페이지 왕성되면 작성글 페이지로 이동으로 수정 필요
       ),
     );
   }
 
   Future<void> _updateMarkerOnMap(
-      Map<String, dynamic> data,
-      int newCount,
-      ) async {
+    Map<String, dynamic> data,
+    int newCount,
+  ) async {
     final controller = await _mapControllerCompleter.future;
 
     // 상태 업데이트

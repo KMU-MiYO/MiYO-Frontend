@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
-import 'package:miyo/components/challenge_mission.dart';
-import 'package:miyo/components/challenge_item.dart';
-import 'package:miyo/screens/challenge_all_screen.dart';
-import 'package:miyo/screens/challenge_ing_screen.dart';
+import 'package:miyo/screens/challenges/challenge_mission.dart';
+import 'package:miyo/screens/challenges/challenge_item.dart';
+import 'package:miyo/screens/challenges/challenge_all_screen.dart';
+import 'package:miyo/screens/challenges/challenge_ing_screen.dart';
 
 class ChallengeScreen extends StatefulWidget {
   const ChallengeScreen({super.key});
@@ -62,7 +62,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               ),
               const SizedBox(height: 12),
               const ChallengeItem(
-                icon: Icons.park_rounded,
+                categoryType: CategoryType.NaturePark,
                 title: '2026 우리 동네 공원 상상하기',
                 location: '서울시',
               ),
@@ -95,13 +95,13 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               ),
               const SizedBox(height: 12),
               const ChallengeItem(
-                icon: Icons.apartment_rounded,
+                categoryType: CategoryType.Life,
                 title: '2026 성북구 편의시설 상상하기',
                 location: '성북구',
               ),
               const SizedBox(height: 12),
               const ChallengeItem(
-                icon: Icons.water,
+                categoryType: CategoryType.EnvironSustain,
                 title: '2026 한강변 상상하기',
                 location: '서울시',
               ),
