@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class SuggestionScreen extends StatefulWidget {
   const SuggestionScreen({super.key});
@@ -11,6 +13,70 @@ class SuggestionScreen extends StatefulWidget {
 class _SuggestionScreenState extends State<SuggestionScreen> {
   int? selectedIndex;
   final List<String> options = ['자연 / 공원', '문화 / 예술', '교통 / 이동', '주거 / 생활', '상권 / 시장', '야간 / 경관', '환경/지속 가능'];
+  final List<File> _images = [];
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _showImageSourceDialog() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('사진 선택'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.camera_alt, 
+                  color: Colors.blue
+                  ),
+                title: Text('카메라로 촬영'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromCamera();
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.photo_library, 
+                  color: Colors.green),
+                title: Text('갤러리에서 선택'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImagesFromGallery();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo != null) {
+      setState(() {
+        _images.add(File(photo.path));
+      });
+    }
+  }
+
+  Future<void> _pickImagesFromGallery() async {
+    final List<XFile> photos = await _picker.pickMultiImage();
+    if (photos.isNotEmpty) {
+      setState(() {
+        _images.addAll(photos.map((photo) => File(photo.path)));
+      });
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _images.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +100,11 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                           filled: true,
                           fillColor: Color(0xffF0F2F5),
                           hintText: '제목',
+                          hintStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xff61758A),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
@@ -48,6 +119,11 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                           filled: true,
                           fillColor: Color(0xffF0F2F5),
                           hintText: '내용',
+                          hintStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xff61758A),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
@@ -121,6 +197,69 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                     ),
                   ),
                 ),
+                SizedBox(height: height * 0.01),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    alignment: WrapAlignment.start,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                    ..._images.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      File image = entry.value;
+                      return Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              image,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: GestureDetector(
+                              onTap: () => _removeImage(index),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: EdgeInsets.all(4),
+                                child: Icon(
+                                  Icons.cancel_outlined,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                    GestureDetector(
+                      onTap: _showImageSourceDialog,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Color(0xffF0F2F5),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.add_circle_outline_rounded,
+                          size: 40,
+                          color: Color(0xff00AA5D),
+                        ),
+                      ),
+                    ),
+                  ],
+                  ),
+                ),
                 SizedBox(height: height * 0.02),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -140,6 +279,11 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                     filled: true,
                     fillColor: Color(0xffF0F2F5),
                     hintText: 'AI 이미지 생성 프롬프트 \n* 상세한 프롬프트를 활용할수록 더 상세한 이미지가 생성됩니다.',
+                    hintStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xff61758A),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
                       borderSide: BorderSide.none,
