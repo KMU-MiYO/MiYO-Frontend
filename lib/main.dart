@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/layout.dart';
 import 'package:miyo/screens/onboarding/initial_screen.dart';
+import 'package:miyo/screens/suggestion/suggestion_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
       // home: Layout(),
-      home: InitialScreen(),
+      home: SuggestionScreen(),
     );
   }
 }
