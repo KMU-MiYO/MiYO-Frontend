@@ -8,8 +8,12 @@
 .buildlog/
 .history
 
-
-
+# Flutter/Dart 자동 생성 파일
+**/generated_plugin_registrant.cc
+**/generated_plugin_registrant.h
+**/generated_plugin_registrant.swift
+**/generated_plugins.cmake
+**/GeneratedPluginRegistrant.*
 
 # Flutter repo-specific
 /bin/cache/

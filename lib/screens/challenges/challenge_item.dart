@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:miyo/screens/challenge_detail_screen.dart';
+import 'package:miyo/screens/challenges/challenge_detail_screen.dart';
 
 class ChallengeItem extends StatelessWidget {
   // final IconData icon;
@@ -70,25 +70,53 @@ class ChallengeItem extends StatelessWidget {
 
     switch (categoryType!) {
       case CategoryType.NaturePark:
-        return Icon(Icons.park_rounded);
+        return Image.asset(
+          'assets/images/challenge_icons/NaturePark.png',
+          width: 32,
+          height: 32,
+        );
 
       case CategoryType.CultureArts:
-        return Icon(Icons.color_lens);
+        return Image.asset(
+          'assets/images/challenge_icons/CultureArts.png',
+          width: 32,
+          height: 32,
+        );
 
       case CategoryType.Transport:
-        return Icon(Icons.directions_bus);
+        return Image.asset(
+          'assets/images/challenge_icons/Transport.png',
+          width: 32,
+          height: 32,
+        );
 
       case CategoryType.Life:
-        return Icon(Icons.house_rounded);
+        return Image.asset(
+          'assets/images/challenge_icons/Life.png',
+          width: 32,
+          height: 32,
+        );
 
       case CategoryType.Commercial:
-        return Icon(Icons.attach_money_rounded);
+        return Image.asset(
+          'assets/images/challenge_icons/Commercial.png',
+          width: 32,
+          height: 32,
+        );
 
       case CategoryType.NightLandscape:
-        return Icon(Icons.landscape_rounded);
+        return Image.asset(
+          'assets/images/challenge_icons/NightLandscape.png',
+          width: 32,
+          height: 32,
+        );
 
       case CategoryType.EnvironSustain:
-        return Icon(Icons.eco_rounded);
+        return Image.asset(
+          'assets/images/challenge_icons/EnvironSustain.png',
+          width: 32,
+          height: 32,
+        );
     }
   }
 }
