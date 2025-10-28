@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
+import 'token_storage_service.dart';
 
 /// 기본 API 서비스 클래스
 /// Spring Boot 백엔드와 통신하기 위한 HTTP 클라이언트 설정
 class ApiService {
   late final Dio _dio;
+  final TokenStorageService _tokenStorage = TokenStorageService();
 
   // Spring Boot 서버 URL (나중에 실제 URL로 변경)
   // static const String baseUrl = 'http://localhost:8080/api';
@@ -27,15 +29,16 @@ class ApiService {
     // 인터셉터 추가 (로깅, 인증 토큰 자동 추가 등)
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
+        onRequest: (options, handler) async {
           // 요청 전 로깅
           print('🚀 REQUEST[${options.method}] => PATH: ${options.path}');
 
-          // TODO: 나중에 인증 토큰이 있으면 자동으로 추가
-          // final token = await _storage.getToken();
-          // if (token != null) {
-          //   options.headers['Authorization'] = 'Bearer $token';
-          // }
+          // 저장된 JWT 토큰이 있으면 자동으로 추가
+          final token = await _tokenStorage.getAccessToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+            print('🔑 Token added to request');
+          }
 
           return handler.next(options);
         },

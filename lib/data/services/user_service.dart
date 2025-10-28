@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'api_service.dart';
+import 'token_storage_service.dart';
 import '../dummy/user_dummy_data.dart';
 
 /// 유저 관련 API 서비스
 class UserService {
   final ApiService _apiService = ApiService();
+  final TokenStorageService _tokenStorage = TokenStorageService();
 
   /// 현재 로그인한 유저 정보 가져오기
   ///
@@ -230,7 +232,21 @@ class UserService {
       });
 
       if (response.statusCode == 200) {
-        return response.data as Map<String, dynamic>;
+        final data = response.data as Map<String, dynamic>;
+
+        // JWT 토큰 저장
+        if (data.containsKey('accessToken')) {
+          await _tokenStorage.saveAccessToken(data['accessToken']);
+          print('✅ Access token saved');
+        }
+
+        // // Refresh 토큰이 있으면 저장
+        // if (data.containsKey('refreshToken')) {
+        //   await _tokenStorage.saveRefreshToken(data['refreshToken']);
+        //   print('✅ Refresh token saved');
+        // }
+
+        return data;
       } else {
         throw Exception('로그인에 실패했습니다.');
       }
@@ -308,5 +324,47 @@ class UserService {
       print('Error: $e');
       rethrow;
     }
+  }
+
+  /// 로그아웃
+  /// 저장된 토큰을 삭제합니다.
+  Future<void> logout() async {
+    try {
+      await _tokenStorage.deleteAllTokens();
+      print('✅ Logged out successfully');
+    } catch (e) {
+      print('Error during logout: $e');
+      rethrow;
+    }
+  }
+
+  /// 디버깅: 현재 저장된 토큰 확인
+  Future<void> debugPrintTokens() async {
+    try {
+      final accessToken = await _tokenStorage.getAccessToken();
+      // final refreshToken = await _tokenStorage.getRefreshToken();
+
+      print('=== 저장된 토큰 디버깅 ===');
+      if (accessToken != null && accessToken.isNotEmpty) {
+        print('✅ Access Token: ${accessToken.substring(0, accessToken.length > 20 ? 20 : accessToken.length)}...');
+      } else {
+        print('❌ Access Token: 없음');
+      }
+
+      // 리프레시 토큰은 없어서 우선 주석처리
+      // if (refreshToken != null && refreshToken.isNotEmpty) {
+      //   print('✅ Refresh Token: ${refreshToken.substring(0, refreshToken.length > 20 ? 20 : refreshToken.length)}...');
+      // } else {
+      //   print('❌ Refresh Token: 없음');
+      // }
+      // print('========================');
+    } catch (e) {
+      print('Error checking tokens: $e');
+    }
+  }
+
+  /// 토큰 존재 여부 확인
+  Future<bool> isLoggedIn() async {
+    return await _tokenStorage.hasAccessToken();
   }
 }
