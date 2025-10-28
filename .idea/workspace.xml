@@ -10,122 +10,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32df881e-8722-4607-b5c2-cbe8e9caf16d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-hdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-hdpi/splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-mdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-mdpi/splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-night-hdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-night-mdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-night-v21/launch_background.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-night-xhdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-night-xxhdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-night-xxxhdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-night/launch_background.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-v21/background.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xhdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xhdpi/splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xxhdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xxhdpi/splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xxxhdpi/android12splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xxxhdpi/splash.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable/background.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi/launcher_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-mdpi/launcher_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xhdpi/launcher_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxhdpi/launcher_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxxhdpi/launcher_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/values-night-v31/styles.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/values-v31/styles.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/icons/miyo_splashicon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/challenge_icons/Commercial.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/challenge_icons/CultureArts.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/challenge_icons/EnvironSustain.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/challenge_icons/Life.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/challenge_icons/NaturePark.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/challenge_icons/NightLandscape.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/challenge_icons/Transport.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/medal_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/medal_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/medal_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/miyo_logo.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/miyo_profile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Podfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-50x50@1x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-50x50@2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-57x57@1x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-57x57@2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-72x72@1x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-72x72@2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchBackground.imageset/Contents.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/dummy/dummy_challenges.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/dummy/dummy_suggestions.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/dummy/user_dummy_data.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/services/api_service.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/services/user_service.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/challenges/challenge_ing_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/challenges/challenge_item.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/imaginary_map_bottom_sheet.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/suggestion_category_button.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/suggestion_detail_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/suggestion_filtering_button.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/suggestion_item.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/suggestion_top3.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/onboarding/initial_button.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/onboarding/initial_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/onboarding/login_button.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/onboarding/login_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/onboarding/signup_button.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/onboarding/signup_complete_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/onboarding/signup_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/profile_settings_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/settings_account_section.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/settings_application_section.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/settings_buildInfo.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/settings_buildProfileCard.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/settings_button.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/settings_challengeprofile_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/settings_logininfo_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/settings/settings_myactivity_section.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/macos/Podfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/splash/img/dark-1x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/splash/img/dark-2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/splash/img/dark-3x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/splash/img/dark-4x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/splash/img/light-1x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/splash/img/light-2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/splash/img/light-3x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/splash/img/light-4x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable-v21/launch_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-v21/launch_background.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable/launch_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable/launch_background.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values-night/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values-night/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Flutter/Debug.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Flutter/Debug.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Flutter/Release.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Flutter/Release.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/Base.lproj/LaunchScreen.storyboard" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/Base.lproj/LaunchScreen.storyboard" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/Info.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/challenge_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/challenge_item.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/challenge_mission.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/challenges/challenge_mission.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/layout.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/layout.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/challenge_all_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/challenges/challenge_all_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/challenge_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/challenges/challenge_detail_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/challenge_ing_screen.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/challenge_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/challenges/challenge_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/imaginary_map_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/imaginary_map_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/macos/Flutter/Flutter-Debug.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/Flutter-Debug.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/macos/Flutter/Flutter-Release.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/Flutter-Release.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/miyo.iml" beforeDir="false" afterPath="$PROJECT_DIR$/miyo.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/imaginary_map/comment_bottom_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/comment_bottom_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/imaginary_map/imaginary_map_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/imaginary_map_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/imaginary_map/suggestion_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/imaginary_map/suggestion_detail_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,25 +76,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Flutter.main.dart.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "com.google.services.firebase.aqiPopupShown": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "Merging yeon__mainmap",
-    "io.flutter.reload.alreadyRun": "true",
-    "last_opened_file_path": "C:/Users/hyj01/Desktop/MIYO",
-    "settings.editor.selected.configurable": "AndroidSdkUpdater",
-    "show.migrate.to.gradle.popup": "false"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Flutter.main.dart.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;yeon__comment&quot;,
+    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/hyj01/Desktop/MIYO&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -240,5 +134,15 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/screens/imaginary_map/suggestion_detail_screen.dart</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
