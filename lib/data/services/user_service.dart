@@ -22,8 +22,8 @@ class UserService {
       }
 
       // 프로덕션 모드: 실제 API 호출
-      // Spring Boot 엔드포인트: GET /api/users/myId
-      final response = await _apiService.get('/users/myId');
+      // Spring Boot 엔드포인트: GET /api/users/my
+      final response = await _apiService.get('/users/my');
 
       if (response.statusCode == 200) {
         return response.data as Map<String, dynamic>;
@@ -70,35 +70,24 @@ class UserService {
     }
   }
 
-  /// 유저 정보 업데이트
+  /// 닉네임 변경
   ///
-  /// [userId]: 업데이트할 유저 ID
-  /// [data]: 업데이트할 데이터 (예: {'name': '새이름', 'email': 'new@example.com'})
-  Future<Map<String, dynamic>> updateUser(
-    String userId,
-    Map<String, dynamic> data,
-  ) async {
+  /// [nickname]: 변경할 닉네임 (예: '새닉네임')
+  Future<Map<String, dynamic>> updateUserNickName(String nickname) async {
     try {
-      // 개발 모드: 더미 응답 반환
-      if (ApiService.isDevelopmentMode) {
-        await Future.delayed(const Duration(milliseconds: 500));
-
-        // 업데이트된 데이터를 포함한 응답 반환
-        return {
-          ...dummyLoginInfo,
-          ...data,
-          'updatedAt': DateTime.now().toIso8601String(),
-        };
-      }
-
       // 프로덕션 모드: 실제 API 호출
-      // Spring Boot 엔드포인트: PUT /api/user/{userId}
-      final response = await _apiService.put('/user/$userId', data: data);
+      // Spring Boot 엔드포인트: PATCH /api/users/my/nickname
+      // Request body: JSON 문자열 형태
+      final response = await _apiService.patch(
+        '/users/my/nickname',
+        data: nickname,
+      );
 
       if (response.statusCode == 200) {
-        return response.data as Map<String, dynamic>;
+        // API는 성공 메시지(String)만 반환하므로, 업데이트된 유저 정보를 다시 가져옴
+        return await getCurrentUser();
       } else {
-        throw Exception('유저 정보 업데이트에 실패했습니다.');
+        throw Exception('닉네임 변경을 실패했습니다.');
       }
     } catch (e) {
       print('Error: $e');
@@ -190,11 +179,7 @@ class UserService {
           return {
             'success': true,
             'message': response.data.toString(),
-            'user': {
-              'id': userId,
-              'nickname': nickname,
-              'email': email,
-            }
+            'user': {'id': userId, 'nickname': nickname, 'email': email},
           };
         }
         return response.data as Map<String, dynamic>;
@@ -206,7 +191,8 @@ class UserService {
         throw Exception('잘못된 요청입니다.');
       } else if (e.response?.statusCode == 409) {
         // 서버에서 보낸 에러 메시지가 있으면 사용, 없으면 기본 메시지
-        final errorMessage = e.response?.data?.toString() ?? '이미 사용 중인 아이디 또는 이메일입니다.';
+        final errorMessage =
+            e.response?.data?.toString() ?? '이미 사용 중인 아이디 또는 이메일입니다.';
         throw Exception(errorMessage);
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');

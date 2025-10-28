@@ -9,7 +9,8 @@ class ApiService {
 
   // Spring Boot 서버 URL (나중에 실제 URL로 변경)
   // static const String baseUrl = 'http://localhost:8080/api';
-  static const String baseUrl = 'http://ing-default-samplealbing-bcdf6-110164755-b48ba1cb3cc4.kr.lb.naverncp.com';
+  static const String baseUrl =
+      'http://ing-default-samplealbing-bcdf6-110164755-b48ba1cb3cc4.kr.lb.naverncp.com';
 
   // 개발 모드 플래그 (true일 때 더미 데이터 사용)
   static const bool isDevelopmentMode = false;
@@ -20,9 +21,7 @@ class ApiService {
         baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 15),
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: {'Accept': 'application/json'},
       ),
     );
 
@@ -44,12 +43,16 @@ class ApiService {
         },
         onResponse: (response, handler) {
           // 응답 로깅
-          print('✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
+          print(
+            '✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
+          );
           return handler.next(response);
         },
         onError: (error, handler) {
           // 에러 로깅
-          print('❌ ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
+          print(
+            '❌ ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}',
+          );
           print('MESSAGE: ${error.message}');
           return handler.next(error);
         },
@@ -60,22 +63,41 @@ class ApiService {
   Dio get dio => _dio;
 
   /// GET 요청
-  Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<Response> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     return await _dio.get(path, queryParameters: queryParameters);
   }
 
   /// POST 요청
-  Future<Response> post(String path, {dynamic data, ResponseType? responseType}) async {
+  Future<Response> post(
+    String path, {
+    dynamic data,
+    ResponseType? responseType,
+  }) async {
     return await _dio.post(
       path,
       data: data,
-      options: responseType != null ? Options(responseType: responseType) : null,
+      options: responseType != null
+          ? Options(responseType: responseType)
+          : null,
     );
   }
 
-  /// PUT 요청
-  Future<Response> put(String path, {dynamic data}) async {
-    return await _dio.put(path, data: data);
+  /// PATCH 요청
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? headers,
+  }) async {
+    return await _dio.patch(
+      path,
+      data: data,
+      options: Options(
+        headers: headers ?? {'Content-Type': 'application/json'},
+      ),
+    );
   }
 
   /// DELETE 요청
@@ -86,5 +108,10 @@ class ApiService {
   /// POST 요청 (Multipart/form-data)
   Future<Response> postMultipart(String path, FormData formData) async {
     return await _dio.post(path, data: formData);
+  }
+
+  /// PATCH 요청 (Multipart/form-data)
+  Future<Response> patchMultipart(String path, FormData formData) async {
+    return await _dio.patch(path, data: formData);
   }
 }
