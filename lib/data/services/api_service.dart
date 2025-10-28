@@ -6,10 +6,11 @@ class ApiService {
   late final Dio _dio;
 
   // Spring Boot 서버 URL (나중에 실제 URL로 변경)
-  static const String baseUrl = 'http://localhost:8080/api';
+  // static const String baseUrl = 'http://localhost:8080/api';
+  static const String baseUrl = 'http://ing-default-samplealbing-bcdf6-110164755-b48ba1cb3cc4.kr.lb.naverncp.com';
 
   // 개발 모드 플래그 (true일 때 더미 데이터 사용)
-  static const bool isDevelopmentMode = true;
+  static const bool isDevelopmentMode = false;
 
   ApiService() {
     _dio = Dio(
@@ -18,7 +19,6 @@ class ApiService {
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 3),
         headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       ),
@@ -62,8 +62,12 @@ class ApiService {
   }
 
   /// POST 요청
-  Future<Response> post(String path, {dynamic data}) async {
-    return await _dio.post(path, data: data);
+  Future<Response> post(String path, {dynamic data, ResponseType? responseType}) async {
+    return await _dio.post(
+      path,
+      data: data,
+      options: responseType != null ? Options(responseType: responseType) : null,
+    );
   }
 
   /// PUT 요청
@@ -74,5 +78,10 @@ class ApiService {
   /// DELETE 요청
   Future<Response> delete(String path) async {
     return await _dio.delete(path);
+  }
+
+  /// POST 요청 (Multipart/form-data)
+  Future<Response> postMultipart(String path, FormData formData) async {
+    return await _dio.post(path, data: formData);
   }
 }

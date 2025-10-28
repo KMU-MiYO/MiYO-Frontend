@@ -1,12 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:miyo/screens/onboarding/login_screen.dart';
+import 'package:miyo/data/services/user_service.dart';
+import 'package:miyo/layout.dart';
 import 'package:miyo/screens/onboarding/signup_screen.dart';
 
-class LoginButtons extends StatelessWidget {
-  LoginButtons({super.key});
+class LoginButtons extends StatefulWidget {
+  const LoginButtons({super.key});
 
+  @override
+  State<LoginButtons> createState() => _LoginButtonsState();
+}
+
+class _LoginButtonsState extends State<LoginButtons> {
   final TextEditingController idController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  final UserService _userService = UserService();
+
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    idController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    final id = idController.text;
+    final password = passwordController.text;
+
+    if (id.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('아이디와 비밀번호를 입력해주세요.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _userService.login(
+        userId: id,
+        password: password,
+      );
+
+      if (!mounted) return;
+
+      // 로그인 성공 - 홈 화면으로 이동
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('로그인 성공!'),
+          backgroundColor: Color(0xff00AA5D),
+        ),
+      );
+
+      // 예시: 로그인 성공 후 홈으로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Layout()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -80,18 +156,24 @@ class LoginButtons extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              Navigator.push(
-                context, MaterialPageRoute(builder: (context) => LoginScreen()));                
-            }, 
-            child: Text(
-              '로그인',
-              style: TextStyle(
-                color: Color(0xffffffff),
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            onPressed: _isLoading ? null : _handleLogin,
+            child: _isLoading
+                ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    '로그인',
+                    style: TextStyle(
+                      color: Color(0xffffffff),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
           ),
         ),
 

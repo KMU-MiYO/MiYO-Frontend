@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/screens/onboarding/login_screen.dart';
 import 'package:miyo/screens/onboarding/signup_complete_screen.dart';
+import 'package:miyo/data/services/user_service.dart';
 
 class SignupButton extends StatefulWidget {
   const SignupButton({super.key});
@@ -17,12 +18,18 @@ class _SignupButtonState extends State<SignupButton> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordVerificationController = TextEditingController();
 
+  final UserService _userService = UserService();
+
   // text 조건 달성 여부
   bool? isIdValid; // null: 회색, true: 초록, false: 빨강
   bool? isEmailValid;
   bool? isVerificationCodeValid;
   bool? isPasswordValid;
   bool? isPasswordConfirmValid;
+
+  bool _isLoading = false;
+  bool _isCodeSending = false;
+  bool _isCodeVerifying = false;
 
   @override
   void initState() {
@@ -123,7 +130,159 @@ class _SignupButtonState extends State<SignupButton> {
            isEmailValid == true &&
            isVerificationCodeValid == true &&
            isPasswordValid == true &&
-           isPasswordConfirmValid == true;
+           isPasswordConfirmValid == true &&
+           nicknameController.text.isNotEmpty;
+  }
+
+  Future<void> _handleSendVerificationCode() async {
+    final email = emailController.text;
+    if (email.isEmpty || isEmailValid != true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('올바른 이메일을 입력해주세요.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isCodeSending = true;
+    });
+
+    try {
+      await _userService.requestEmailVerificationCode(email);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('인증 코드가 이메일로 전송되었습니다.'),
+          backgroundColor: Color(0xff00AA5D),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCodeSending = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleVerifyCode() async {
+    final email = emailController.text;
+    final code = verificationCodeController.text;
+
+    if (email.isEmpty || code.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이메일과 인증 코드를 입력해주세요.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isCodeVerifying = true;
+    });
+
+    try {
+      final isValid = await _userService.verifyEmailCode(email, code);
+
+      if (!mounted) return;
+
+      if (isValid) {
+        setState(() {
+          isVerificationCodeValid = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이메일 인증이 완료되었습니다.'),
+            backgroundColor: Color(0xff00AA5D),
+          ),
+        );
+      } else {
+        setState(() {
+          isVerificationCodeValid = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('인증 코드가 올바르지 않습니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isVerificationCodeValid = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCodeVerifying = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleSignup() async {
+    if (!_isAllValid) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _userService.signup(
+        nickname: nicknameController.text,
+        userId: idController.text,
+        email: emailController.text,
+        password: passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      // 회원가입 성공
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SignupCompleteScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      // 에러 메시지 표시
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -295,17 +454,24 @@ class _SignupButtonState extends State<SignupButton> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  print('코드 전송');
-                },
-                child: Text(
-                  '코드 전송',
-                  style: TextStyle(
-                    color: Color(0xffffffff),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                onPressed: _isCodeSending ? null : _handleSendVerificationCode,
+                child: _isCodeSending
+                    ? SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        '코드 전송',
+                        style: TextStyle(
+                          color: Color(0xffffffff),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -370,17 +536,24 @@ class _SignupButtonState extends State<SignupButton> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  print('인증 코드 입력');
-                },
-                child: Text(
-                  '이메일 인증하기',
-                  style: TextStyle(
-                    color: Color(0xffffffff),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                onPressed: _isCodeVerifying ? null : _handleVerifyCode,
+                child: _isCodeVerifying
+                    ? SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        '이메일 인증하기',
+                        style: TextStyle(
+                          color: Color(0xffffffff),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -505,18 +678,24 @@ class _SignupButtonState extends State<SignupButton> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: _isAllValid ? () {
-              Navigator.push(
-                context, MaterialPageRoute(builder: (context) => SignupCompleteScreen()));
-            } : null,
-            child: Text(
-              '회원가입',
-              style: TextStyle(
-                color: Color(0xffffffff),
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            onPressed: _isAllValid && !_isLoading ? _handleSignup : null,
+            child: _isLoading
+                ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    '회원가입',
+                    style: TextStyle(
+                      color: Color(0xffffffff),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
           ),
         ),
 
