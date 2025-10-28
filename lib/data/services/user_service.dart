@@ -22,8 +22,8 @@ class UserService {
       }
 
       // 프로덕션 모드: 실제 API 호출
-      // Spring Boot 엔드포인트: GET /api/user/me
-      final response = await _apiService.get('/user/me');
+      // Spring Boot 엔드포인트: GET /api/users/myId
+      final response = await _apiService.get('/users/myId');
 
       if (response.statusCode == 200) {
         return response.data as Map<String, dynamic>;
@@ -161,7 +161,7 @@ class UserService {
                 ? 'https://example.com/profile/$userId.jpg'
                 : null,
             'createdAt': DateTime.now().toIso8601String(),
-          }
+          },
         };
       }
 
@@ -179,7 +179,10 @@ class UserService {
           ),
       });
 
-      final response = await _apiService.postMultipart('/users/signup', formData);
+      final response = await _apiService.postMultipart(
+        '/users/signup',
+        formData,
+      );
 
       if (response.statusCode == 200) {
         return response.data as Map<String, dynamic>;
@@ -226,10 +229,10 @@ class UserService {
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: POST /users/login
-      final response = await _apiService.post('/users/login', data: {
-        'userId': userId,
-        'password': password,
-      });
+      final response = await _apiService.post(
+        '/users/login',
+        data: {'userId': userId, 'password': password},
+      );
 
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
@@ -274,9 +277,10 @@ class UserService {
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: POST /users/request-email-verification
-      final response = await _apiService.post('/users/email-verification-request', data: {
-        'email': email,
-      });
+      final response = await _apiService.post(
+        '/users/email-verification-request',
+        data: {'email': email},
+      );
 
       if (response.statusCode != 200) {
         throw Exception('이메일 인증코드 요청에 실패했습니다.');
@@ -315,7 +319,8 @@ class UserService {
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {
         // 400 응답은 plain text로 에러 메시지 반환
-        final errorMessage = e.response?.data?.toString() ?? '유효하지 않거나 만료된 인증코드입니다.';
+        final errorMessage =
+            e.response?.data?.toString() ?? '유효하지 않거나 만료된 인증코드입니다.';
         throw Exception(errorMessage);
       }
       print('DioException: ${e.message}');
@@ -346,7 +351,9 @@ class UserService {
 
       print('=== 저장된 토큰 디버깅 ===');
       if (accessToken != null && accessToken.isNotEmpty) {
-        print('✅ Access Token: ${accessToken.substring(0, accessToken.length > 20 ? 20 : accessToken.length)}...');
+        print(
+          '✅ Access Token: ${accessToken.substring(0, accessToken.length > 20 ? 20 : accessToken.length)}...',
+        );
       } else {
         print('❌ Access Token: 없음');
       }
