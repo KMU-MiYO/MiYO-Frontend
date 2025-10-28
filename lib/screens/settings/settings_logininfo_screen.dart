@@ -89,7 +89,7 @@ class _SettingsLoginInfoScreenState extends State<SettingsLoginInfoScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SettingsBuildinfo(label: '아이디', value: _userInfo!['id'] ?? '-'),
+          SettingsBuildinfo(label: '아이디', value: _userInfo!['userId'] ?? '-'),
           SettingsBuildinfo(label: '이메일', value: _userInfo!['email'] ?? '-'),
           SettingButton(label: '비밀번호 변경', showBorder: false, onTap: () {}),
           SettingButton(
