@@ -185,13 +185,29 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
+        // 응답이 String인 경우 처리
+        if (response.data is String) {
+          return {
+            'success': true,
+            'message': response.data.toString(),
+            'user': {
+              'id': userId,
+              'nickname': nickname,
+              'email': email,
+            }
+          };
+        }
         return response.data as Map<String, dynamic>;
       } else {
         throw Exception('회원가입에 실패했습니다.');
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {
-        throw Exception('잘못된 요청입니다. (중복된 아이디/이메일 등)');
+        throw Exception('잘못된 요청입니다.');
+      } else if (e.response?.statusCode == 409) {
+        // 서버에서 보낸 에러 메시지가 있으면 사용, 없으면 기본 메시지
+        final errorMessage = e.response?.data?.toString() ?? '이미 사용 중인 아이디 또는 이메일입니다.';
+        throw Exception(errorMessage);
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');
       }
