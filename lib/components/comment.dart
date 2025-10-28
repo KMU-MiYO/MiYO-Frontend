@@ -58,8 +58,8 @@ class CommentWidget extends StatelessWidget {
               Text(
                 nickname,
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
               ),
@@ -77,14 +77,23 @@ class CommentWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             commentDetail,
-            style: TextStyle(fontSize: 14, color: Colors.black, height: 1.4),
+            style: TextStyle(
+              fontSize: 15,
+              color: Color(0xff686868),
+              height: 1.4,
+              fontWeight: FontWeight.normal,
+            ),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
               Text(
                 createdAt,
-                style: TextStyle(fontSize: 12, color: Color(0xff9E9E9E)),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xff686868),
+                  fontWeight: FontWeight.normal,
+                ),
               ),
               const SizedBox(width: 16),
               GestureDetector(
@@ -92,23 +101,31 @@ class CommentWidget extends StatelessWidget {
                 child: Text(
                   '답글달기',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 15,
                     color: Color(0xff686868),
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
               ),
               const SizedBox(width: 16),
               Text(
                 '좋아요 $empathyCount',
-                style: TextStyle(fontSize: 12, color: Color(0xff686868)),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xff686868),
+                  fontWeight: FontWeight.normal,
+                ),
               ),
               const Spacer(),
               GestureDetector(
                 onTap: onReportTap,
                 child: Text(
                   '신고',
-                  style: TextStyle(fontSize: 12, color: Color(0xff686868)),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xff686868),
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
             ],
