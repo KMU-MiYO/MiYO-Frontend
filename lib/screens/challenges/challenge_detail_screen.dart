@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/components/challenge_item.dart';
+import 'package:miyo/screens/imaginary_map/suggestion_top3.dart';
+import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
+import 'package:miyo/data/dummy/dummy_suggestions.dart';
+import 'package:miyo/screens/imaginary_map/suggestion_detail_screen.dart';
 
 class ChallengeDetailScreen extends StatefulWidget {
   const ChallengeDetailScreen({super.key});
@@ -14,6 +18,7 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final top3Suggestions = getTop3Suggestions();
     return Scaffold(
       appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
       backgroundColor: Colors.white,
@@ -170,12 +175,43 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
                 ],
               ),
               SizedBox(height: 17),
-              Row(
-                children: [
-                  SizedBox(
-                    height: 30,
-                  ), // 제안 글 제목 컴포넌트 넣을 곳 (1,2,3위 가로 자동 슬라이드 제공)
-                ],
+
+              SizedBox(
+                height: 100,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                  itemCount: top3Suggestions.length,
+                  separatorBuilder: (context, index) =>
+                  const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final suggestion = top3Suggestions[index];
+                    return SuggestionTop3(
+                      categoryType: suggestion['categoryType'] as CategoryType,
+                      title: suggestion['title'] as String,
+                      writer: suggestion['writer'] as String,
+                      rank: index + 1,
+                      onTap: () {
+                        // TODO: 제안 상세 화면으로 이동
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => SuggestionDetailScreen(
+                        //       suggestionId: suggestion['id'] as int,
+                        //     ),
+                        //   ),
+                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SuggestionDetailScreen(),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
