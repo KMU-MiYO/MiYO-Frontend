@@ -19,7 +19,6 @@ class ApiService {
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 3),
         headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       ),
@@ -63,8 +62,12 @@ class ApiService {
   }
 
   /// POST 요청
-  Future<Response> post(String path, {dynamic data}) async {
-    return await _dio.post(path, data: data);
+  Future<Response> post(String path, {dynamic data, ResponseType? responseType}) async {
+    return await _dio.post(
+      path,
+      data: data,
+      options: responseType != null ? Options(responseType: responseType) : null,
+    );
   }
 
   /// PUT 요청

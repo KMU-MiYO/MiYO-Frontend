@@ -285,17 +285,25 @@ class UserService {
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: POST /users/verify-email-code
-      final response = await _apiService.post('/users/email-verification-confirm', data: {
-        'email': email,
-        'code': code,
-      });
+      final response = await _apiService.post(
+        '/users/email-verification-confirm',
+        data: {'email': email, 'code': code},
+        responseType: ResponseType.plain, // plain text 응답 처리
+      );
 
       if (response.statusCode == 200) {
-        final data = response.data as Map<String, dynamic>;
-        return data['isValid'] as bool;
-      } else {
-        throw Exception('이메일 인증코드 확인에 실패했습니다.');
+        // API는 성공 시 plain string
+        return true;
       }
+      return false;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 400) {
+        // 400 응답은 plain text로 에러 메시지 반환
+        final errorMessage = e.response?.data?.toString() ?? '유효하지 않거나 만료된 인증코드입니다.';
+        throw Exception(errorMessage);
+      }
+      print('DioException: ${e.message}');
+      rethrow;
     } catch (e) {
       print('Error: $e');
       rethrow;
