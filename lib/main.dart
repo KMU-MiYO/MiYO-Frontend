@@ -3,6 +3,7 @@ import 'package:miyo/layout.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:miyo/config/config.dart';
 import 'package:miyo/screens/onboarding/initial_screen.dart';
+import 'package:miyo/screens/suggestion/suggestion_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,7 +57,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
       // home: Layout(),
-      home: InitialScreen(),
+      home: SuggestionScreen(),
     );
   }
 }
