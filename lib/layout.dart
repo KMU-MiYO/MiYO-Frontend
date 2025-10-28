@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:miyo/components/bottom_navbar.dart';
 import 'package:miyo/components/top_navbar.dart';
 import 'package:miyo/screens/challenges/challenge_screen.dart';
-import 'package:miyo/screens/imaginary_map_screen.dart';
+import 'package:miyo/screens/imaginary_map/imaginary_map_screen.dart';
 import 'package:miyo/screens/map_screen.dart';
 import 'package:miyo/screens/profile_screen.dart';
 
