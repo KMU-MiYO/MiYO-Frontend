@@ -16,11 +16,14 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: TitleAppbar(title: '회원가입', leadingType: LeadingType.back),
-      body: Center(
-        child: Column(
-          children: [
-            SignupButton()
-          ],
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              SignupButton()
+            ],
+          ),
         ),
       ),
     );
