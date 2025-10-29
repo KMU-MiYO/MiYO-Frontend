@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/data/services/user_service.dart';
 import 'package:miyo/layout.dart';
-import 'package:miyo/screens/onboarding/finding_pwid_screen.dart';
+import 'package:miyo/screens/onboarding/finding_id_pw/finding_pwid_screen.dart';
 import 'package:miyo/screens/onboarding/signup_screen.dart';
 
 class LoginButtons extends StatefulWidget {
