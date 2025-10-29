@@ -32,6 +32,7 @@ class _LayoutState extends State<Layout> {
     const ProfileScreen(
       nickname: '미요',
       id: 'MIYO',
+      joinYear: '2025',
       badgeCnt: 6,
       favorateCnt: 34,
       commentCnt: 56,
