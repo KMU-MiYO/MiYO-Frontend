@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/data/services/user_service.dart';
+import 'package:miyo/screens/onboarding/finding_id_pw/finding_id_complete_screen.dart';
+import 'package:miyo/screens/onboarding/finding_id_pw/finding_pw_complete_screen.dart';
 import 'package:miyo/screens/onboarding/login_screen.dart';
 
 class FindingPwidScreen extends StatefulWidget {
@@ -26,6 +28,7 @@ class _FindingPwidScreenState extends State<FindingPwidScreen> {
   bool _isLoading = false;
   late bool _isFindingId; // true: 아이디 찾기, false: 비밀번호 찾기
   bool _isPasswordResetConfirm = false;
+  bool _isIdFindingComplete = false;
   bool? isPasswordValid;
   bool? isPasswordConfirmValid;
 
@@ -122,6 +125,11 @@ class _FindingPwidScreenState extends State<FindingPwidScreen> {
       await _userService.findUserId(email);
 
       if (!mounted) return;
+
+      // 아이디 찾기 완료 화면으로 전환
+      setState(() {
+        _isIdFindingComplete = true;
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -269,198 +277,179 @@ class _FindingPwidScreenState extends State<FindingPwidScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: height * 0.03),
               // 토글 버튼
               Container(
-                height: height * 0.04,
-                decoration: BoxDecoration(
-                  color: Color(0xffF5F5F5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isFindingId = true;
-                            emailController.clear();
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: _isFindingId ? Colors.white : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                            border: _isFindingId
-                                ? Border.all(color: Color(0xff00AA5D), width: 1)
-                                : null,
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            '아이디 찾기',
-                            style: TextStyle(
-                              color: _isFindingId ? Color(0xff00AA5D) : Color(0xff757575),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
+              height: height * 0.04,
+              decoration: BoxDecoration(
+                color: Color(0xffF5F5F5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                Expanded(
+                  child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                    _isFindingId = true;
+                    emailController.clear();
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                    color: _isFindingId ? Colors.white : Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    border: _isFindingId
+                      ? Border.all(color: Color(0xff00AA5D), width: 1)
+                      : null,
                     ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isFindingId = false;
-                            emailController.clear();
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: !_isFindingId ?  Colors.white : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                            border: _isFindingId
-                                ? null
-                                : Border.all(color: Color(0xff00AA5D), width: 1),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            '비밀번호 찾기',
-                            style: TextStyle(
-                              color: !_isFindingId ?  Color(0xff00AA5D) : Color(0xff757575),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
+                    alignment: Alignment.center,
+                    child: Text(
+                    '아이디 찾기',
+                    style: TextStyle(
+                      color: _isFindingId ? Color(0xff00AA5D) : Color(0xff757575),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
+                    ),
+                  ),
+                  ),
                 ),
+                Expanded(
+                  child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                    _isFindingId = false;
+                    emailController.clear();
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                    color: !_isFindingId ?  Colors.white : Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    border: _isFindingId
+                      ? null
+                      : Border.all(color: Color(0xff00AA5D), width: 1),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                    '비밀번호 찾기',
+                    style: TextStyle(
+                      color: !_isFindingId ?  Color(0xff00AA5D) : Color(0xff757575),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    ),
+                  ),
+                  ),
+                ),
+                ],
+              ),
               ),
               SizedBox(height: height * 0.04),
               Text('가입시 입력한 이메일을 적어주세요.',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
               ),
               if (!_isFindingId) ...[
-                Text(
-                  '이메일로 재설정 링크를 보내드립니다.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xff757575),
-                  ),
+              Text(
+                '이메일로 재설정 링크를 보내드립니다.',
+                style: TextStyle(
+                fontSize: 16,
+                color: Color(0xff757575),
                 ),
+              ),
               ],
               SizedBox(height: height * 0.03),
               TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: '이메일',
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
+              controller: emailController,
+              decoration: InputDecoration(
+                hintText: '이메일',
+                border: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.black),
                 ),
-                keyboardType: TextInputType.emailAddress,
+              ),
+              keyboardType: TextInputType.emailAddress,
               ),
               SizedBox(height: height * 0.03),
               SizedBox(
-                height: height * 0.06,
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: emailController.text.isNotEmpty
-                        ? Color(0xff00AA5D)
-                        : Color(0xff757575),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              height: height * 0.06,
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                backgroundColor: emailController.text.isNotEmpty
+                  ? Color(0xff00AA5D)
+                  : Color(0xff757575),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                ),
+                onPressed: emailController.text.isNotEmpty && !_isLoading
+                  ? (_isFindingId ? _handleFindingId : _handleFindingPassword)
+                  : null,
+                child: _isLoading
+                  ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                    ),
+                  )
+                  : Text(
+                    _isFindingId ? '아이디 찾기' : '이메일 전송',
+                    style: TextStyle(
+                    color: Color(0xffffffff),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     ),
                   ),
-                  onPressed: emailController.text.isNotEmpty && !_isLoading
-                      ? (_isFindingId ? _handleFindingId : _handleFindingPassword)
-                      : null,
-                  child: _isLoading
-                      ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          _isFindingId ? '아이디 찾기' : '이메일 전송',
-                          style: TextStyle(
-                            color: Color(0xffffffff),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                ),
+              ),
               ),
               if (_isPasswordResetConfirm) ...[
-                SizedBox(height: height * 0.03),
-                Text(
-                  '메일을 전송했습니다.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+              Builder(
+                builder: (context) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FindingPwCompleteScreen(),
                   ),
-                ),
-                SizedBox(height: height * 0.02),
-                Text(
-                  '링크에 접속하여 비밀번호를 재설정 해 주세요.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xff757575),
+                  );
+                  // 한 번 이동한 뒤에는 플래그를 리셋
+                  setState(() {
+                  _isPasswordResetConfirm = false;
+                  });
+                });
+                return SizedBox.shrink();
+                },
+              ),
+              ],
+              if (_isIdFindingComplete) ...[
+              Builder(
+                builder: (context) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FindingIdCompleteScreen(),
                   ),
-                ),
-                SizedBox(height: height * 0.03),
-                Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline_rounded,
-                        size: MediaQuery.of(context).size.width * 0.4,
-                        color: Color(0xff00AA5D),
-                      ),
-                      SizedBox(height: height * 0.03),
-                      SizedBox(
-                        height: height * 0.06,
-                        width: width * 0.8,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff00AA5D),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginScreen(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                                  '로그인 하기',
-                                  style: TextStyle(
-                                    color: Color(0xffffffff),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                  );
+                  // 한 번 이동한 뒤에는 플래그를 리셋
+                  setState(() {
+                  _isIdFindingComplete = false;
+                  });
+                });
+                return SizedBox.shrink();
+                },
+              ),
               ],
             ],
           ),
