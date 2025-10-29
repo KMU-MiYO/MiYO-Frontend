@@ -5,9 +5,14 @@ class ImaginaryService {
   ImaginaryService._internal();
 
   // DB에서 마커 목록 가져오기
-  Future<List<Map<String, dynamic>>> fetchMarkers() async {
+  Future<List<Map<String, dynamic>>> fetchMarkers({
+    double? latitude,
+    double? longitude,
+  }) async {
     try {
       // 실제 API 호출로 교체해야함
+      // 백엔드 API 호출 시 latitude, longitude를 쿼리 파라미터로 전달
+      print('현재 위치: lat=$latitude, lon=$longitude');
       await Future.delayed(const Duration(milliseconds: 500));
 
       return [

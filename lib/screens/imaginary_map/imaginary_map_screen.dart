@@ -7,6 +7,8 @@ import 'package:miyo/services/imaginary_service.dart';
 import 'package:miyo/services/marker_image_generator.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/screens/imaginary_map/imaginary_map_bottom_sheet.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
 
 class ImaginaryMapScreen extends StatefulWidget {
   const ImaginaryMapScreen({super.key});
@@ -26,13 +28,27 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   @override
   void initState() {
     super.initState();
-    _loadMarkers();
+    _initializeLocation();
+  }
+
+  Future<void> _initializeLocation() async {
+    await _permission();
+    await _loadMarkers();
   }
 
   Future<void> _loadMarkers() async {
     try {
       setState(() => _isLoading = true);
-      final markers = await _service.fetchMarkers();
+
+      // 현재 위치 가져오기
+      Position? position = await _getCurrentPosition();
+
+      // 위치 정보를 사용해서 마커 가져오기
+      final markers = await _service.fetchMarkers(
+        latitude: position?.latitude,
+        longitude: position?.longitude,
+      );
+
       setState(() {
         _markers = markers;
         _isLoading = false;
@@ -44,6 +60,41 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
           context,
         ).showSnackBar(SnackBar(content: Text('오류: $e')));
       }
+    }
+  }
+
+  Future<void> _permission() async {
+    var requestStatus = await Permission.location.request();
+    var status = await Permission.location.status;
+    if (requestStatus.isPermanentlyDenied || status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return null;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return null;
+      }
+
+      // 현재 위치 가져오기
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+    } catch (e) {
+      print('위치 가져오기 실패: $e');
+      return null;
     }
   }
 
