@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:miyo/screens/imaginary_map/suggestion_detail_screen.dart';
+import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 
 class SuggestionItem extends StatelessWidget {
   final CategoryType? categoryType;

@@ -157,86 +157,105 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                       final comment = _comments[index];
                       final replies = comment['replies'] as List<dynamic>;
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CommentWidget(
-                              profileImageData: comment['profileImageData'],
-                              nickname: comment['nickname'],
-                              commentDetail: comment['commentDetail'],
-                              createdAt: comment['createdAt'],
-                              empathyCount: comment['empathyCount'],
-                              isEmpathied: comment['isEmpathied'],
-                              onReplyTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('답글 기능은 준비 중입니다.'),
-                                    duration: Duration(seconds: 1),
-                                  ),
-                                );
-                              },
-                              onEmpathyTap: () => _toggleEmpathy(index),
-                              onReportTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('신고 기능은 준비 중입니다.'),
-                                    duration: Duration(seconds: 1),
-                                  ),
-                                );
-                              },
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
-                            if (replies.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 44),
-                                child: Column(
-                                  children: replies.asMap().entries.map((
-                                    entry,
-                                  ) {
-                                    final replyIndex = entry.key;
-                                    final reply = entry.value;
-                                    return CommentWidget(
-                                      profileImageData:
-                                          reply['profileImageData'],
-                                      nickname: reply['nickname'],
-                                      commentDetail: reply['commentDetail'],
-                                      createdAt: reply['createdAt'],
-                                      empathyCount: reply['empathyCount'],
-                                      isEmpathied: reply['isEmpathied'],
-                                      onReplyTap: () {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('답글 기능은 준비 중입니다.'),
-                                            duration: Duration(seconds: 1),
-                                          ),
-                                        );
-                                      },
-                                      onEmpathyTap: () => _toggleReplyEmpathy(
-                                        index,
-                                        replyIndex,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CommentWidget(
+                                  profileImageData: comment['profileImageData'],
+                                  nickname: comment['nickname'],
+                                  commentDetail: comment['commentDetail'],
+                                  createdAt: comment['createdAt'],
+                                  empathyCount: comment['empathyCount'],
+                                  isEmpathied: comment['isEmpathied'],
+                                  onReplyTap: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('답글 기능은 준비 중입니다.'),
+                                        duration: Duration(seconds: 1),
                                       ),
-                                      onReportTap: () {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('신고 기능은 준비 중입니다.'),
-                                            duration: Duration(seconds: 1),
-                                          ),
-                                        );
-                                      },
                                     );
-                                  }).toList(),
+                                  },
+                                  onEmpathyTap: () => _toggleEmpathy(index),
+                                  onReportTap: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('신고 기능은 준비 중입니다.'),
+                                        duration: Duration(seconds: 1),
+                                      ),
+                                    );
+                                  },
                                 ),
+                                if (replies.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 44),
+                                    child: Column(
+                                      children: replies.asMap().entries.map((
+                                        entry,
+                                      ) {
+                                        final replyIndex = entry.key;
+                                        final reply = entry.value;
+                                        return CommentWidget(
+                                          profileImageData:
+                                              reply['profileImageData'],
+                                          nickname: reply['nickname'],
+                                          commentDetail: reply['commentDetail'],
+                                          createdAt: reply['createdAt'],
+                                          empathyCount: reply['empathyCount'],
+                                          isEmpathied: reply['isEmpathied'],
+                                          onReplyTap: () {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  '답글 기능은 준비 중입니다.',
+                                                ),
+                                                duration: Duration(seconds: 1),
+                                              ),
+                                            );
+                                          },
+                                          onEmpathyTap: () =>
+                                              _toggleReplyEmpathy(
+                                                index,
+                                                replyIndex,
+                                              ),
+                                          onReportTap: () {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  '신고 기능은 준비 중입니다.',
+                                                ),
+                                                duration: Duration(seconds: 1),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          // 댓글 그룹 사이 구분선 (마지막 댓글 제외)
+                          if (index < _comments.length - 1)
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
                               ),
-                          ],
-                        ),
+                              height: 1,
+                              color: const Color(0xffE0E0E0),
+                            ),
+                        ],
                       );
                     }, childCount: _comments.length),
                   ),

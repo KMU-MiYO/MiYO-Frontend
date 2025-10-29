@@ -4,7 +4,7 @@ import 'package:miyo/components/challenge_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_top3.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/data/dummy/dummy_suggestions.dart';
-import 'package:miyo/screens/imaginary_map/suggestion_detail_screen.dart';
+import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 
 class ChallengeDetailScreen extends StatefulWidget {
   const ChallengeDetailScreen({super.key});
@@ -184,7 +184,7 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
                   itemCount: top3Suggestions.length,
                   separatorBuilder: (context, index) =>
-                  const SizedBox(width: 12),
+                      const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final suggestion = top3Suggestions[index];
                     return SuggestionTop3(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/data/dummy/dummy_suggestions.dart';
-import 'package:miyo/screens/imaginary_map/suggestion_detail_screen.dart';
+import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_top3.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_category_button.dart';
@@ -130,15 +130,6 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
                       writer: suggestion['writer'] as String,
                       rank: index + 1,
                       onTap: () {
-                        // TODO: 제안 상세 화면으로 이동
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => SuggestionDetailScreen(
-                        //       suggestionId: suggestion['id'] as int,
-                        //     ),
-                        //   ),
-                        // );
                         Navigator.push(
                           context,
                           MaterialPageRoute(

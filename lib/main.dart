@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
       // home: Layout(),
-      home: SuggestionScreen(),
+      home: InitialScreen(),
     );
   }
 }
