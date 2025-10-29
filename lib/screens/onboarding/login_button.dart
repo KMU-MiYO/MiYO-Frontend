@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/data/services/user_service.dart';
 import 'package:miyo/layout.dart';
+import 'package:miyo/screens/onboarding/finding_pwid_screen.dart';
 import 'package:miyo/screens/onboarding/signup_screen.dart';
 
 class LoginButtons extends StatefulWidget {
@@ -218,7 +219,14 @@ class _LoginButtonsState extends State<LoginButtons> {
                 minimumSize: Size(0, 0),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FindingPwidScreen(initialIsFindingId: true),
+                  ),
+                );
+              },
               child: Text(
                 '아이디',
                 style: TextStyle(
@@ -242,7 +250,14 @@ class _LoginButtonsState extends State<LoginButtons> {
                 minimumSize: Size(0, 0),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FindingPwidScreen(initialIsFindingId: false),
+                  ),
+                );
+              },
               child: Text(
                 '비밀번호 찾기',
                 style: TextStyle(
