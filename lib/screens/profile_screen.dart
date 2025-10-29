@@ -10,6 +10,7 @@ class ProfileScreen extends StatefulWidget {
   final Uint8List? profileImageData;
   final String nickname;
   final String id;
+  final String joinYear;
   final int badgeCnt;
   final int favorateCnt;
   final int commentCnt;
@@ -21,6 +22,7 @@ class ProfileScreen extends StatefulWidget {
     this.profileImageData,
     required this.nickname,
     required this.id,
+    required this.joinYear,
     required this.badgeCnt,
     required this.favorateCnt,
     required this.commentCnt,
@@ -46,8 +48,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Stack(
               children: [
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 128,
+                  height: 128,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: const Color(0xffFFCCBC),
@@ -56,43 +58,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? ClipOval(
                           child: Image.memory(
                             widget.profileImageData!,
-                            width: 100,
-                            height: 100,
+                            width: 128,
+                            height: 128,
                             fit: BoxFit.cover,
                           ),
                         )
                       : const Center(
                           child: Icon(
                             Icons.person,
-                            size: 50,
+                            size: 60,
                             color: Colors.white,
                           ),
                         ),
-                ),
-                // 뱃지 아이콘 (우측 하단)
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: const BoxDecoration(
-                      color: Color(0xffFFD700),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.emoji_events,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -111,18 +88,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text(
               '@${widget.id}',
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 color: Color(0xff61758A),
                 fontWeight: FontWeight.normal,
               ),
             ),
             const SizedBox(height: 4),
             // 가입 날짜
-            const Text(
-              'Joined 2025',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff9AA6B2),
+            Text(
+              'Joined ${widget.joinYear}',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color(0xff61758A),
                 fontWeight: FontWeight.normal,
               ),
             ),
