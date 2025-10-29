@@ -17,38 +17,28 @@ class MarkerImageGenerator {
   final Map<String, String> _cacheFilePaths = {};
   final Map<String, Uint8List> _imageDataCache = {};
 
-  // 배치로 여러 마커 이미지를 한번에 생성 (병렬 처리)
+  // 배치로 여러 마커 이미지를 한번에 생성 (순차 처리로 변경)
   Future<Map<String, String>> generateBatchMarkerImages(
       List<Map<String, dynamic>> markersData,
       ) async {
     final results = <String, String>{};
 
-    // 1단계: 모든 이미지를 병렬로 다운로드
-    final downloadFutures = <Future>[];
+    // 순차적으로 처리 (메모리/버퍼 오버플로우 방지)
     for (var data in markersData) {
-      final imageUrl = data['imageUrl'] as String;
-      if (!_imageDataCache.containsKey(imageUrl)) {
-        downloadFutures.add(
-          _downloadImage(imageUrl).then((bytes) {
-            _imageDataCache[imageUrl] = bytes;
-          }).catchError((error) {
-            print('Failed to download image $imageUrl: $error');
-          }),
+      try {
+        final id = data['id'] as String;
+        final path = await generateMarkerImagePath(
+          imageUrl: data['imageUrl'] as String,
+          favoriteCnt: data['favoriteCnt'] as int,
         );
+        results[id] = path;
+
+        // 버퍼가 정리될 시간을 줌 (ImageReader 오버플로우 방지)
+        await Future.delayed(const Duration(milliseconds: 50));
+      } catch (error) {
+        debugPrint('Failed to generate marker ${data['id']}: $error');
       }
     }
-    await Future.wait(downloadFutures);
-
-    // 2단계: 모든 마커 이미지를 병렬로 생성
-    final generationFutures = markersData.map((data) async {
-      final id = data['id'] as String;
-      final path = await generateMarkerImagePath(
-        imageUrl: data['imageUrl'] as String,
-        favoriteCnt: data['favoriteCnt'] as int,
-      );
-      results[id] = path;
-    });
-    await Future.wait(generationFutures);
 
     return results;
   }
@@ -103,11 +93,17 @@ class MarkerImageGenerator {
   }
 
   Future<Uint8List> _downloadImage(String url) async {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      return response.bodyBytes;
+    http.Response? response;
+    try {
+      response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      }
+      throw Exception('Failed to load image: ${response.statusCode}');
+    } finally {
+      // HTTP 연결 누수 방지: 응답 본문을 읽지 않았을 때도 정리
+      response?.bodyBytes;
     }
-    throw Exception('Failed to load image: ${response.statusCode}');
   }
 
   void clearCache() {
