@@ -305,9 +305,10 @@ class UserService {
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: POST /users/find-id
-      final response = await _apiService.post('/users/find-id', data: {
-        'email': email,
-      });
+      final response = await _apiService.post(
+        '/users/find-id',
+        data: {'email': email},
+      );
 
       if (response.statusCode != 200) {
         throw Exception('아이디 찾기 요청에 실패했습니다.');
@@ -338,9 +339,10 @@ class UserService {
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: POST /users/password-reset-request
-      final response = await _apiService.post('/users/password-reset-request', data: {
-        'email': email,
-      });
+      final response = await _apiService.post(
+        '/users/password-reset-request',
+        data: {'email': email},
+      );
 
       if (response.statusCode != 200) {
         throw Exception('비밀번호 찾기 요청에 실패했습니다.');
@@ -387,7 +389,8 @@ class UserService {
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
-        final errorMessage = e.response?.data?.toString() ?? '유효하지 않거나 만료된 토큰입니다.';
+        final errorMessage =
+            e.response?.data?.toString() ?? '유효하지 않거나 만료된 토큰입니다.';
         throw Exception(errorMessage);
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');
@@ -399,7 +402,7 @@ class UserService {
       rethrow;
     }
   }
-  
+
   // 인증코드 확인
   /// [email]: 인증코드를 받을 이메일 주소
   /// [code]: 이메일로 받은 인증코드
@@ -448,6 +451,22 @@ class UserService {
       print('✅ Logged out successfully');
     } catch (e) {
       print('Error during logout: $e');
+      rethrow;
+    }
+  }
+
+  // 계정 삭제
+  Future<void> deleteAccount() async {
+    try {
+      final response = await _apiService.delete('/users/my');
+      if (response.statusCode == 200) {
+        await _tokenStorage.deleteAllTokens();
+        print('✅ Delete Account successfully');
+      } else {
+        throw Exception('계정 탈퇴를 실패했습니다.');
+      }
+    } catch (e) {
+      print('Error during delete account: $e');
       rethrow;
     }
   }
