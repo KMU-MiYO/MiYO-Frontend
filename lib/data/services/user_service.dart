@@ -440,6 +440,45 @@ class UserService {
     }
   }
 
+  // 비밀번호 변경
+  Future<bool> changePwd(String email) async {
+    try {
+      // 개발 모드: 더미 응답 반환
+      if (ApiService.isDevelopmentMode) {
+        await Future.delayed(const Duration(milliseconds: 400));
+        return true;
+      }
+
+      // 프로덕션 모드: 실제 API 호출
+      // Spring Boot 엔드포인트: POST /users/password-reset-request
+      final response = await _apiService.post(
+        '/users/password-reset-request',
+        data: {'email': email},
+      );
+
+      if (response.statusCode == 200) {
+        // API는 성공 시 plain string
+        return true;
+      } else {
+        throw Exception('비밀번호 재설정 요청에 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        final errorMessage =
+            e.response?.data?.toString() ?? '해당 이메일로 가입된 사용자를 찾을 수 없습니다.';
+        throw Exception(errorMessage);
+      } else if (e.response?.statusCode == 500) {
+        final errorMessage = e.response?.data?.toString() ?? '서버 오류';
+        throw Exception(errorMessage);
+      }
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
   /// 로그아웃
   /// 저장된 토큰을 삭제합니다.
   Future<void> logout() async {
@@ -448,6 +487,22 @@ class UserService {
       print('✅ Logged out successfully');
     } catch (e) {
       print('Error during logout: $e');
+      rethrow;
+    }
+  }
+
+  // 계정 삭제
+  Future<void> deleteAccount() async {
+    try {
+      final response = await _apiService.delete('/users/my');
+      if (response.statusCode == 200) {
+        await _tokenStorage.deleteAllTokens();
+        print('✅ Delete Account successfully');
+      } else {
+        throw Exception('계정 탈퇴를 실패했습니다.');
+      }
+    } catch (e) {
+      print('Error during delete account: $e');
       rethrow;
     }
   }
