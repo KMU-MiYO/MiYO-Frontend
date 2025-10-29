@@ -56,9 +56,9 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('마커 로드 오류: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('마커 로드 오류: $e')));
       }
     }
   }
@@ -66,9 +66,7 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   void _onMarkerTap(Map<String, dynamic> data) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const SuggestionDetailScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const SuggestionDetailScreen()),
     );
   }
 
@@ -99,10 +97,27 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
               _loadMarkersForCurrentView();
             },
           ),
+          // 검색창
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: '게시글 검색하기',
+                hintStyle: TextStyle(color: Color(0xff61758A)),
+                prefixIcon: const Icon(Icons.search, color: Color(0xff61758A)),
+                filled: true,
+                fillColor: Color(0xffF0F2F5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
           const ImaginaryMapBottomSheet(),
         ],
       ),
     );
   }
-
 }
