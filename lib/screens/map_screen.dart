@@ -5,6 +5,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_category_button.dart';
 import 'package:miyo/screens/exchanges/exchange.dart';
+import 'package:miyo/screens/suggestion/suggestion_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -18,6 +19,9 @@ class _MapScreenState extends State<MapScreen> {
 
   // 선택된 카테고리들 (빈 Set = 전체 보기)
   Set<CategoryType> selectedCategories = {};
+
+  // 생성된 마커들 저장
+  final List<NMarker> _markers = [];
 
   // 모든 카테고리 리스트
   final List<CategoryType> allCategories = [
@@ -38,6 +42,64 @@ class _MapScreenState extends State<MapScreen> {
         selectedCategories.add(category);
       }
     });
+  }
+
+  // 지도 클릭 시 마커 생성 및 suggestion_screen으로 이동
+  Future<void> _onMapTapped(NLatLng latLng) async {
+    // suggestion_screen으로 이동하며 위도, 경도 전달
+    if (mounted) {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SuggestionScreen(
+            latitude: latLng.latitude,
+            longitude: latLng.longitude,
+          ),
+        ),
+      );
+
+      // 게시글이 성공적으로 등록되었으면 마커 추가
+      if (result != null && result is Map<String, dynamic>) {
+        await _addMarker(
+          latLng: latLng,
+          postId: result['postId']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          title: result['title'] ?? '제목 없음',
+        );
+      }
+    }
+  }
+
+  // 마커 추가
+  Future<void> _addMarker({
+    required NLatLng latLng,
+    required String postId,
+    required String title,
+  }) async {
+    final controller = await _mapControllerCompleter.future;
+
+    // 새로운 마커 생성
+    final marker = NMarker(
+      id: 'post_$postId',
+      position: latLng,
+    );
+
+    // 마커 클릭 이벤트 추가 (향후 suggestion_detail로 이동)
+    marker.setOnTapListener((overlay) {
+      print('마커 클릭: $title (postId: $postId)');
+      // TODO: suggestion_detail 화면으로 이동
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$title (상세보기 기능 준비중)')),
+      );
+    });
+
+    // 마커를 지도에 추가
+    await controller.addOverlay(marker);
+
+    setState(() {
+      _markers.add(marker);
+    });
+
+    print('마커 추가 완료: $title at (${latLng.latitude}, ${latLng.longitude})');
   }
 
   @override
@@ -136,6 +198,9 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   onMapReady: (controller) {
                     _mapControllerCompleter.complete(controller);
+                  },
+                  onMapTapped: (point, latLng) {
+                    _onMapTapped(latLng);
                   },
                 ),
                 // 카테고리 필터 버튼
