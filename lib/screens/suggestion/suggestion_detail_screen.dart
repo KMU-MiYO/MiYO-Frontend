@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
+import 'package:miyo/screens/imaginary_map/comment_bottom_sheet.dart';
 
 class SuggestionDetailScreen extends StatefulWidget {
   const SuggestionDetailScreen({super.key});
@@ -19,10 +20,11 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
     "longitude": 0,
     "category": "ENVIRONMENT",
     "title": "공원에 벤치를 더 설치해주세요",
-    "content": "산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.",
+    "content":
+        "산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.",
     "createdAt": "2025-10-26T19:29:12.015Z",
     "empathyCount": 0,
-    "isEmpathized": false
+    "isEmpathized": false,
   };
 
   void toggleEmpathy() {
@@ -68,9 +70,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
       appBar: TitleAppbar(title: '상세보기', leadingType: LeadingType.back),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-        ),
+        decoration: BoxDecoration(color: Colors.white),
         child: SafeArea(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -78,8 +78,12 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               GestureDetector(
                 onTap: toggleEmpathy,
                 child: Icon(
-                  postData['isEmpathized'] ? Icons.favorite : Icons.favorite_border,
-                  color: postData['isEmpathized'] ? Colors.red : Color(0xff61758A),
+                  postData['isEmpathized']
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: postData['isEmpathized']
+                      ? Colors.red
+                      : Color(0xff61758A),
                   size: 24,
                 ),
               ),
@@ -98,24 +102,28 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                 height: height * 0.055,
                 width: width * 0.75,
                 child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff00AA5D),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff00AA5D),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  // Navigator.push(
-                  //   context, MaterialPageRoute(builder: (context) => ()));                
-                }, 
-                child: Text(
-                  '댓글 작성하기',
-                  style: TextStyle(
-                    color: Color(0xffffffff),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => const CommentBottomSheet(),
+                    );
+                  },
+                  child: Text(
+                    '댓글 작성하기',
+                    style: TextStyle(
+                      color: Color(0xffffffff),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
                 ),
               ),
             ],
@@ -129,9 +137,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Image(
-                image: AssetImage(
-                'assets/images/miyo_logo.png',
-                ),
+                image: AssetImage('assets/images/miyo_logo.png'),
                 width: width,
                 height: height * 0.5,
                 fit: BoxFit.fitWidth,
@@ -158,10 +164,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                     ),
                   ),
                   SizedBox(width: 8),
-                  Text(
-                    '•',
-                    style: TextStyle(color: Color(0xff61758A)),
-                  ),
+                  Text('•', style: TextStyle(color: Color(0xff61758A))),
                   SizedBox(width: 8),
                   Text(
                     postData['createdAt'].substring(0, 10),
@@ -215,7 +218,6 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
           ),
         ),
       ),
-
     );
   }
 }

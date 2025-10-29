@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_category_button.dart';
+import 'package:miyo/screens/exchanges/exchange.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -38,6 +39,7 @@ class _MapScreenState extends State<MapScreen> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,13 +82,15 @@ class _MapScreenState extends State<MapScreen> {
             padding: const EdgeInsets.only(right: 16.0, top: 8, bottom: 8),
             child: ElevatedButton.icon(
               onPressed: () {
-                // TODO: 교환소 넘어가기
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const ExchangeScreen(point: '500, 000'),
+                  ),
+                );
               },
-              icon: Icon(
-                Icons.card_giftcard,
-                color: Colors.white,
-                size: 20,
-              ),
+              icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
               label: Text(
                 '교환소',
                 style: TextStyle(
@@ -111,18 +115,11 @@ class _MapScreenState extends State<MapScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.map_outlined,
-                    size: 80,
-                    color: Colors.grey,
-                  ),
+                  Icon(Icons.map_outlined, size: 80, color: Colors.grey),
                   SizedBox(height: 20),
                   Text(
                     '지도 기능은 모바일에서만 사용 가능합니다.',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey[700],
-                    ),
+                    style: TextStyle(fontSize: 18, color: Colors.grey[700]),
                   ),
                 ],
               ),

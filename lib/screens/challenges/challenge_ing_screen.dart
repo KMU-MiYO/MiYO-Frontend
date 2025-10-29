@@ -16,7 +16,7 @@ class _ChallengeIngScreen extends State<ChallengeIngScreen> {
     final participatingChallenges = getParticipatingChallenges();
 
     return Scaffold(
-      appBar: TitleAppbar(title: '참가 중인 챌린지', leadingType: LeadingType.close),
+      appBar: TitleAppbar(title: '참가 중인 챌린지', leadingType: LeadingType.back),
       backgroundColor: Colors.white,
       body: ListView.separated(
         padding: const EdgeInsets.all(16.0),
