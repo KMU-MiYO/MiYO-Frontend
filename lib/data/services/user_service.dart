@@ -305,9 +305,10 @@ class UserService {
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: POST /users/find-id
-      final response = await _apiService.post('/users/find-id', data: {
-        'email': email,
-      });
+      final response = await _apiService.post(
+        '/users/find-id',
+        data: {'email': email},
+      );
 
       if (response.statusCode != 200) {
         throw Exception('아이디 찾기 요청에 실패했습니다.');
@@ -338,9 +339,10 @@ class UserService {
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: POST /users/password-reset-request
-      final response = await _apiService.post('/users/password-reset-request', data: {
-        'email': email,
-      });
+      final response = await _apiService.post(
+        '/users/password-reset-request',
+        data: {'email': email},
+      );
 
       if (response.statusCode != 200) {
         throw Exception('비밀번호 찾기 요청에 실패했습니다.');
@@ -387,7 +389,8 @@ class UserService {
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
-        final errorMessage = e.response?.data?.toString() ?? '유효하지 않거나 만료된 토큰입니다.';
+        final errorMessage =
+            e.response?.data?.toString() ?? '유효하지 않거나 만료된 토큰입니다.';
         throw Exception(errorMessage);
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');
@@ -399,7 +402,7 @@ class UserService {
       rethrow;
     }
   }
-  
+
   // 인증코드 확인
   /// [email]: 인증코드를 받을 이메일 주소
   /// [code]: 이메일로 받은 인증코드
@@ -430,45 +433,6 @@ class UserService {
         // 400 응답은 plain text로 에러 메시지 반환
         final errorMessage =
             e.response?.data?.toString() ?? '유효하지 않거나 만료된 인증코드입니다.';
-        throw Exception(errorMessage);
-      }
-      print('DioException: ${e.message}');
-      rethrow;
-    } catch (e) {
-      print('Error: $e');
-      rethrow;
-    }
-  }
-
-  // 비밀번호 변경
-  Future<bool> changePwd(String email) async {
-    try {
-      // 개발 모드: 더미 응답 반환
-      if (ApiService.isDevelopmentMode) {
-        await Future.delayed(const Duration(milliseconds: 400));
-        return true;
-      }
-
-      // 프로덕션 모드: 실제 API 호출
-      // Spring Boot 엔드포인트: POST /users/password-reset-request
-      final response = await _apiService.post(
-        '/users/password-reset-request',
-        data: {'email': email},
-      );
-
-      if (response.statusCode == 200) {
-        // API는 성공 시 plain string
-        return true;
-      } else {
-        throw Exception('비밀번호 재설정 요청에 실패했습니다.');
-      }
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        final errorMessage =
-            e.response?.data?.toString() ?? '해당 이메일로 가입된 사용자를 찾을 수 없습니다.';
-        throw Exception(errorMessage);
-      } else if (e.response?.statusCode == 500) {
-        final errorMessage = e.response?.data?.toString() ?? '서버 오류';
         throw Exception(errorMessage);
       }
       print('DioException: ${e.message}');
