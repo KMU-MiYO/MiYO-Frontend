@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:miyo/services/imaginary_service.dart';
 import 'package:miyo/services/marker_image_generator.dart';
-import 'package:miyo/screens/imaginary_map/suggestion_detail_screen.dart'; //챌린지 작성글 페이지로 수정 필요
+import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/screens/imaginary_map/imaginary_map_bottom_sheet.dart';
 
 class ImaginaryMapScreen extends StatefulWidget {
