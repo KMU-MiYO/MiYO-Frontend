@@ -49,12 +49,11 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     },
   ];
 
-  final ScrollController _commentScrollController = ScrollController();
   final TextEditingController _commentInputController = TextEditingController();
+  final ScrollController _commentScrollController = ScrollController();
 
   @override
   void dispose() {
-    _commentScrollController.dispose();
     _commentInputController.dispose();
     super.dispose();
   }
@@ -98,26 +97,17 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     });
 
     _commentInputController.clear();
-
-    Future.delayed(const Duration(milliseconds: 100), () {
-      _commentScrollController.animateTo(
-        _commentScrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // ✅ 드래그 가능한 시트 전체 (스크롤은 이 안에서만)
         DraggableScrollableSheet(
-          initialChildSize: 0.3,
+          initialChildSize: 0.5,
           minChildSize: 0.05,
           maxChildSize: 0.95,
-          builder: (BuildContext context, ScrollController scrollController) {
+          builder: (BuildContext context, ScrollController sheetController) {
             return Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -133,80 +123,58 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                   ),
                 ],
               ),
-              child: CustomScrollView(
-                controller: scrollController,
-                slivers: [
-                  // 상단 핸들
-                  SliverToBoxAdapter(
-                    child: Center(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 12),
-                        width: 50,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: const Color(0xffF0F2F5),
-                          borderRadius: BorderRadius.circular(10),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final currentHeight = constraints.maxHeight - 30;
+                  return ListView(
+                    controller: sheetController,
+                    children: [
+                      // 핸들
+                      Center(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 20),
+                          width: 50,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: const Color(0xffF0F2F5),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
 
-                  // 댓글 목록
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final comment = _comments[index];
-                      final replies = comment['replies'] as List<dynamic>;
+                      // 댓글 리스트
+                      SizedBox(
+                        height: currentHeight,
+                        child: Scrollbar(
+                          controller: _commentScrollController,
+                          thumbVisibility: true,
+                          thickness: 3,
+                          radius: Radius.circular(2),
+                          child: Expanded(
+                            child: ListView.builder(
+                              controller: _commentScrollController,
+                              padding: const EdgeInsets.fromLTRB(
+                                16,
+                                0,
+                                16,
+                                100,
+                              ),
+                              itemCount: _comments.length,
+                              itemBuilder: (context, index) {
+                                final comment = _comments[index];
+                                final replies =
+                                    comment['replies'] as List<dynamic>;
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CommentWidget(
-                              profileImageData: comment['profileImageData'],
-                              nickname: comment['nickname'],
-                              commentDetail: comment['commentDetail'],
-                              createdAt: comment['createdAt'],
-                              empathyCount: comment['empathyCount'],
-                              isEmpathied: comment['isEmpathied'],
-                              onReplyTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('답글 기능은 준비 중입니다.'),
-                                    duration: Duration(seconds: 1),
-                                  ),
-                                );
-                              },
-                              onEmpathyTap: () => _toggleEmpathy(index),
-                              onReportTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('신고 기능은 준비 중입니다.'),
-                                    duration: Duration(seconds: 1),
-                                  ),
-                                );
-                              },
-                            ),
-                            if (replies.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 44),
-                                child: Column(
-                                  children: replies.asMap().entries.map((
-                                    entry,
-                                  ) {
-                                    final replyIndex = entry.key;
-                                    final reply = entry.value;
-                                    return CommentWidget(
+                                return Column(
+                                  children: [
+                                    CommentWidget(
                                       profileImageData:
-                                          reply['profileImageData'],
-                                      nickname: reply['nickname'],
-                                      commentDetail: reply['commentDetail'],
-                                      createdAt: reply['createdAt'],
-                                      empathyCount: reply['empathyCount'],
-                                      isEmpathied: reply['isEmpathied'],
+                                          comment['profileImageData'],
+                                      nickname: comment['nickname'],
+                                      commentDetail: comment['commentDetail'],
+                                      createdAt: comment['createdAt'],
+                                      empathyCount: comment['empathyCount'],
+                                      isEmpathied: comment['isEmpathied'],
                                       onReplyTap: () {
                                         ScaffoldMessenger.of(
                                           context,
@@ -217,10 +185,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                                           ),
                                         );
                                       },
-                                      onEmpathyTap: () => _toggleReplyEmpathy(
-                                        index,
-                                        replyIndex,
-                                      ),
+                                      onEmpathyTap: () => _toggleEmpathy(index),
                                       onReportTap: () {
                                         ScaffoldMessenger.of(
                                           context,
@@ -231,25 +196,64 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                                           ),
                                         );
                                       },
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                          ],
+                                    ),
+                                    if (replies.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 44,
+                                        ),
+                                        child: Column(
+                                          children: replies.asMap().entries.map(
+                                            (entry) {
+                                              final replyIndex = entry.key;
+                                              final reply = entry.value;
+                                              return CommentWidget(
+                                                profileImageData:
+                                                    reply['profileImageData'],
+                                                nickname: reply['nickname'],
+                                                commentDetail:
+                                                    reply['commentDetail'],
+                                                createdAt: reply['createdAt'],
+                                                empathyCount:
+                                                    reply['empathyCount'],
+                                                isEmpathied:
+                                                    reply['isEmpathied'],
+                                                onReplyTap: () {},
+                                                onEmpathyTap: () =>
+                                                    _toggleReplyEmpathy(
+                                                      index,
+                                                      replyIndex,
+                                                    ),
+                                                onReportTap: () {},
+                                              );
+                                            },
+                                          ).toList(),
+                                        ),
+                                      ),
+                                    if (index < _comments.length - 1)
+                                      Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 8,
+                                        ),
+                                        height: 1,
+                                        color: const Color(0xffE0E0E0),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                      );
-                    }, childCount: _comments.length),
-                  ),
-
-                  // 입력창 자리 확보용 여백
-                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
-                ],
+                      ),
+                    ],
+                  );
+                },
               ),
             );
           },
         ),
 
-        // ✅ 고정된 댓글 입력창 (시트 위에 오버레이)
+        // ✅ 항상 고정된 입력창
         Positioned(
           left: 0,
           right: 0,
