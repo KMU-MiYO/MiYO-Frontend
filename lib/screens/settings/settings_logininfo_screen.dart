@@ -145,7 +145,7 @@ class _SettingsLoginInfoScreenState extends State<SettingsLoginInfoScreen> {
     );
 
     try {
-      await _userService.changePwd(_userInfo!['email']);
+      await _userService.passwordResetRequest(_userInfo!['email']);
 
       // 로딩 다이얼로그 닫기
       if (mounted) {
