@@ -74,23 +74,21 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
               ),
             ),
             const SizedBox(height: 3),
-            ListView.builder(
+            ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: exchangeItems.length,
+              separatorBuilder: (context, index) {
+                return const Divider(height: 1, color: Color(0xffCCCCCC));
+              },
               itemBuilder: (context, index) {
                 final item = exchangeItems[index];
-                return Column(
-                  children: [
-                    ExchangeListItem(
-                      localCachePrice: item['localCachePrice']!,
-                      pointPrice: item['pointPrice']!,
-                      onTap: () {
-                        // 교환 로직
-                      },
-                    ),
-                    const Divider(height: 1, color: Color(0xffCCCCCC)),
-                  ],
+                return ExchangeListItem(
+                  localCachePrice: item['localCachePrice']!,
+                  pointPrice: item['pointPrice']!,
+                  onTap: () {
+                    // 교환 완료 로직
+                  },
                 );
               },
             ),
