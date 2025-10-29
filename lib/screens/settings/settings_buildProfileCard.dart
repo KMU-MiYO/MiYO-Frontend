@@ -108,7 +108,7 @@ class _SettingsBuildProfileCardState extends State<SettingsBuildProfileCard> {
     }
 
     // 선택된 이미지가 있으면 그것을 사용, 없으면 userInfo의 이미지 사용
-    final imageUrl = _selectedImagePath ?? widget.userInfo!['profileImageUrl'];
+    final imageUrl = _selectedImagePath ?? widget.userInfo!['profilePicture'];
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -160,12 +160,12 @@ class _SettingsBuildProfileCardState extends State<SettingsBuildProfileCard> {
         ),
         SizedBox(height: height * 0.01),
         Text(
-          widget.userInfo!['name'],
+          widget.userInfo!['nickname'],
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
         ),
         SizedBox(height: height * 0.005),
         Text(
-          '@${widget.userInfo!['id']}',
+          '@${widget.userInfo!['userId']}',
           style: TextStyle(fontSize: 16, color: Color(0xff61758A)),
         ),
         Text(

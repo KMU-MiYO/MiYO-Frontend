@@ -3,6 +3,7 @@ import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/data/services/user_service.dart';
 import 'package:miyo/screens/settings/settings_button.dart';
 import 'package:miyo/screens/settings/settings_buildProfileCard.dart';
+import 'package:miyo/screens/settings/settings_change_nickname.dart';
 
 class SettingsChallengeProfileScreen extends StatefulWidget {
   const SettingsChallengeProfileScreen({super.key});
@@ -48,6 +49,21 @@ class _SettingsChallengeProfileScreenState
     }
   }
 
+  /// 닉네임 변경 다이얼로그 표시
+  Future<void> _showNicknameChangeDialog() async {
+    final currentNickname = _userInfo?['nickname'] ?? '';
+
+    await showNicknameChangeDialog(
+      context: context,
+      currentNickname: currentNickname,
+      onNicknameChanged: (updatedUserInfo) {
+        setState(() {
+          _userInfo = updatedUserInfo;
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -66,7 +82,11 @@ class _SettingsChallengeProfileScreenState
                 userInfo: _userInfo,
               ),
               SizedBox(height: height * 0.01),
-              SettingButton(label: '닉네임 변경', showBorder: false),
+              SettingButton(
+                label: '닉네임 변경',
+                showBorder: false,
+                onTap: _showNicknameChangeDialog,
+              ),
             ],
           ),
         ),

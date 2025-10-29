@@ -18,36 +18,40 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: TitleAppbar(title: '로그인', leadingType: LeadingType.back),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/images/miyo_logo.png',
-              width: width * 0.3,
-            ),
-            Text(
-                  'MiYO',
-                  style: TextStyle(
-                    color: Color(0xff00AA5D),
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    height: 0.9,
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: height * 0.15),
+              Image.asset(
+                'assets/images/miyo_logo.png',
+                width: width * 0.3,
+              ),
+              Text(
+                    'MiYO',
+                    style: TextStyle(
+                      color: Color(0xff00AA5D),
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      height: 0.9,
+                    ),
                   ),
-                ),
-            Text(
-              'Map it Your Own',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff00AA5D),
-                fontWeight: FontWeight.w400,
-                height: 0.9,
-                letterSpacing: -1,
-              )
-            ),
-            SizedBox(height: height * 0.05),
-            LoginButtons(),
-          ]
+              Text(
+                'Map it Your Own',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xff00AA5D),
+                  fontWeight: FontWeight.w400,
+                  height: 0.9,
+                  letterSpacing: -1,
+                )
+              ),
+              SizedBox(height: height * 0.05),
+              LoginButtons(),
+            ]
+          ),
         ),
       ),
     );
