@@ -33,7 +33,23 @@ class ExchangeListItem extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Image.asset('assets/images/pointIcon.png'),
+                  Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Color(0xff00AA5D),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'P',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     pointPrice,
