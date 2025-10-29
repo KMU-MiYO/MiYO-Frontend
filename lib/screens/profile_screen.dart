@@ -130,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     '나의 제안 (${widget.suggestionCnt})',
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 22,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
@@ -147,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: const Text(
                       '모두 보기',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         color: Color(0xff61758A),
                         fontWeight: FontWeight.normal,
                       ),
