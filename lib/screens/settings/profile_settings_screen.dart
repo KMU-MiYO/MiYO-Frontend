@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/screens/settings/settings_account_section.dart';
 import 'package:miyo/screens/settings/settings_application_section.dart';
-import 'package:miyo/screens/settings/settings_myactivity_section.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
   const ProfileSettingScreen({super.key});
