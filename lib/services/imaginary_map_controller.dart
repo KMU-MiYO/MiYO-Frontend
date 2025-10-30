@@ -5,12 +5,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:miyo/services/imaginary_service.dart';
 import 'package:miyo/services/marker_image_generator.dart';
+import 'package:miyo/services/geocoding_service.dart';
 
 /// 상상지도 화면의 모든 비즈니스 로직을 담당하는 컨트롤러
 /// 지도 관련 작업(카메라 위치 계산, 마커 로드, 위치 권한 등)을 처리
 class ImaginaryMapController {
   final ImaginaryService _service = ImaginaryService();
   final MarkerImageGenerator _imageGenerator = MarkerImageGenerator();
+  final GeocodingService _geocodingService = GeocodingService();
 
   /// zoom 레벨에 따라 검색 반경(미터) 계산
   /// zoom이 높을수록(확대) 반경이 작아짐
@@ -73,13 +75,17 @@ class ImaginaryMapController {
 
     try {
       print('📍 마커 이미지 생성 시작: ${markers.length}개');
+      print('📍 받은 마커 데이터: $markers');
+
       // 배치로 모든 마커 이미지를 한번에 생성 (최적화)
       final markerImagePaths = await _imageGenerator.generateBatchMarkerImages(
         markers,
       );
       print('✅ 마커 이미지 생성 완료');
+      print('📍 생성된 이미지 경로: $markerImagePaths');
 
       // 생성된 이미지로 마커 추가
+      int successCount = 0;
       for (var data in markers) {
         final markerId = data['id'];
         if (markerId == null) {
@@ -90,6 +96,7 @@ class ImaginaryMapController {
         final imagePath = markerImagePaths[markerId];
         if (imagePath == null) {
           print('⚠️ 이미지 경로가 없습니다: ID=$markerId');
+          print('   사용 가능한 경로: ${markerImagePaths.keys.toList()}');
           continue;
         }
 
@@ -100,10 +107,25 @@ class ImaginaryMapController {
           continue;
         }
 
+        print(
+          '📍 마커 추가 시도: id=$markerId, lat=$latitude, lng=$longitude, path=$imagePath',
+        );
+
+        // 파일 존재 확인
+        final file = File(imagePath);
+        final fileExists = await file.exists();
+        if (!fileExists) {
+          print('❌ 마커 파일이 존재하지 않습니다: $imagePath');
+          continue;
+        }
+
+        final fileSize = await file.length();
+        print('✅ 마커 파일 확인: 크기=$fileSize bytes');
+
         final marker = NMarker(
           id: markerId,
           position: NLatLng(latitude, longitude),
-          icon: NOverlayImage.fromFile(File(imagePath)),
+          icon: NOverlayImage.fromFile(file),
         );
 
         // 마커 클릭 리스너 설정
@@ -111,9 +133,11 @@ class ImaginaryMapController {
           marker.setOnTapListener((overlay) => onMarkerTap(data));
         }
 
-        controller.addOverlay(marker);
+        await controller.addOverlay(marker);
+        successCount++;
+        print('✅ 마커 추가 성공: id=$markerId');
       }
-      print('✅ ${markers.length}개 마커 추가 완료');
+      print('✅ 총 $successCount개 마커 추가 완료 (전체 ${markers.length}개 중)');
     } catch (e, stackTrace) {
       print('❌ 마커 추가 중 오류: $e');
       print('Stack trace: $stackTrace');
@@ -182,6 +206,56 @@ class ImaginaryMapController {
     return data['id'] != null &&
         data['latitude'] != null &&
         data['longitude'] != null;
+  }
+
+  /// 주소로 검색하여 지도 이동
+  Future<bool> searchAndMoveToAddress(
+    NaverMapController controller,
+    String address,
+  ) async {
+    try {
+      print('🔍 주소 검색 시작: $address');
+
+      // 주소 → 좌표 변환
+      final coordinates = await _geocodingService.getCoordinatesFromAddress(
+        address,
+      );
+
+      if (coordinates == null) {
+        print('⚠️ 검색 결과 없음');
+        return false;
+      }
+
+      final lat = coordinates['latitude']!;
+      final lng = coordinates['longitude']!;
+
+      print('📍 좌표 변환 완료: lat=$lat, lng=$lng');
+
+      // 지도 카메라 이동
+      await moveCamera(controller, lat, lng, zoom: 15);
+
+      print('✅ 지도 이동 완료');
+      return true;
+    } catch (e) {
+      print('❌ 주소 검색 오류: $e');
+      return false;
+    }
+  }
+
+  /// 지도 카메라를 특정 위치로 이동
+  Future<void> moveCamera(
+    NaverMapController controller,
+    double latitude,
+    double longitude, {
+    double zoom = 14,
+    Duration duration = const Duration(milliseconds: 500),
+  }) async {
+    final cameraUpdate = NCameraUpdate.withParams(
+      target: NLatLng(latitude, longitude),
+      zoom: zoom,
+    )..setAnimation(animation: NCameraAnimation.easing, duration: duration);
+
+    await controller.updateCamera(cameraUpdate);
   }
 
   /// 컨트롤러 dispose (필요시 리소스 정리)
