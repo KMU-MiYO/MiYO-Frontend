@@ -7,15 +7,15 @@ class GeocodingService {
   late final Dio _dio;
 
   GeocodingService() {
-    _dio = Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 5),
-        headers: {
-          'X-NCP-APIGW-API-KEY-ID': naverClientId,
-          'X-NCP-APIGW-API-KEY': naverClientSecret,
-        },
-      ),
+    _dio = Dio();
+    _dio.options = BaseOptions(
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
+      headers: {
+        'X-NCP-APIGW-API-KEY-ID': naverClientId,
+        'X-NCP-APIGW-API-KEY': naverClientSecret,
+        'Accept': 'application/json',
+      },
     );
 
     // 인터셉터 추가 (로깅)
@@ -50,7 +50,7 @@ class GeocodingService {
 
       // 네이버 Geocoding API
       final response = await _dio.get(
-        'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode',
+        'https://maps.apigw.ntruss.com/map-geocode/v2/geocode',
         queryParameters: {'query': '${address}'},
       );
 
@@ -94,7 +94,7 @@ class GeocodingService {
     try {
       // 네이버 Reverse Geocoding API
       final response = await _dio.get(
-        'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc',
+        'https://maps.apigw.ntruss.com/map-geocode/v2/geocode/gc',
         queryParameters: {
           'coords': '$lng,$lat',
           'output': 'json',
