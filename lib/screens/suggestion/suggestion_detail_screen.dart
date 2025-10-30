@@ -56,11 +56,10 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
   Future<void> toggleEmpathy() async {
     if (postData == null) return;
 
-    // 이전 상태 저장 (API 실패 시 롤백용)
+    // 이전 상태 저장
     final previousIsEmpathized = postData!['isEmpathized'];
     final previousCount = postData!['empathyCount'];
 
-    // 낙관적 UI 업데이트
     setState(() {
       if (postData!['isEmpathized']) {
         postData!['isEmpathized'] = false;
@@ -76,7 +75,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
       final response = await _postService.toggleEmpathy(postId: widget.postId);
       print('✅ 공감 처리 성공: ${response['message']}');
 
-      // API 응답에 따라 상태 업데이트 (서버와 동기화)
+      // API 응답에 따라 상태 업데이트
       setState(() {
         postData!['isEmpathized'] = response['isAdded'];
       });
@@ -168,7 +167,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
         decoration: BoxDecoration(color: Colors.white),
         child: SafeArea(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
                 onTap: toggleEmpathy,
@@ -182,6 +181,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                   size: 24,
                 ),
               ),
+              SizedBox(width: width * 0.01),
               GestureDetector(
                 onTap: toggleEmpathy,
                 child: Text(
@@ -193,8 +193,9 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                   ),
                 ),
               ),
+              SizedBox(width: width * 0.06),
               SizedBox(
-                height: height * 0.055,
+                height: height * 0.06,
                 width: width * 0.75,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -212,7 +213,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                     );
                   },
                   child: Text(
-                    '댓글 작성하기',
+                    '댓글 보기',
                     style: TextStyle(
                       color: Color(0xffffffff),
                       fontSize: 16,
@@ -231,27 +232,32 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              postData!['imagePath'] != null
-                  ? Image.network(
-                      postData!['imagePath'],
-                      width: width,
-                      height: height * 0.5,
-                      fit: BoxFit.fitWidth,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image(
-                          image: AssetImage('assets/images/miyo_logo.png'),
-                          width: width,
-                          height: height * 0.5,
-                          fit: BoxFit.fitWidth,
-                        );
-                      },
-                    )
-                  : Image(
-                      image: AssetImage('assets/images/miyo_logo.png'),
-                      width: width,
-                      height: height * 0.5,
-                      fit: BoxFit.fitWidth,
-                    ),
+              Container(
+                width: width,
+                height: height * 0.5,
+                color: Colors.black,
+                child: postData!['imagePath'] != null
+                    ? Image.network(
+                        postData!['imagePath'],
+                        width: width,
+                        height: height * 0.5,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image(
+                            image: AssetImage('assets/images/miyo_logo.png'),
+                            width: width,
+                            height: height * 0.5,
+                            fit: BoxFit.contain,
+                          );
+                        },
+                      )
+                    : Image(
+                        image: AssetImage('assets/images/miyo_logo.png'),
+                        width: width,
+                        height: height * 0.5,
+                        fit: BoxFit.contain,
+                      ),
+              ),
               SizedBox(height: height * 0.02),
               // 제목
               Text(
@@ -311,7 +317,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Color(0xff00AA5D),
+                  color: Color(0xffF0F2F5),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -319,7 +325,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: Color(0xff757575),
                   ),
                 ),
               ),
