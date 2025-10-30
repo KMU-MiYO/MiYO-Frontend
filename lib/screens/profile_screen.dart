@@ -28,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _joinYear = '';
 
   // 통계 데이터
-  int _badgeCnt = 0; // 추후 연결 예정
+  int _badgeCnt = 0; // 뱃지 수
   int _empathyCnt = 0; // 좋아요한 글
   int _commentCnt = 0; // 댓글 쓴 글
   int _suggestionCnt = 0; // 내가 쓴 글
@@ -54,6 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _userService.getMyCommentCnt(), // 2: 댓글 쓴 글 개수
         _userService.getMyPostCnt(), // 3: 내가 쓴 글 개수
         _userService.getMyPostList(size: 6), // 4: 내가 쓴 글 목록 (최대 6개)
+        _userService.getMyBadge(), // 5: 내 뱃지 정보
       ]);
 
       final userData = results[0] as Map<String, dynamic>;
@@ -61,6 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final commentCnt = results[2] as int;
       final suggestionCnt = results[3] as int;
       final postListData = results[4] as Map<String, dynamic>;
+      final badgeData = results[5] as Map<String, dynamic>;
 
       print('📦 받아온 유저 데이터: $userData');
 
@@ -77,6 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       // 통계 데이터
+      _badgeCnt = badgeData['totalCount'] ?? 0;
       _empathyCnt = empathyCnt;
       _commentCnt = commentCnt;
       _suggestionCnt = suggestionCnt;
@@ -126,7 +129,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       print('✅ 프로필 데이터 로드 완료');
       print('   - nickname: $_nickname, id: $_id, joinYear: $_joinYear');
-      print('   - 통계: 좋아요 $_empathyCnt, 댓글 $_commentCnt, 제안 $_suggestionCnt');
+      print(
+        '   - 통계: 뱃지 $_badgeCnt, 좋아요 $_empathyCnt, 댓글 $_commentCnt, 제안 $_suggestionCnt',
+      );
       print('   - 게시글: ${_suggestions.length}개');
     } catch (e) {
       print('❌ 프로필 데이터 로드 실패: $e');
@@ -134,9 +139,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // 에러 처리
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('프로필 정보를 불러오는데 실패했습니다: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('프로필 정보를 불러오는데 실패했습니다: $e')));
       }
     }
   }

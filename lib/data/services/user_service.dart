@@ -789,4 +789,25 @@ class UserService {
       rethrow;
     }
   }
+
+  /// 내 뱃지 가져오기
+  ///
+  Future<Map<String, dynamic>> getMyBadge() async {
+    try {
+      // Spring Boot 엔드포인트: GET /users/bedge/my/badges
+      final response = await _apiService.get('/users/bedge/my/badges');
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('내 뱃지 목록을 가져오는데 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
 }
