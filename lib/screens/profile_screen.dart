@@ -106,6 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
 
         _suggestions.add({
+          'id': post['postId'],
           'postId': post['postId'],
           'title': post['title'],
           'imagePath': imagePath,
