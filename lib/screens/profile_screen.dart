@@ -134,9 +134,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // 에러 처리
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('프로필 정보를 불러오는데 실패했습니다: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('프로필 정보를 불러오는데 실패했습니다: $e')));
       }
     }
   }
@@ -166,6 +166,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
     // 로딩 중
     if (_isLoading) {
       return Scaffold(
@@ -212,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: height * 0.01),
             // 닉네임
             Text(
               _nickname,
@@ -222,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: height * 0.001),
             // ID
             Text(
               '@$_id',
@@ -232,7 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: FontWeight.normal,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 0.1),
             // 가입 날짜
             Text(
               'Joined $_joinYear',
@@ -242,7 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: FontWeight.normal,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: height * 0.02),
             // 통계 (뱃지, 좋아요, 댓글)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -256,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: height * 0.04),
             // 나의 제안
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -271,28 +273,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MySuggestionScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      '모두 보기',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xff61758A),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
+                  // TextButton(
+                  //   onPressed: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => MySuggestionScreen(),
+                  //       ),
+                  //     );
+                  //   },
+                  //   child: const Text(
+                  //     '모두 보기',
+                  //     style: TextStyle(
+                  //       fontSize: 16,
+                  //       color: Color(0xff61758A),
+                  //       fontWeight: FontWeight.normal,
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: height * 0.03),
             // 갤러리 격자 (2열)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -302,7 +304,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
-                  mainAxisSpacing: 20,
+                  mainAxisSpacing: 2,
                   childAspectRatio: 0.75,
                 ),
                 itemCount: _suggestions.length,
