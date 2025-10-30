@@ -17,6 +17,12 @@ class Layout extends StatefulWidget {
 
 class _LayoutState extends State<Layout> {
   late int _currentIndex; // late 키워드로 나중에 초기화
+  final List<GlobalKey> _pageKeys = [
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+  ];
 
   @override
   void initState() {
@@ -26,15 +32,17 @@ class _LayoutState extends State<Layout> {
 
   // 각 탭에 해당하는 페이지들 리스트를 구성합니다.
   List<Widget> get _pages => [
-    MapScreen(),
-    const ImaginaryMapScreen(),
-    const ChallengeScreen(),
-    const ProfileScreen(),
+    MapScreen(key: _pageKeys[0]),
+    ImaginaryMapScreen(key: _pageKeys[1]),
+    ChallengeScreen(key: _pageKeys[2]),
+    ProfileScreen(key: _pageKeys[3]),
   ];
 
   void _onBottomNavTapped(int index) {
     setState(() {
       _currentIndex = index;
+      // 탭 변경 시 해당 페이지의 키를 새로 생성하여 위젯을 재빌드
+      _pageKeys[index] = GlobalKey();
     });
   }
 
