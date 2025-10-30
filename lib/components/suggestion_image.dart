@@ -51,17 +51,19 @@ class SuggestionImage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           // 제목 부분
-          Text(
-            suggestionTitle,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
-              color: Colors.black,
+          Flexible(
+            child: Text(
+              suggestionTitle,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
