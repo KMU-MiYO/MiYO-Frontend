@@ -8,13 +8,13 @@ class SuggestionCategoryButton extends StatelessWidget {
 
   // 카테고리 이름 매핑
   static const Map<CategoryType, String> categoryNames = {
-    CategoryType.NaturePark: '자연/공원',
-    CategoryType.CultureArts: '문화/예술',
-    CategoryType.Transport: '교통/이동',
-    CategoryType.Life: '주거/생활',
-    CategoryType.Commercial: '상권/시장',
-    CategoryType.NightLandscape: '야간/조명',
-    CategoryType.EnvironSustain: '환경/지속가능',
+    CategoryType.NATURE: '자연/공원',
+    CategoryType.CULTURE: '문화/예술',
+    CategoryType.TRAFFIC: '교통/이동',
+    CategoryType.RESIDENCE: '주거/생활',
+    CategoryType.COMMERCIAL: '상권/시장',
+    CategoryType.NIGHT: '야간/조명',
+    CategoryType.ENVIRONMENT: '환경/지속가능',
   };
 
   const SuggestionCategoryButton({
@@ -59,25 +59,25 @@ class SuggestionCategoryButton extends StatelessWidget {
   Widget _buildIcon() {
     String iconPath;
     switch (categoryType) {
-      case CategoryType.NaturePark:
+      case CategoryType.NATURE:
         iconPath = 'assets/images/challenge_icons/NaturePark.png';
         break;
-      case CategoryType.CultureArts:
+      case CategoryType.CULTURE:
         iconPath = 'assets/images/challenge_icons/CultureArts.png';
         break;
-      case CategoryType.Transport:
+      case CategoryType.TRAFFIC:
         iconPath = 'assets/images/challenge_icons/Transport.png';
         break;
-      case CategoryType.Life:
+      case CategoryType.RESIDENCE:
         iconPath = 'assets/images/challenge_icons/Life.png';
         break;
-      case CategoryType.Commercial:
+      case CategoryType.COMMERCIAL:
         iconPath = 'assets/images/challenge_icons/Commercial.png';
         break;
-      case CategoryType.NightLandscape:
+      case CategoryType.NIGHT:
         iconPath = 'assets/images/challenge_icons/NightLandscape.png';
         break;
-      case CategoryType.EnvironSustain:
+      case CategoryType.ENVIRONMENT:
         iconPath = 'assets/images/challenge_icons/EnvironSustain.png';
         break;
     }

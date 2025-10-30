@@ -86,49 +86,49 @@ class SuggestionTop3 extends StatelessWidget {
     if (categoryType == null) return null;
 
     switch (categoryType!) {
-      case CategoryType.NaturePark:
+      case CategoryType.NATURE:
         return Image.asset(
           'assets/images/challenge_icons/NaturePark.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.CultureArts:
+      case CategoryType.CULTURE:
         return Image.asset(
           'assets/images/challenge_icons/CultureArts.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.Transport:
+      case CategoryType.TRAFFIC:
         return Image.asset(
           'assets/images/challenge_icons/Transport.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.Life:
+      case CategoryType.RESIDENCE:
         return Image.asset(
           'assets/images/challenge_icons/Life.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.Commercial:
+      case CategoryType.COMMERCIAL:
         return Image.asset(
           'assets/images/challenge_icons/Commercial.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.NightLandscape:
+      case CategoryType.NIGHT:
         return Image.asset(
           'assets/images/challenge_icons/NightLandscape.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.EnvironSustain:
+      case CategoryType.ENVIRONMENT:
         return Image.asset(
           'assets/images/challenge_icons/EnvironSustain.png',
           width: 32,

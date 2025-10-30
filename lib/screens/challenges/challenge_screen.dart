@@ -164,6 +164,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                   ),
                 ],
               ),
+
               SizedBox(height: height * 0.01),
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -209,6 +210,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                   ),
                 ],
               ),
+
               SizedBox(height: height * 0.01),
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
