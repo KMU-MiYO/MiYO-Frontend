@@ -1,10 +1,7 @@
 // lib/screens/imaginary_map/imaginary_map_screen.dart
-import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:miyo/services/imaginary_service.dart';
-import 'package:miyo/services/marker_image_generator.dart';
+import 'package:miyo/services/imaginary_map_controller.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/screens/imaginary_map/imaginary_map_bottom_sheet.dart';
 
@@ -16,35 +13,61 @@ class ImaginaryMapScreen extends StatefulWidget {
 }
 
 class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
-  final Completer<NaverMapController> _mapControllerCompleter = Completer();
-  final ImaginaryService _service = ImaginaryService();
-  final MarkerImageGenerator _imageGenerator = MarkerImageGenerator();
+  final ImaginaryMapController _mapController = ImaginaryMapController();
 
   List<Map<String, dynamic>> _markers = [];
   bool _isLoading = true;
+  NaverMapController? _controller;
 
   @override
   void initState() {
     super.initState();
-    _loadMarkers();
+    _initializeLocation();
   }
 
-  Future<void> _loadMarkers() async {
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeLocation() async {
+    await _mapController.requestLocationPermission();
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadMarkersForCurrentView() async {
+    if (_controller == null) return;
+
     try {
-      setState(() => _isLoading = true);
-      final markers = await _service.fetchMarkers();
-      setState(() {
-        _markers = markers;
-        _isLoading = false;
-      });
+      // 컨트롤러를 사용해서 마커 데이터 가져오기
+      final markers = await _mapController.fetchMarkersForCurrentView(
+        _controller!,
+      );
+
+      setState(() => _markers = markers);
+
+      // 기존 마커 삭제 후 새로운 마커 추가
+      await _controller!.clearOverlays();
+      await _mapController.addMarkersToMap(
+        _controller!,
+        _markers,
+        onMarkerTap: _onMarkerTap,
+      );
     } catch (e) {
-      setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('오류: $e')));
+        ).showSnackBar(SnackBar(content: Text('마커 로드 오류: $e')));
       }
     }
+  }
+
+  void _onMarkerTap(Map<String, dynamic> data) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SuggestionDetailScreen()),
+    );
   }
 
   @override
@@ -65,70 +88,36 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
               ),
             ),
             onMapReady: (controller) async {
-              _mapControllerCompleter.complete(controller);
-              await _addMarkersToMap(controller);
+              _controller = controller;
+              // 지도 초기 로드 시 마커 가져오기
+              await _loadMarkersForCurrentView();
             },
+            onCameraIdle: () {
+              // 카메라 이동이 끝났을 때 마커 로드
+              _loadMarkersForCurrentView();
+            },
+          ),
+          // 검색창
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: '게시글 검색하기',
+                hintStyle: TextStyle(color: Color(0xff61758A)),
+                prefixIcon: const Icon(Icons.search, color: Color(0xff61758A)),
+                filled: true,
+                fillColor: Color(0xffF0F2F5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
           ),
           const ImaginaryMapBottomSheet(),
         ],
       ),
     );
-  }
-
-  Future<void> _addMarkersToMap(NaverMapController controller) async {
-    // 배치로 모든 마커 이미지를 한번에 생성 (최적화)
-    final markerImagePaths = await _imageGenerator.generateBatchMarkerImages(
-      _markers,
-    );
-
-    // 생성된 이미지로 마커 추가
-    for (var data in _markers) {
-      final imagePath = markerImagePaths[data['id']]!;
-
-      final marker = NMarker(
-        id: data['id'],
-        position: NLatLng(data['latitude'], data['longitude']),
-        icon: NOverlayImage.fromFile(File(imagePath)),
-      );
-
-      // 마커 클릭 시
-      marker.setOnTapListener((overlay) => _onMarkerTap(data));
-
-      controller.addOverlay(marker);
-    }
-  }
-
-  void _onMarkerTap(Map<String, dynamic> data) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            const SuggestionDetailScreen(), // 해당 작성글 페이지 이동으로 수정 필요
-      ),
-    );
-  }
-
-  Future<void> _updateMarkerOnMap(
-    Map<String, dynamic> data,
-    int newCount,
-  ) async {
-    final controller = await _mapControllerCompleter.future;
-
-    // 상태 업데이트
-    final index = _markers.indexWhere((m) => m['id'] == data['id']);
-    if (index != -1) {
-      _markers[index]['favoriteCnt'] = newCount;
-    }
-
-    // 기존 마커 전부 삭제 후 재생성
-    controller.clearOverlays();
-    await _addMarkersToMap(controller);
-  }
-
-  @override
-  void dispose() {
-    // 앱 종료 시 캐시 정리
-    // _imageGenerator.clearCache();
-    super.dispose();
   }
 }
