@@ -6,6 +6,7 @@ class ChallengeItem extends StatelessWidget {
   final String title;
   final String location;
   final bool isTitleBox;
+  final int? contestId;
 
   const ChallengeItem({
     super.key,
@@ -13,6 +14,7 @@ class ChallengeItem extends StatelessWidget {
     required this.title,
     required this.location,
     this.isTitleBox = false,
+    this.contestId,
   });
 
   @override
@@ -54,12 +56,16 @@ class ChallengeItem extends StatelessWidget {
               icon: const Icon(Icons.chevron_right, size: 37),
               color: const Color(0xff757575),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChallengeDetailScreen(),
-                  ),
-                );
+                if (contestId != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChallengeDetailScreen(
+                        contestId: contestId!,
+                      ),
+                    ),
+                  );
+                }
               },
             ),
         ],
