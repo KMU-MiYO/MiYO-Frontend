@@ -15,6 +15,7 @@ class ImaginaryMapScreen extends StatefulWidget {
 class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   final ImaginaryMapController _mapController = ImaginaryMapController();
   final TextEditingController _searchController = TextEditingController();
+  VoidCallback? _reloadBottomSheet;
 
   List<Map<String, dynamic>> _markers = [];
   bool _isLoading = true;
@@ -129,6 +130,8 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
             onCameraIdle: () {
               // 카메라 이동이 끝났을 때 마커 로드
               _loadMarkersForCurrentView();
+              // Bottom sheet도 reload
+              _reloadBottomSheet?.call();
             },
           ),
           // 검색창
@@ -153,7 +156,12 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
             ),
           ),
           if (_controller != null)
-            ImaginaryMapBottomSheet(mapController: _controller!),
+            ImaginaryMapBottomSheet(
+              mapController: _controller!,
+              onReloadCallback: (callback) {
+                _reloadBottomSheet = callback;
+              },
+            ),
         ],
       ),
     );
