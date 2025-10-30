@@ -27,11 +27,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _id = '';
   String _joinYear = '';
 
-  // 통계 데이터 (추후 연결 예정)
-  int _badgeCnt = 0;
-  int _favorateCnt = 0;
-  int _commentCnt = 0;
-  int _suggestionCnt = 0;
+  // 통계 데이터
+  int _badgeCnt = 0; // 추후 연결 예정
+  int _empathyCnt = 0; // 좋아요한 글
+  int _commentCnt = 0; // 댓글 쓴 글
+  int _suggestionCnt = 0; // 내가 쓴 글
 
   // 제안 목록
   List<Map<String, dynamic>> _suggestions = [];
@@ -47,8 +47,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       setState(() => _isLoading = true);
 
-      // GET /users/my 호출
-      final userData = await _userService.getCurrentUser();
+      // 병렬로 모든 API 호출
+      final results = await Future.wait([
+        _userService.getCurrentUser(), // 0: 유저 정보
+        _userService.getMyEmpathyCnt(), // 1: 좋아요한 글 개수
+        _userService.getMyCommentCnt(), // 2: 댓글 쓴 글 개수
+        _userService.getMyPostCnt(), // 3: 내가 쓴 글 개수
+        _userService.getMyPostList(size: 6), // 4: 내가 쓴 글 목록 (최대 6개)
+      ]);
+
+      final userData = results[0] as Map<String, dynamic>;
+      final empathyCnt = results[1] as int;
+      final commentCnt = results[2] as int;
+      final suggestionCnt = results[3] as int;
+      final postListData = results[4] as Map<String, dynamic>;
 
       print('📦 받아온 유저 데이터: $userData');
 
@@ -64,6 +76,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _joinYear = createdAt.substring(0, 4);
       }
 
+      // 통계 데이터
+      _empathyCnt = empathyCnt;
+      _commentCnt = commentCnt;
+      _suggestionCnt = suggestionCnt;
+
+      // 게시글 목록 변환 및 이미지 다운로드
+      final contentList = postListData['content'] as List;
+      _suggestions = [];
+
+      for (var post in contentList) {
+        Uint8List? imageData;
+        final imagePath = post['imagePath'] as String?;
+
+        // 이미지 URL이 있으면 다운로드
+        if (imagePath != null && imagePath.isNotEmpty) {
+          try {
+            final dio = Dio();
+            final response = await dio.get(
+              imagePath,
+              options: Options(responseType: ResponseType.bytes),
+            );
+            if (response.statusCode == 200) {
+              imageData = Uint8List.fromList(response.data);
+            }
+          } catch (e) {
+            print('❌ 게시글 이미지 다운로드 실패: $e');
+          }
+        }
+
+        _suggestions.add({
+          'postId': post['postId'],
+          'title': post['title'],
+          'imagePath': imagePath,
+          'imageData': imageData,
+          'category': post['category'],
+          'empathyCount': post['empathyCount'],
+          'createdAt': post['createdAt'],
+        });
+      }
+
       // 프로필 이미지 다운로드
       final profilePictureUrl = userData['profilePicture'] as String?;
       if (profilePictureUrl != null && profilePictureUrl.isNotEmpty) {
@@ -72,18 +124,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() => _isLoading = false);
 
-      print(
-        '✅ 유저 데이터 로드 완료: nickname=$_nickname, id=$_id, joinYear=$_joinYear',
-      );
+      print('✅ 프로필 데이터 로드 완료');
+      print('   - nickname: $_nickname, id: $_id, joinYear: $_joinYear');
+      print('   - 통계: 좋아요 $_empathyCnt, 댓글 $_commentCnt, 제안 $_suggestionCnt');
+      print('   - 게시글: ${_suggestions.length}개');
     } catch (e) {
-      print('❌ 유저 데이터 로드 실패: $e');
+      print('❌ 프로필 데이터 로드 실패: $e');
       setState(() => _isLoading = false);
 
       // 에러 처리
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('프로필 정보를 불러오는데 실패했습니다: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('프로필 정보를 불러오는데 실패했습니다: $e')),
+        );
       }
     }
   }
@@ -197,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   ProfileStatistics(count: '$_badgeCnt', label: '뱃지'),
                   const SizedBox(width: 8),
-                  ProfileStatistics(count: '$_favorateCnt', label: '좋아요'),
+                  ProfileStatistics(count: '$_empathyCnt', label: '좋아요'),
                   const SizedBox(width: 8),
                   ProfileStatistics(count: '$_commentCnt', label: '댓글'),
                 ],
