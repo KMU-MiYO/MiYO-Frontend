@@ -29,7 +29,7 @@ class _LayoutState extends State<Layout> {
     MapScreen(),
     const ImaginaryMapScreen(),
     const ChallengeScreen(),
-    const ProfileScreen(), // API에서 데이터 로드
+    const ProfileScreen(),
   ];
 
   void _onBottomNavTapped(int index) {
