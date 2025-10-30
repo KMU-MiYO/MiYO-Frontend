@@ -33,6 +33,8 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
 
     try {
       final data = await _postService.getPostById(postId: widget.postId);
+      print('📦 게시글 데이터: $data');
+      print('👤 작성자 정보: ${data['nickname']} / ${data['userNickname']} / ${data['author']}');
       setState(() {
         postData = data;
         isLoading = false;
