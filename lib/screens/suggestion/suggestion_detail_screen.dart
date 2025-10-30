@@ -108,10 +108,13 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
       case 'CULTURE':
         return '문화 / 예술';
       case 'TRAFFIC':
+      case 'TRANSPORT':
         return '교통 / 이동';
       case 'RESIDENCE':
+      case 'LIFE':
         return '주거 / 생활';
       case 'COMMERCE':
+      case 'COMMERCIAL':
         return '상권 / 시장';
       case 'NIGHT':
         return '야간 / 경관';
