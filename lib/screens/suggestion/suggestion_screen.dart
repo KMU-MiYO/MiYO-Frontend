@@ -3,6 +3,7 @@ import 'package:miyo/components/title_appbar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:miyo/data/services/post_service.dart';
+import 'package:miyo/screens/suggestion/ai_suggestion_screen.dart';
 
 class SuggestionScreen extends StatefulWidget {
   final double? latitude;
@@ -23,13 +24,14 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
   final List<String> options = ['자연 / 공원', '문화 / 예술', '교통 / 이동', '주거 / 생활', '상권 / 시장', '야간 / 경관', '환경/지속 가능'];
   final List<String> categoryApiValues = ['NATURE', 'CULTURE', 'TRANSPORT', 'LIFE', 'COMMERCIAL', 'NIGHT', 'ENVIRONMENT'];
   final List<File> _images = [];
+  final List<String> _aiImageUrls = []; // AI 생성 이미지 URL 리스트
   final ImagePicker _picker = ImagePicker();
   final PostService _postService = PostService();
 
   // 텍스트 컨트롤러
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
-  final TextEditingController _promptController = TextEditingController();
+  // final TextEditingController _promptController = TextEditingController();
 
   bool _isSubmitting = false;
 
@@ -37,7 +39,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
-    _promptController.dispose();
+    // _promptController.dispose();
     super.dispose();
   }
 
@@ -139,8 +141,16 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
     });
 
     try {
-      // 이미지 경로 (첫 번째 이미지 사용, 없으면 빈 문자열)
-      final imagePath = _images.isNotEmpty ? _images.first.path : '';
+      // 이미지 선택: AI 이미지가 있으면 AI 이미지 URL, 없으면 갤러리 이미지 경로
+      String imagePath = '';
+
+      if (_aiImageUrls.isNotEmpty) {
+        // AI 생성 이미지가 있으면 첫 번째 AI 이미지 URL 사용
+        imagePath = _aiImageUrls.first;
+      } else if (_images.isNotEmpty) {
+        // AI 이미지가 없고 갤러리 이미지가 있으면 갤러리 이미지 경로 사용
+        imagePath = _images.first.path;
+      }
 
       print('📝 게시글 등록 시도:');
       print('- 제목: ${_titleController.text.trim()}');
@@ -149,6 +159,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       print('- 위도: ${widget.latitude}');
       print('- 경도: ${widget.longitude}');
       print('- 이미지: $imagePath');
+      print('- AI 이미지 사용: ${_aiImageUrls.isNotEmpty}');
 
       // API 호출
       final result = await _postService.createPost(
@@ -385,88 +396,138 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '상상 이미지 생성',
+                    '상상 이미지 추가',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                SizedBox(height: height * 0.02),
-                TextField(
-                  controller: _promptController,
-                  minLines: 10,
-                  maxLines: 15,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Color(0xffF0F2F5),
-                    hintText: 'AI 이미지 생성 프롬프트 \n* 상세한 프롬프트를 활용할수록 더 상세한 이미지가 생성됩니다.',
-                    hintStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xff61758A),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                SizedBox(height: height * 0.02),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: height * 0.06,
-                        child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff00AA5D),
-                          shape: RoundedRectangleBorder(
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    alignment: WrapAlignment.start,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                    // AI 생성 이미지들
+                    ..._aiImageUrls.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      String imageUrl = entry.value;
+                      return Stack(
+                        children: [
+                          ClipRRect(
                             borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              imageUrl,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xffF0F2F5),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded /
+                                              loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xffF0F2F5),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.error_outline,
+                                    color: Colors.red,
+                                    size: 32,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                        onPressed: () {
-                          // Navigator.push(
-                          //   context, MaterialPageRoute(builder: (context) => ()));                
-                        }, 
-                        child: Text(
-                          '이미지 생성하기',
-                          style: TextStyle(
-                            color: Color(0xffffffff),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _aiImageUrls.removeAt(index);
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: EdgeInsets.all(4),
+                                child: Icon(
+                                  Icons.cancel_outlined,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: width * 0.02),
-                    Expanded(
-                      child: SizedBox(
-                        height: height * 0.06,
-                        child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffF0F2F5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        ],
+                      );
+                    }),
+                    // + 버튼
+                    GestureDetector(
+                      onTap: () async {
+                        // AI 이미지 생성 화면으로 이동
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AiSuggestionScreen(),
                           ),
+                        );
+
+                        // AI 이미지가 생성되어 돌아왔을 때 처리
+                        if (result != null && result is String) {
+                          setState(() {
+                            _aiImageUrls.add(result);
+                          });
+
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('AI 이미지가 추가되었습니다.'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Color(0xffF0F2F5),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        onPressed: () {
-                          // Navigator.push(
-                          //   context, MaterialPageRoute(builder: (context) => ()));                
-                        }, 
-                        child: Text(
-                          '닫기',
-                          style: TextStyle(
-                            color: Color(0xff61758A),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                        child: Icon(
+                          Icons.add_circle_outline_rounded,
+                          size: 40,
+                          color: Color(0xff00AA5D),
                         ),
                       ),
                     ),
                   ],
+                  ),
                 ),
                 SizedBox(height: height * 0.02),
                 SizedBox(
