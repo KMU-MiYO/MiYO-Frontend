@@ -179,9 +179,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: TitleAppbar(title: '프로필', actionType: ActionType.settings),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
+      body: RefreshIndicator(
+        onRefresh: _loadUserData,
+        color: Color(0xff00AA5D),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
             const SizedBox(height: 20),
             // 프로필 이미지
             Stack(
@@ -326,7 +330,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 32),
-          ],
+            ],
+          ),
         ),
       ),
     );

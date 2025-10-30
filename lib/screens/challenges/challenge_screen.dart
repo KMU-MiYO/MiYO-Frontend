@@ -102,6 +102,15 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     }
   }
 
+  // 모든 데이터 새로고침
+  Future<void> _refreshAllData() async {
+    await Future.wait([
+      _loadChallenges(),
+      _loadMissions(),
+      _loadParticipatingChallenges(),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -109,12 +118,16 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     return Scaffold(
       appBar: const TitleAppbar(title: '챌린지'),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      body: RefreshIndicator(
+        onRefresh: _refreshAllData,
+        color: Color(0xff00AA5D),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // 주간 미션 섹션
               const Text(
                 '주간 미션',
@@ -230,7 +243,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                         );
                       }).toList(),
                     ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
