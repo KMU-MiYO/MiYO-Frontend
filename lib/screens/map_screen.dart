@@ -8,6 +8,7 @@ import 'package:miyo/screens/exchanges/exchange.dart';
 import 'package:miyo/screens/suggestion/suggestion_screen.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/data/services/post_service.dart';
+import 'package:miyo/services/geocoding_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -19,15 +20,19 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   final Completer<NaverMapController> _mapControllerCompleter = Completer();
   final PostService _postService = PostService();
+  final TextEditingController _searchController = TextEditingController();
+  final GeocodingService _geocodingService = GeocodingService();
 
   // 선택된 카테고리들 (빈 Set = 전체 보기)
   Set<CategoryType> selectedCategories = {};
 
   // 생성된 마커들과 연관된 게시글 데이터 저장
   final Map<String, Map<String, dynamic>> _markerPostData = {};
-  final List<NMarker> _markers = [];
+  final Map<String, NMarker> _markerCache = {}; // 마커 캐시
 
   bool _isLoadingPosts = false;
+  double _currentZoom = 14.0; // 현재 줌 레벨
+  static const double _minZoomForMarkers = 12.0; // 마커 표시 최소 줌 레벨
 
   // 모든 카테고리 리스트
   final List<CategoryType> allCategories = [
@@ -49,6 +54,15 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    // 메모리 누수 방지: 캐시 및 컨트롤러 정리
+    _markerCache.clear();
+    _markerPostData.clear();
+    _searchController.dispose();
+    super.dispose();
+  }
+
   // 내 게시글 불러오기
   Future<void> _loadMyPosts() async {
     if (_isLoadingPosts) return;
@@ -63,33 +77,72 @@ class _MapScreenState extends State<MapScreen> {
 
       print('📦 로드된 게시글 수: ${posts.length}');
 
-      // 기존 마커 제거
       final controller = await _mapControllerCompleter.future;
-      for (final marker in _markers) {
-        await controller.deleteOverlay(marker.info);
-      }
-      _markers.clear();
-      _markerPostData.clear();
+      final currentPostIds = <String>{};
 
-      // 새로운 마커 추가
+      // 새로운 마커 추가 또는 기존 마커 재사용
       for (final post in posts) {
         final postId = post['postId'].toString();
         final latitude = post['latitude'] as double;
         final longitude = post['longitude'] as double;
         final category = post['category'] as String;
 
+        currentPostIds.add(postId);
+
         // 게시글 데이터 저장
         _markerPostData[postId] = post;
 
-        await _addMarkerFromPost(
-          postId: postId,
-          latLng: NLatLng(latitude, longitude),
-          title: post['title'] ?? '제목 없음',
-          category: category,
-        );
+        // 캐시에 마커가 있는지 확인
+        if (_markerCache.containsKey(postId)) {
+          print('✅ 캐시에서 마커 재사용: $postId');
+          // 기존 마커 재사용 - 위치가 변경되었을 수 있으므로 업데이트
+          final cachedMarker = _markerCache[postId]!;
+          // 위치 업데이트가 필요한 경우에만
+          if (cachedMarker.position.latitude != latitude ||
+              cachedMarker.position.longitude != longitude) {
+            // 마커 제거 후 새 위치로 재생성
+            await controller.deleteOverlay(cachedMarker.info);
+            await _addMarkerFromPost(
+              postId: postId,
+              latLng: NLatLng(latitude, longitude),
+              title: post['title'] ?? '제목 없음',
+              category: category,
+            );
+          } else {
+            // 위치가 같으면 그대로 사용
+            try {
+              await controller.addOverlay(cachedMarker);
+            } catch (e) {
+              // 이미 추가된 경우 무시
+            }
+          }
+        } else {
+          // 새로운 마커 생성
+          print('🆕 새로운 마커 생성: $postId');
+          await _addMarkerFromPost(
+            postId: postId,
+            latLng: NLatLng(latitude, longitude),
+            title: post['title'] ?? '제목 없음',
+            category: category,
+          );
+        }
       }
 
-      print('✅ 마커 로드 완료: ${_markers.length}개');
+      // 더 이상 존재하지 않는 마커 제거
+      final markersToRemove = <String>[];
+      for (final postId in _markerCache.keys) {
+        if (!currentPostIds.contains(postId)) {
+          markersToRemove.add(postId);
+          final marker = _markerCache[postId]!;
+          await controller.deleteOverlay(marker.info);
+        }
+      }
+      for (final postId in markersToRemove) {
+        _markerCache.remove(postId);
+        _markerPostData.remove(postId);
+      }
+
+      print('✅ 마커 로드 완료: ${_markerCache.length}개');
     } catch (e) {
       print('❌ 게시글 로드 실패: $e');
       if (mounted) {
@@ -105,6 +158,55 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           _isLoadingPosts = false;
         });
+      }
+    }
+  }
+
+  // 검색 실행
+  Future<void> _onSearchSubmitted(String address) async {
+    if (address.trim().isEmpty) return;
+
+    try {
+      final controller = await _mapControllerCompleter.future;
+
+      print('🔍 주소 검색 시작: $address');
+
+      // 주소 → 좌표 변환
+      final coordinates = await _geocodingService.getCoordinatesFromAddress(address);
+
+      if (coordinates == null) {
+        print('⚠️ 검색 결과 없음');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')),
+          );
+        }
+        return;
+      }
+
+      final lat = coordinates['latitude']!;
+      final lng = coordinates['longitude']!;
+
+      print('📍 좌표 변환 완료: lat=$lat, lng=$lng');
+
+      // 지도 카메라 이동
+      final cameraUpdate = NCameraUpdate.withParams(
+        target: NLatLng(lat, lng),
+        zoom: 15,
+      )..setAnimation(
+        animation: NCameraAnimation.easing,
+        duration: const Duration(milliseconds: 500),
+      );
+
+      await controller.updateCamera(cameraUpdate);
+
+      print('✅ 지도 이동 완료');
+    } catch (e) {
+      print('❌ 주소 검색 오류: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('검색 오류: $e')),
+        );
       }
     }
   }
@@ -142,22 +244,42 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  // 줌 레벨에 따라 마커 표시 업데이트 (클러스터링 효과)
+  Future<void> _updateMarkersByZoom() async {
+    if (_currentZoom < _minZoomForMarkers) {
+      // 줌 아웃 시 모든 마커 숨김 (성능 최적화)
+      final controller = await _mapControllerCompleter.future;
+      for (final marker in _markerCache.values) {
+        try {
+          await controller.deleteOverlay(marker.info);
+        } catch (e) {
+          // 이미 제거된 경우 무시
+        }
+      }
+      return;
+    }
+
+    // 줌 인 시 카테고리 필터에 따라 마커 표시
+    await _updateMarkerVisibility();
+  }
+
   // 카테고리 필터에 따라 마커 가시성 업데이트
   Future<void> _updateMarkerVisibility() async {
     final controller = await _mapControllerCompleter.future;
 
-    for (final marker in _markers) {
-      final postId = marker.info.id.replaceFirst('post_', '');
+    for (final entry in _markerCache.entries) {
+      final postId = entry.key;
+      final marker = entry.value;
       final postData = _markerPostData[postId];
 
       if (postData != null) {
         final categoryStr = postData['category'] as String;
         final categoryType = _getCategoryType(categoryStr);
 
-        // 선택된 카테고리가 없으면 모두 표시
-        // 선택된 카테고리가 있으면 해당 카테고리만 표시
-        final shouldShow = selectedCategories.isEmpty ||
-            selectedCategories.contains(categoryType);
+        // 줌 레벨 체크 + 카테고리 필터 체크
+        final shouldShow = _currentZoom >= _minZoomForMarkers &&
+            (selectedCategories.isEmpty ||
+                selectedCategories.contains(categoryType));
 
         // 마커를 지도에서 추가/제거
         if (shouldShow) {
@@ -213,7 +335,7 @@ class _MapScreenState extends State<MapScreen> {
   }) async {
     final controller = await _mapControllerCompleter.future;
 
-    // 새로운 마커 생성
+    // 새로운 마커 생성 (기본 마커 사용)
     final marker = NMarker(
       id: 'post_$postId',
       position: latLng,
@@ -235,9 +357,8 @@ class _MapScreenState extends State<MapScreen> {
     // 마커를 지도에 추가
     await controller.addOverlay(marker);
 
-    setState(() {
-      _markers.add(marker);
-    });
+    // 캐시에 저장
+    _markerCache[postId] = marker;
 
     print('마커 추가 완료: $title at (${latLng.latitude}, ${latLng.longitude})');
   }
@@ -256,21 +377,24 @@ class _MapScreenState extends State<MapScreen> {
       position: latLng,
     );
 
-    // 마커 클릭 이벤트 추가 (향후 suggestion_detail로 이동)
+    // 마커 클릭 이벤트 추가
     marker.setOnTapListener((overlay) {
       print('마커 클릭: $title (postId: $postId)');
-      // TODO: suggestion_detail 화면으로 이동
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$title (상세보기 기능 준비중)')),
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SuggestionDetailScreen(
+            postId: int.parse(postId),
+          ),
+        ),
       );
     });
 
     // 마커를 지도에 추가
     await controller.addOverlay(marker);
 
-    setState(() {
-      _markers.add(marker);
-    });
+    // 캐시에 저장
+    _markerCache[postId] = marker;
 
     print('마커 추가 완료: $title at (${latLng.latitude}, ${latLng.longitude})');
   }
@@ -282,68 +406,27 @@ class _MapScreenState extends State<MapScreen> {
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Color(0xff00AA5D),
-                shape: BoxShape.circle,
+        title: Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: TextField(
+            controller: _searchController,
+            onSubmitted: _onSearchSubmitted,
+            textInputAction: TextInputAction.search,
+            decoration: InputDecoration(
+              hintText: '장소 검색하기',
+              hintStyle: const TextStyle(color: Color(0xff61758A)),
+              prefixIcon: const Icon(Icons.search, color: Color(0xff61758A)),
+              filled: true,
+              fillColor: const Color(0xffF0F2F5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
               ),
-              alignment: Alignment.center,
-              child: Text(
-                'P',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            SizedBox(width: 8),
-            Text(
-              '500,000',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0, top: 8, bottom: 8),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const ExchangeScreen(point: '500, 000'),
-                  ),
-                );
-              },
-              icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
-              label: Text(
-                '교환소',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff00AA5D),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 8),
             ),
           ),
-        ],
+        ),
+        actions: [],
       ),
       body: kIsWeb
           ? Center(
@@ -359,45 +442,128 @@ class _MapScreenState extends State<MapScreen> {
                 ],
               ),
             )
-          : Stack(
+          : Column(
               children: [
-                NaverMap(
-                  options: const NaverMapViewOptions(
-                    locationButtonEnable: true,
-                    initialCameraPosition: NCameraPosition(
-                      target: NLatLng(37.602, 126.977),
-                      zoom: 14,
-                    ),
+                // 포인트 표시 및 교환소 버튼
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Color(0xff00AA5D),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'P',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        '500,000',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Spacer(),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ExchangeScreen(point: '500, 000'),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
+                        label: Text(
+                          '교환소',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff00AA5D),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                      ),
+                    ],
                   ),
-                  onMapReady: (controller) {
-                    _mapControllerCompleter.complete(controller);
-                  },
-                  onMapTapped: (point, latLng) {
-                    _onMapTapped(latLng);
-                  },
                 ),
-                // 카테고리 필터 버튼
-                Positioned(
-                  top: 16,
-                  left: 0,
-                  right: 0,
-                  child: SizedBox(
-                    height: 40,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: allCategories.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final category = allCategories[index];
-                        return SuggestionCategoryButton(
-                          categoryType: category,
-                          isSelected: selectedCategories.contains(category),
-                          onTap: () => toggleCategory(category),
-                        );
-                      },
-                    ),
+                // 지도 영역
+                Expanded(
+                  child: Stack(
+                    children: [
+                      NaverMap(
+                        options: const NaverMapViewOptions(
+                          locationButtonEnable: true,
+                          initialCameraPosition: NCameraPosition(
+                            target: NLatLng(37.602, 126.977),
+                            zoom: 14,
+                          ),
+                        ),
+                        onMapReady: (controller) {
+                          _mapControllerCompleter.complete(controller);
+                        },
+                        onMapTapped: (point, latLng) {
+                          _onMapTapped(latLng);
+                        },
+                        onCameraChange: (position, reason) async {
+                          // 줌 레벨 변경 감지
+                          final controller = await _mapControllerCompleter.future;
+                          final cameraPosition = await controller.getCameraPosition();
+                          final newZoom = cameraPosition.zoom;
+
+                          if ((newZoom - _currentZoom).abs() > 0.5) {
+                            setState(() {
+                              _currentZoom = newZoom;
+                            });
+                            _updateMarkersByZoom();
+                          }
+                        },
+                      ),
+                      // 카테고리 필터 버튼
+                      Positioned(
+                        top: 16,
+                        left: 0,
+                        right: 0,
+                        child: SizedBox(
+                          height: 40,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: allCategories.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(width: 8),
+                            itemBuilder: (context, index) {
+                              final category = allCategories[index];
+                              return SuggestionCategoryButton(
+                                categoryType: category,
+                                isSelected: selectedCategories.contains(category),
+                                onTap: () => toggleCategory(category),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

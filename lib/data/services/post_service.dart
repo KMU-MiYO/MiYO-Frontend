@@ -59,7 +59,14 @@ class PostService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data as Map<String, dynamic>;
+        final data = response.data as Map<String, dynamic>;
+        print('✅ createPost API 응답:');
+        print('  - postId: ${data['postId']}');
+        print('  - userId: ${data['userId']}');
+        print('  - userNickname: ${data['userNickname']}');
+        print('  - title: ${data['title']}');
+        print('  - 전체 데이터: $data');
+        return data;
       } else {
         throw Exception('게시글 작성에 실패했습니다. (Status: ${response.statusCode})');
       }
@@ -454,7 +461,13 @@ class PostService {
       );
 
       if (response.statusCode == 200) {
-        return response.data as Map<String, dynamic>;
+        final data = response.data as Map<String, dynamic>;
+        print('✅ getPostById API 응답:');
+        print('  - postId: ${data['postId']}');
+        print('  - nickname: ${data['nickname']}');
+        print('  - title: ${data['title']}');
+        print('  - 전체 데이터: $data');
+        return data;
       } else {
         throw Exception('게시글 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
