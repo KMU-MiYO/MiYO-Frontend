@@ -172,14 +172,16 @@ class _MapScreenState extends State<MapScreen> {
       print('🔍 주소 검색 시작: $address');
 
       // 주소 → 좌표 변환
-      final coordinates = await _geocodingService.getCoordinatesFromAddress(address);
+      final coordinates = await _geocodingService.getCoordinatesFromAddress(
+        address,
+      );
 
       if (coordinates == null) {
         print('⚠️ 검색 결과 없음');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')));
         }
         return;
       }
@@ -190,13 +192,12 @@ class _MapScreenState extends State<MapScreen> {
       print('📍 좌표 변환 완료: lat=$lat, lng=$lng');
 
       // 지도 카메라 이동
-      final cameraUpdate = NCameraUpdate.withParams(
-        target: NLatLng(lat, lng),
-        zoom: 15,
-      )..setAnimation(
-        animation: NCameraAnimation.easing,
-        duration: const Duration(milliseconds: 500),
-      );
+      final cameraUpdate =
+          NCameraUpdate.withParams(target: NLatLng(lat, lng), zoom: 15)
+            ..setAnimation(
+              animation: NCameraAnimation.easing,
+              duration: const Duration(milliseconds: 500),
+            );
 
       await controller.updateCamera(cameraUpdate);
 
@@ -204,9 +205,9 @@ class _MapScreenState extends State<MapScreen> {
     } catch (e) {
       print('❌ 주소 검색 오류: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('검색 오류: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('검색 오류: $e')));
       }
     }
   }
@@ -277,7 +278,8 @@ class _MapScreenState extends State<MapScreen> {
         final categoryType = _getCategoryType(categoryStr);
 
         // 줌 레벨 체크 + 카테고리 필터 체크
-        final shouldShow = _currentZoom >= _minZoomForMarkers &&
+        final shouldShow =
+            _currentZoom >= _minZoomForMarkers &&
             (selectedCategories.isEmpty ||
                 selectedCategories.contains(categoryType));
 
@@ -337,12 +339,8 @@ class _MapScreenState extends State<MapScreen> {
   }) async {
     final controller = await _mapControllerCompleter.future;
 
-
     // 새로운 마커 생성 (기본 마커 사용)
-    final marker = NMarker(
-      id: 'post_$postId',
-      position: latLng,
-    );
+    final marker = NMarker(id: 'post_$postId', position: latLng);
 
     // 마커 클릭 이벤트 추가 - suggestion_detail로 이동
     marker.setOnTapListener((overlay) {
@@ -383,9 +381,8 @@ class _MapScreenState extends State<MapScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SuggestionDetailScreen(
-            postId: int.parse(postId),
-          ),
+          builder: (context) =>
+              SuggestionDetailScreen(postId: int.parse(postId)),
         ),
       );
     });
@@ -483,11 +480,15 @@ class _MapScreenState extends State<MapScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  const ExchangeScreen(point: '500, 000'),
+                                  const ExchangeScreen(point: '500,000'),
                             ),
                           );
                         },
-                        icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
+                        icon: Icon(
+                          Icons.card_giftcard,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         label: Text(
                           '교환소',
                           style: TextStyle(
@@ -501,7 +502,10 @@ class _MapScreenState extends State<MapScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                         ),
                       ),
                     ],
@@ -527,8 +531,10 @@ class _MapScreenState extends State<MapScreen> {
                         },
                         onCameraChange: (position, reason) async {
                           // 줌 레벨 변경 감지
-                          final controller = await _mapControllerCompleter.future;
-                          final cameraPosition = await controller.getCameraPosition();
+                          final controller =
+                              await _mapControllerCompleter.future;
+                          final cameraPosition = await controller
+                              .getCameraPosition();
                           final newZoom = cameraPosition.zoom;
 
                           if ((newZoom - _currentZoom).abs() > 0.5) {
@@ -556,7 +562,9 @@ class _MapScreenState extends State<MapScreen> {
                               final category = allCategories[index];
                               return SuggestionCategoryButton(
                                 categoryType: category,
-                                isSelected: selectedCategories.contains(category),
+                                isSelected: selectedCategories.contains(
+                                  category,
+                                ),
                                 onTap: () => toggleCategory(category),
                               );
                             },
