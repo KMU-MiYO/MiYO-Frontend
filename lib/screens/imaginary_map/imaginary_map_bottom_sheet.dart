@@ -10,33 +10,18 @@ import 'package:miyo/screens/imaginary_map/suggestion_filtering_button.dart';
 class ImaginaryMapBottomSheet extends StatefulWidget {
   final NaverMapController mapController;
   final VoidCallback? onMapMoved;
+  final Function(VoidCallback)? onReloadCallback;
 
   const ImaginaryMapBottomSheet({
     super.key,
     required this.mapController,
     this.onMapMoved,
+    this.onReloadCallback,
   });
 
   @override
   State<ImaginaryMapBottomSheet> createState() =>
       _ImaginaryMapBottomSheetState();
-}
-
-// Bottom sheet를 외부에서 reload할 수 있도록 GlobalKey 사용
-class ImaginaryMapBottomSheetController {
-  _ImaginaryMapBottomSheetState? _state;
-
-  void _attach(_ImaginaryMapBottomSheetState state) {
-    _state = state;
-  }
-
-  void _detach() {
-    _state = null;
-  }
-
-  void reloadTop3() {
-    _state?._loadTop3Posts();
-  }
 }
 
 class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
@@ -73,6 +58,8 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
   @override
   void initState() {
     super.initState();
+    // 부모에게 reload callback 등록
+    widget.onReloadCallback?.call(reloadData);
     _loadTop3Posts();
     _loadNearbyPosts();
   }
@@ -243,6 +230,12 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
     _loadNearbyPosts();
   }
 
+  /// 외부에서 호출 가능한 reload 메서드
+  void reloadData() {
+    _loadTop3Posts();
+    _loadNearbyPosts();
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -301,7 +294,7 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
               SizedBox(height: height * 0.001),
               // Top3 제안
               SizedBox(
-                height: 100,
+                height: 110,
                 child: _isLoadingTop3
                     ? const Center(child: CircularProgressIndicator())
                     : _top3Posts.isEmpty
@@ -314,7 +307,7 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
                     : ListView.separated(
                         scrollDirection: Axis.horizontal,
                         clipBehavior: Clip.none,
-                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                         itemCount: _top3Posts.length,
                         separatorBuilder: (context, index) =>
                             const SizedBox(width: 12),

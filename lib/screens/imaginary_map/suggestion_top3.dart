@@ -27,7 +27,7 @@ class SuggestionTop3 extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             width: 300,
-            height: 70,
+            height: 75,
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: Color(0xff00AA5D), width: 1),
@@ -48,18 +48,26 @@ class SuggestionTop3 extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 1),
+                      const SizedBox(height: 4),
                       Text(
                         '작성자: $writer',
-                        style: TextStyle(fontSize: 14, color: Color(0xff61758A)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xff61758A),
+                        ),
                       ),
                     ],
                   ),
