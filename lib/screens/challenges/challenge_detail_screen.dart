@@ -4,6 +4,7 @@ import 'package:miyo/screens/challenges/challenge_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_top3.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart' as suggestion_lib;
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
+import 'package:miyo/screens/suggestion/suggestion_screen.dart';
 import 'package:miyo/data/services/challenge_service.dart';
 
 class ChallengeDetailScreen extends StatefulWidget {
@@ -132,48 +133,22 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           color: Colors.white,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: contestData!['isParticipant'] == true
-                  ? Colors.grey
-                  : const Color(0xFF00AA5D),
+              backgroundColor: const Color(0xFF00AA5D),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
               minimumSize: const Size.fromHeight(50),
             ),
-            onPressed: contestData!['isParticipant'] == true
-                ? null
-                : () async {
-                    // 참여하기 버튼 동작
-                    try {
-                      await _challengeService.joinContest(
-                        contestId: widget.contestId,
-                      );
-
-                      // 참여 성공 후 데이터 다시 로드
-                      await _loadContestData();
-
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('챌린지 참가가 완료되었습니다!'),
-                            backgroundColor: Color(0xff00AA5D),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      print('❌ 챌린지 참가 실패: $e');
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(e.toString().replaceAll('Exception: ', '')),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-            child: Text(
-              contestData!['isParticipant'] == true ? '참여중' : '참여하기',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SuggestionScreen(),
+                ),
+              );
+            },
+            child: const Text(
+              '참여하기',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,

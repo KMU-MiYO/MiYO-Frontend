@@ -7,6 +7,7 @@ class ChallengeItem extends StatelessWidget {
   final String location;
   final bool isTitleBox;
   final int? contestId;
+  final bool showArrow; // 화살표 표시 여부
 
   const ChallengeItem({
     super.key,
@@ -15,6 +16,7 @@ class ChallengeItem extends StatelessWidget {
     required this.location,
     this.isTitleBox = false,
     this.contestId,
+    this.showArrow = true, // 기본값: 화살표 표시
   });
 
   @override
@@ -51,7 +53,7 @@ class ChallengeItem extends StatelessWidget {
               ],
             ),
           ),
-          if (!isTitleBox)
+          if (!isTitleBox && showArrow)
             IconButton(
               icon: const Icon(Icons.chevron_right, size: 37),
               color: const Color(0xff757575),
