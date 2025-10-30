@@ -8,6 +8,7 @@ import 'package:miyo/screens/exchanges/exchange.dart';
 import 'package:miyo/screens/suggestion/suggestion_screen.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/data/services/post_service.dart';
+import 'package:miyo/services/geocoding_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -19,6 +20,8 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   final Completer<NaverMapController> _mapControllerCompleter = Completer();
   final PostService _postService = PostService();
+  final TextEditingController _searchController = TextEditingController();
+  final GeocodingService _geocodingService = GeocodingService();
 
   // 선택된 카테고리들 (빈 Set = 전체 보기)
   Set<CategoryType> selectedCategories = {};
@@ -105,6 +108,55 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           _isLoadingPosts = false;
         });
+      }
+    }
+  }
+
+  // 검색 실행
+  Future<void> _onSearchSubmitted(String address) async {
+    if (address.trim().isEmpty) return;
+
+    try {
+      final controller = await _mapControllerCompleter.future;
+
+      print('🔍 주소 검색 시작: $address');
+
+      // 주소 → 좌표 변환
+      final coordinates = await _geocodingService.getCoordinatesFromAddress(address);
+
+      if (coordinates == null) {
+        print('⚠️ 검색 결과 없음');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')),
+          );
+        }
+        return;
+      }
+
+      final lat = coordinates['latitude']!;
+      final lng = coordinates['longitude']!;
+
+      print('📍 좌표 변환 완료: lat=$lat, lng=$lng');
+
+      // 지도 카메라 이동
+      final cameraUpdate = NCameraUpdate.withParams(
+        target: NLatLng(lat, lng),
+        zoom: 15,
+      )..setAnimation(
+        animation: NCameraAnimation.easing,
+        duration: const Duration(milliseconds: 500),
+      );
+
+      await controller.updateCamera(cameraUpdate);
+
+      print('✅ 지도 이동 완료');
+    } catch (e) {
+      print('❌ 주소 검색 오류: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('검색 오류: $e')),
+        );
       }
     }
   }
@@ -282,68 +334,27 @@ class _MapScreenState extends State<MapScreen> {
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Color(0xff00AA5D),
-                shape: BoxShape.circle,
+        title: Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: TextField(
+            controller: _searchController,
+            onSubmitted: _onSearchSubmitted,
+            textInputAction: TextInputAction.search,
+            decoration: InputDecoration(
+              hintText: '장소 검색하기',
+              hintStyle: const TextStyle(color: Color(0xff61758A)),
+              prefixIcon: const Icon(Icons.search, color: Color(0xff61758A)),
+              filled: true,
+              fillColor: const Color(0xffF0F2F5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
               ),
-              alignment: Alignment.center,
-              child: Text(
-                'P',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            SizedBox(width: 8),
-            Text(
-              '500,000',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0, top: 8, bottom: 8),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const ExchangeScreen(point: '500, 000'),
-                  ),
-                );
-              },
-              icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
-              label: Text(
-                '교환소',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff00AA5D),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 8),
             ),
           ),
-        ],
+        ),
+        actions: [],
       ),
       body: kIsWeb
           ? Center(
@@ -359,45 +370,115 @@ class _MapScreenState extends State<MapScreen> {
                 ],
               ),
             )
-          : Stack(
+          : Column(
               children: [
-                NaverMap(
-                  options: const NaverMapViewOptions(
-                    locationButtonEnable: true,
-                    initialCameraPosition: NCameraPosition(
-                      target: NLatLng(37.602, 126.977),
-                      zoom: 14,
-                    ),
+                // 포인트 표시 및 교환소 버튼
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Color(0xff00AA5D),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'P',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        '500,000',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Spacer(),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ExchangeScreen(point: '500, 000'),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
+                        label: Text(
+                          '교환소',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff00AA5D),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                      ),
+                    ],
                   ),
-                  onMapReady: (controller) {
-                    _mapControllerCompleter.complete(controller);
-                  },
-                  onMapTapped: (point, latLng) {
-                    _onMapTapped(latLng);
-                  },
                 ),
-                // 카테고리 필터 버튼
-                Positioned(
-                  top: 16,
-                  left: 0,
-                  right: 0,
-                  child: SizedBox(
-                    height: 40,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: allCategories.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final category = allCategories[index];
-                        return SuggestionCategoryButton(
-                          categoryType: category,
-                          isSelected: selectedCategories.contains(category),
-                          onTap: () => toggleCategory(category),
-                        );
-                      },
-                    ),
+                // 지도 영역
+                Expanded(
+                  child: Stack(
+                    children: [
+                      NaverMap(
+                        options: const NaverMapViewOptions(
+                          locationButtonEnable: true,
+                          initialCameraPosition: NCameraPosition(
+                            target: NLatLng(37.602, 126.977),
+                            zoom: 14,
+                          ),
+                        ),
+                        onMapReady: (controller) {
+                          _mapControllerCompleter.complete(controller);
+                        },
+                        onMapTapped: (point, latLng) {
+                          _onMapTapped(latLng);
+                        },
+                      ),
+                      // 카테고리 필터 버튼
+                      Positioned(
+                        top: 16,
+                        left: 0,
+                        right: 0,
+                        child: SizedBox(
+                          height: 40,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: allCategories.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(width: 8),
+                            itemBuilder: (context, index) {
+                              final category = allCategories[index];
+                              return SuggestionCategoryButton(
+                                categoryType: category,
+                                isSelected: selectedCategories.contains(category),
+                                onTap: () => toggleCategory(category),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
