@@ -30,9 +30,30 @@ class ChallengeService {
     }
   }
 
-  // 전체 챌린지 불러오기
-  Future<List<dynamic>> loadAllChallenges() async {
+  /// 전체 챌린지 불러오기
+  ///
+  /// [categories]: 카테고리 필터 (옵션)
+  /// [sortBy]: 정렬 기준 (기본값: 'newest')
+  /// [page]: 페이지 번호 (기본값: 0)
+  /// [size]: 페이지 크기 (기본값: 20)
+  Future<List<dynamic>> loadAllChallenges({
+    List<String>? categories,
+    String sortBy = 'newest',
+    int page = 0,
+    int size = 20,
+  }) async {
     try {
+      // 쿼리 파라미터 구성
+      final queryParams = <String, dynamic>{
+        'sortBy': sortBy,
+        'page': page,
+        'size': size,
+      };
+
+      if (categories != null && categories.isNotEmpty) {
+        queryParams['categories'] = categories.join(',');
+      }
+
       final response = await _apiService.get('/v0/contests');
 
       if (response.statusCode == 200) {
@@ -77,7 +98,7 @@ class ChallengeService {
       rethrow;
     }
   }
-  
+
   /// ai 이미지 생성
   ///
   /// [prompt]: 이미지 생성 프롬프트
@@ -96,12 +117,10 @@ class ChallengeService {
 
         // 게시글 작성 성공 응답 시뮬레이션
         return {
-          "images": [
-            "string"
-          ],
+          "images": ["string"],
           "success": true,
           "errorMessage": "string",
-          "prompt": "string"
+          "prompt": "string",
         };
       }
 
@@ -139,7 +158,9 @@ class ChallengeService {
         final errorMsg = e.response?.data?.toString() ?? '서버 오류가 발생했습니다.';
         throw Exception('서버 오류: $errorMsg');
       }
-      throw Exception('네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})');
+      throw Exception(
+        '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
+      );
     } catch (e) {
       print('❌ Unexpected Error: $e');
       rethrow;
@@ -165,12 +186,10 @@ class ChallengeService {
 
         // 이미지 생성 성공 응답 시뮬레이션
         return {
-          "images": [
-            "string"
-          ],
+          "images": ["string"],
           "success": true,
           "errorMessage": "string",
-          "prompt": "string"
+          "prompt": "string",
         };
       }
 
@@ -209,7 +228,9 @@ class ChallengeService {
         final errorMsg = e.response?.data?.toString() ?? '서버 오류가 발생했습니다.';
         throw Exception('서버 오류: $errorMsg');
       }
-      throw Exception('네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})');
+      throw Exception(
+        '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
+      );
     } catch (e) {
       print('❌ Unexpected Error: $e');
       rethrow;
@@ -228,20 +249,14 @@ class ChallengeService {
         await Future.delayed(const Duration(milliseconds: 500));
 
         // 이미지 생성 성공 응답 시뮬레이션
-        return {
-          "base64Image" : base64Image,
-          "contentType" : contentType,
-        };
+        return {"base64Image": base64Image, "contentType": contentType};
       }
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: POST /v0/images/upload
       final response = await _apiService.post(
         '/v0/images/upload',
-        data: {
-          'base64Image': base64Image,
-          'contentType': contentType,
-        },
+        data: {'base64Image': base64Image, 'contentType': contentType},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -267,11 +282,12 @@ class ChallengeService {
         final errorMsg = e.response?.data?.toString() ?? '서버 오류가 발생했습니다.';
         throw Exception('서버 오류: $errorMsg');
       }
-      throw Exception('네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})');
+      throw Exception(
+        '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
+      );
     } catch (e) {
       print('❌ Unexpected Error: $e');
       rethrow;
     }
-  }  
-  
+  }
 }
