@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:miyo/data/services/user_service.dart';
 import 'dart:io';
 
 class SettingsBuildProfileCard extends StatefulWidget {
   final bool isLoading;
   final String? errorMessage;
   final Map<String, dynamic>? userInfo;
+  final Function(Map<String, dynamic>)? onProfileImageChanged;
 
   const SettingsBuildProfileCard({
     super.key,
     required this.isLoading,
     required this.errorMessage,
     required this.userInfo,
+    this.onProfileImageChanged,
   });
 
   @override
@@ -21,10 +24,15 @@ class SettingsBuildProfileCard extends StatefulWidget {
 
 class _SettingsBuildProfileCardState extends State<SettingsBuildProfileCard> {
   final ImagePicker _picker = ImagePicker();
+  final UserService _userService = UserService();
   String? _selectedImagePath;
+  bool _isUploading = false;
 
   /// 이미지 소스 선택 다이얼로그
   Future<void> _showImageSourceDialog() async {
+    // 업로드 중일 때는 다이얼로그 표시 안 함
+    if (_isUploading) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -81,13 +89,63 @@ class _SettingsBuildProfileCardState extends State<SettingsBuildProfileCard> {
           _selectedImagePath = image.path;
         });
 
-        // TODO: 실제로는 여기서 서버에 이미지 업로드하고 URL을 받아와야 함
-        // await _uploadProfileImage(image);
+        // 서버에 이미지 업로드
+        await _uploadProfileImage(image.path);
       }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('이미지를 선택하는데 실패했습니다: $e')));
+    }
+  }
+
+  /// 프로필 이미지 업로드
+  Future<void> _uploadProfileImage(String imagePath) async {
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      // UserService를 통해 프로필 이미지 업로드
+      final updatedUserInfo = await _userService.updateProfileImage(imagePath);
+
+      // 업로드 성공 시 부모 위젯에 알림
+      if (widget.onProfileImageChanged != null) {
+        widget.onProfileImageChanged!(updatedUserInfo);
+      }
+
+      // 성공 메시지 표시
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('프로필 이미지가 변경되었습니다'),
+            backgroundColor: Color(0xff00AA5D),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // 에러 발생 시 선택된 이미지 초기화
+      setState(() {
+        _selectedImagePath = null;
+      });
+
+      // 에러 메시지 표시
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('프로필 이미지 변경에 실패했습니다'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -129,6 +187,19 @@ class _SettingsBuildProfileCardState extends State<SettingsBuildProfileCard> {
                   ? Icon(Icons.person, size: 80, color: Colors.white)
                   : null,
             ),
+            // 업로드 중 로딩 인디케이터
+            if (_isUploading)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                ),
+              ),
             Positioned(
               right: 0,
               bottom: 0,

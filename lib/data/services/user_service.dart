@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'api_service.dart';
 import 'token_storage_service.dart';
@@ -89,6 +91,51 @@ class UserService {
       } else {
         throw Exception('닉네임 변경을 실패했습니다.');
       }
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 프로필 이미지 변경
+  ///
+  /// [imagePath]: 변경할 프로필 이미지 파일 경로
+  Future<Map<String, dynamic>> updateProfileImage(String imagePath) async {
+    try {
+      // 개발 모드: 더미 응답 반환
+      if (ApiService.isDevelopmentMode) {
+        await Future.delayed(const Duration(milliseconds: 800));
+        return await getCurrentUser();
+      }
+
+      final formData = FormData.fromMap({
+        'profileImage': await MultipartFile.fromFile(
+          imagePath,
+          filename: imagePath.split('/').last,
+        ),
+      });
+
+      final response = await _apiService.patchMultipart(
+        '/users/my/profile',
+        formData,
+      );
+
+      if (response.statusCode == 200) {
+        // API는 성공 메시지만 반환하므로, 업데이트된 유저 정보를 다시 가져옴
+        return await getCurrentUser();
+      } else {
+        throw Exception('프로필 이미지 변경을 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 400) {
+        throw Exception('잘못된 요청입니다.');
+      } else if (e.response?.statusCode == 500) {
+        throw Exception('서버 오류가 발생했습니다.');
+      } else if (e.response?.statusCode == 415) {
+        throw Exception('지원하지 않는 미디어 타입입니다.');
+      }
+      print('DioException: ${e.message}');
+      rethrow;
     } catch (e) {
       print('Error: $e');
       rethrow;
