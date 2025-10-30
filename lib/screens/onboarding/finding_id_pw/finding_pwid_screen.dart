@@ -3,7 +3,6 @@ import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/data/services/user_service.dart';
 import 'package:miyo/screens/onboarding/finding_id_pw/finding_id_complete_screen.dart';
 import 'package:miyo/screens/onboarding/finding_id_pw/finding_pw_complete_screen.dart';
-import 'package:miyo/screens/onboarding/login_screen.dart';
 
 class FindingPwidScreen extends StatefulWidget {
   final bool initialIsFindingId; // true: 아이디 찾기, false: 비밀번호 찾기
