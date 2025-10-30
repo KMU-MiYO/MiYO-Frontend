@@ -59,7 +59,7 @@ class UserService {
 
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: GET /api/user/{userId}
-      final response = await _apiService.get('/user/$userId');
+      final response = await _apiService.get('/users/$userId');
 
       if (response.statusCode == 200) {
         return response.data as Map<String, dynamic>;
