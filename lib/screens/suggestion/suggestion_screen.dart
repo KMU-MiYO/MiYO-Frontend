@@ -9,11 +9,7 @@ class SuggestionScreen extends StatefulWidget {
   final double? latitude;
   final double? longitude;
 
-  const SuggestionScreen({
-    super.key,
-    this.latitude,
-    this.longitude,
-  });
+  const SuggestionScreen({super.key, this.latitude, this.longitude});
 
   @override
   State<SuggestionScreen> createState() => _SuggestionScreenState();
@@ -21,8 +17,24 @@ class SuggestionScreen extends StatefulWidget {
 
 class _SuggestionScreenState extends State<SuggestionScreen> {
   int? selectedIndex;
-  final List<String> options = ['자연 / 공원', '문화 / 예술', '교통 / 이동', '주거 / 생활', '상권 / 시장', '야간 / 경관', '환경/지속 가능'];
-  final List<String> categoryApiValues = ['NATURE', 'CULTURE', 'TRAFFIC', 'RESIDENCE', 'COMMERCIAL', 'NIGHT', 'ENVIRONMENT'];
+  final List<String> options = [
+    '자연 / 공원',
+    '문화 / 예술',
+    '교통 / 이동',
+    '주거 / 생활',
+    '상권 / 시장',
+    '야간 / 경관',
+    '환경/지속 가능',
+  ];
+  final List<String> categoryApiValues = [
+    'NATURE',
+    'CULTURE',
+    'TRAFFIC',
+    'RESIDENCE',
+    'COMMERCIAL',
+    'NIGHT',
+    'ENVIRONMENT',
+  ];
   final List<File> _images = [];
   final List<String> _aiImageUrls = []; // AI 생성 이미지 URL 리스트
   final ImagePicker _picker = ImagePicker();
@@ -54,10 +66,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(
-                  Icons.camera_alt, 
-                  color: Colors.blue
-                  ),
+                leading: Icon(Icons.camera_alt, color: Colors.blue),
                 title: Text('카메라로 촬영'),
                 onTap: () {
                   Navigator.pop(context);
@@ -65,9 +74,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                 },
               ),
               ListTile(
-                leading: Icon(
-                  Icons.photo_library, 
-                  color: Colors.green),
+                leading: Icon(Icons.photo_library, color: Color(0xff00AA5D)),
                 title: Text('갤러리에서 선택'),
                 onTap: () {
                   Navigator.pop(context);
@@ -109,30 +116,30 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
   Future<void> _submitPost() async {
     // 유효성 검사
     if (_titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('제목을 입력해주세요.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('제목을 입력해주세요.')));
       return;
     }
 
     if (_contentController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('내용을 입력해주세요.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('내용을 입력해주세요.')));
       return;
     }
 
     if (selectedIndex == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('카테고리를 선택해주세요.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('카테고리를 선택해주세요.')));
       return;
     }
 
     if (widget.latitude == null || widget.longitude == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('위치 정보가 없습니다.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('위치 정보가 없습니다.')));
       return;
     }
 
@@ -177,7 +184,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('게시글이 등록되었습니다.'),
-            backgroundColor: Colors.green,
+            backgroundColor: Color(0xff00AA5D),
           ),
         );
 
@@ -218,125 +225,131 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       appBar: TitleAppbar(title: '새로운 제안', leadingType: LeadingType.back),
       body: SingleChildScrollView(
         child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: _titleController,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Color(0xffF0F2F5),
-                          hintText: '제목',
-                          hintStyle: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xff61758A),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: height * 0.01),
-                      TextField(
-                        controller: _contentController,
-                        minLines: 10,
-                        maxLines: 15,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Color(0xffF0F2F5),
-                          hintText: '내용',
-                          hintStyle: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xff61758A),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: height * 0.02),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '카테고리',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                SizedBox(height: height * 0.01),
-                Transform.translate(
-                  offset: Offset(-8, 0),
-                  child: Wrap(
-                    alignment: WrapAlignment.start,
-                    spacing: width * 0.02,
-                    children: List.generate(
-                    options.length,
-                    (index) => ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedIndex = index;
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: Size(
-                          85, 
-                          27,
-                          ),
-                        padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-                        backgroundColor: selectedIndex == index
-                            ? Color(0xff00AA5D)
-                            : Color(0xffF0F2F5),
-                        foregroundColor: selectedIndex == index
-                            ? Colors.white
-                            : Color(0xff61758A),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12), 
-                        ),
-                      ),
-                      child: Text(
-                        options[index],
-                        style: TextStyle(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Center(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _titleController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Color(0xffF0F2F5),
+                        hintText: '제목',
+                        hintStyle: TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          fontSize: 13,
-                          height: 1.0,
+                          color: Color(0xff61758A),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
-                  ),
-                ),
-                ),
-                SizedBox(height: height * 0.02),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '갤러리 이미지 첨부',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                    SizedBox(height: height * 0.01),
+                    TextField(
+                      controller: _contentController,
+                      minLines: 10,
+                      maxLines: 15,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Color(0xffF0F2F5),
+                        hintText: '내용',
+                        hintStyle: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xff61758A),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                SizedBox(height: height * 0.01),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Wrap(
+              ),
+              SizedBox(height: height * 0.02),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '카테고리',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ),
+              SizedBox(height: height * 0.01),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // 사용 가능한 너비 = 전체 너비
+                  final availableWidth = constraints.maxWidth;
+                  // 버튼 간 간격
+                  const spacing = 8.0;
+                  // 한 줄에 4개 배치: (버튼 너비 * 4) + (간격 * 3) = 사용 가능한 너비
+                  final buttonWidth = (availableWidth - (spacing * 3)) / 4;
+
+                  return Wrap(
                     alignment: WrapAlignment.start,
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
+                    spacing: spacing,
+                    runSpacing: 8,
+                    children: List.generate(
+                      options.length,
+                      (index) => SizedBox(
+                        width: buttonWidth,
+                        height: 33,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              selectedIndex = index;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 2,
+                              vertical: 2,
+                            ),
+                            backgroundColor: selectedIndex == index
+                                ? Color(0xff00AA5D)
+                                : Color(0xffF0F2F5),
+                            foregroundColor: selectedIndex == index
+                                ? Colors.white
+                                : Color(0xff61758A),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            options[index],
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                              height: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: height * 0.02),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '갤러리 이미지 첨부',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ),
+              SizedBox(height: height * 0.01),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
                     ..._images.asMap().entries.map((entry) {
                       int index = entry.key;
                       File image = entry.value;
@@ -390,26 +403,23 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                       ),
                     ),
                   ],
-                  ),
                 ),
-                SizedBox(height: height * 0.02),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '상상 이미지 추가',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+              ),
+              SizedBox(height: height * 0.02),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '상상 이미지 추가',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Wrap(
-                    alignment: WrapAlignment.start,
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
                     // AI 생성 이미지들
                     ..._aiImageUrls.asMap().entries.map((entry) {
                       int index = entry.key;
@@ -423,25 +433,31 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Color(0xffF0F2F5),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      value: loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress.cumulativeBytesLoaded /
-                                              loadingProgress.expectedTotalBytes!
-                                          : null,
-                                    ),
-                                  ),
-                                );
-                              },
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      width: 100,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xffF0F2F5),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          value:
+                                              loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      ),
+                                    );
+                                  },
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
                                   width: 100,
@@ -506,7 +522,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('AI 이미지가 추가되었습니다.'),
-                                backgroundColor: Colors.green,
+                                backgroundColor: Color(0xff00AA5D),
                               ),
                             );
                           }
@@ -527,44 +543,44 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                       ),
                     ),
                   ],
-                  ),
                 ),
-                SizedBox(height: height * 0.02),
-                SizedBox(
-                  height: height * 0.06,
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xff00AA5D),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+              ),
+              SizedBox(height: height * 0.02),
+              SizedBox(
+                height: height * 0.06,
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff00AA5D),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: _isSubmitting ? null : _submitPost,
-                    child: _isSubmitting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            '등록하기',
-                            style: TextStyle(
-                              color: Color(0xffffffff),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
                   ),
+                  onPressed: _isSubmitting ? null : _submitPost,
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          '등록하기',
+                          style: TextStyle(
+                            color: Color(0xffffffff),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                 ),
-                SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
-              ],
-            ),
+              ),
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
+            ],
           ),
         ),
+      ),
     );
   }
 }
