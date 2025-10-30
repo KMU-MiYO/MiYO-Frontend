@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/screens/challenges/challenge_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_top3.dart';
-import 'package:miyo/screens/imaginary_map/suggestion_item.dart' as suggestion_lib;
+import 'package:miyo/screens/imaginary_map/suggestion_item.dart'
+    as suggestion_lib;
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/screens/suggestion/suggestion_screen.dart';
 import 'package:miyo/data/services/challenge_service.dart';
+import 'package:miyo/screens/suggestion/suggestion_all_screen.dart';
 
 class ChallengeDetailScreen extends StatefulWidget {
   final int contestId;
 
-  const ChallengeDetailScreen({
-    super.key,
-    required this.contestId,
-  });
+  const ChallengeDetailScreen({super.key, required this.contestId});
 
   @override
   State<ChallengeDetailScreen> createState() => _ChallengeDetailScreenState();
@@ -36,8 +35,9 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     });
 
     try {
-      final data =
-          await _challengeService.getContestById(contestId: widget.contestId);
+      final data = await _challengeService.getContestById(
+        contestId: widget.contestId,
+      );
       print('📦 챌린지 데이터: $data');
       setState(() {
         contestData = data;
@@ -94,9 +94,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
         backgroundColor: Colors.white,
         appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
         body: Center(
-          child: CircularProgressIndicator(
-            color: Color(0xff00AA5D),
-          ),
+          child: CircularProgressIndicator(color: Color(0xff00AA5D)),
         ),
       );
     }
@@ -310,6 +308,14 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                   TextButton(
                     onPressed: () {
                       // 챌린지 제안 리스트 페이지로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SuggestionAllScreen(
+                            contestId: widget.contestId,
+                          ),
+                        ),
+                      );
                     },
                     child: Text(
                       '+ 더보기',
@@ -328,10 +334,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Text(
                     '아직 제안이 없습니다.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                 )
               else
@@ -347,7 +350,9 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                     itemBuilder: (context, index) {
                       final post = topPosts[index];
                       return SuggestionTop3(
-                        categoryType: _getSuggestionCategoryType(post['category']),
+                        categoryType: _getSuggestionCategoryType(
+                          post['category'],
+                        ),
                         title: post['title'] ?? '제목 없음',
                         writer: post['userId'] ?? '익명',
                         rank: index + 1,
