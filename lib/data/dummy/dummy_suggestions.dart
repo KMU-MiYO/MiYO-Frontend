@@ -9,6 +9,7 @@ List<Map<String, dynamic>> allDummySuggestions() {
       'writer': 'hoho',
       'categoryType': CategoryType.NATURE,
       'like': 500,
+      "createdAt": "2025-10-30T16:03:58.401Z",
     },
     {
       'id': 2,
@@ -16,6 +17,7 @@ List<Map<String, dynamic>> allDummySuggestions() {
       'writer': 'ahnana',
       'categoryType': CategoryType.TRAFFIC,
       'like': 300,
+      "createdAt": "2025-10-30T19:03:58.401Z",
     },
     {
       'id': 3,
@@ -23,6 +25,7 @@ List<Map<String, dynamic>> allDummySuggestions() {
       'writer': 'banana',
       'categoryType': CategoryType.NATURE,
       'like': 100,
+      "createdAt": "2025-10-30T11:03:58.401Z",
     },
     {
       'id': 4,
@@ -30,6 +33,7 @@ List<Map<String, dynamic>> allDummySuggestions() {
       'writer': 'cherry',
       'categoryType': CategoryType.NIGHT,
       'like': 200,
+      "createdAt": "2025-10-30T12:03:58.401Z",
     },
     {
       'id': 5,
@@ -37,12 +41,14 @@ List<Map<String, dynamic>> allDummySuggestions() {
       'writer': 'orange',
       'categoryType': CategoryType.RESIDENCE,
       'like': 400,
+      "createdAt": "2025-10-31T16:03:58.401Z",
     },
     {
       'id': 6,
       'title': '문화시설을 만들어주세요.',
       'writer': 'orange',
       'categoryType': CategoryType.CULTURE,
+      "createdAt": "2025-10-31T10:03:58.401Z",
       'like': 50,
     },
   ];
