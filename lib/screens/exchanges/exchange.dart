@@ -53,7 +53,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
                     widget.point,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 24,
+                      fontSize: 20,
                       color: Colors.black,
                     ),
                   ),
