@@ -4,6 +4,7 @@ import 'package:miyo/screens/challenges/challenge_mission.dart';
 import 'package:miyo/screens/challenges/challenge_item.dart';
 import 'package:miyo/screens/challenges/challenge_all_screen.dart';
 import 'package:miyo/screens/challenges/challenge_ing_screen.dart';
+import 'package:miyo/data/services/challenge_service.dart';
 
 class ChallengeScreen extends StatefulWidget {
   const ChallengeScreen({super.key});
@@ -13,8 +14,98 @@ class ChallengeScreen extends StatefulWidget {
 }
 
 class _ChallengeScreenState extends State<ChallengeScreen> {
+  final ChallengeService _challengeService = ChallengeService();
+
+  List<dynamic> _allChallenges = [];
+  List<dynamic> _ingChallenges = [];
+  List<dynamic> _weeklyMissions = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChallenges();
+    _loadMissions();
+    _loadParticipatingChallenges();
+  }
+
+  // 주간 미션 조회
+  Future<void> _loadMissions() async {
+    try {
+      final response = await _challengeService.loadWeeklyMissions();
+      print('✅ 주간 미션 ${response.length}개 로드 성공');
+
+      setState(() {
+        _weeklyMissions = response.toList();
+        _isLoading = false;
+      });
+    } catch (e, stackTrace) {
+      print('❌ 주간 미션 로드 실패: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // 전체 챌린지 조회
+  Future<void> _loadChallenges() async {
+    try {
+      final response = await _challengeService.loadAllChallenges();
+
+      setState(() {
+        _allChallenges = response.take(3).toList();
+        _isLoading = false;
+      });
+    } catch (e, stackTrace) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // 참여 중 챌린지 조회
+  Future<void> _loadParticipatingChallenges() async {
+    try {
+      final response = await _challengeService.loadIngChallenges();
+
+      setState(() {
+        _ingChallenges = response.take(3).toList();
+        _isLoading = false;
+      });
+    } catch (e, stackTrace) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  CategoryType? _parseCategoryType(String? category) {
+    if (category == null) return null;
+
+    switch (category.toUpperCase()) {
+      case 'NATURE':
+        return CategoryType.NaturePark;
+      case 'CULTURE':
+        return CategoryType.CultureArts;
+      case 'TRAFFIC':
+        return CategoryType.Transport;
+      case 'RESIDENCE':
+        return CategoryType.Life;
+      case 'COMMERCIAL':
+        return CategoryType.Commercial;
+      case 'NIGHT':
+        return CategoryType.NightLandscape;
+      case 'ENVIRONMENT':
+        return CategoryType.EnvironSustain;
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: const TitleAppbar(title: '챌린지'),
       backgroundColor: Colors.white,
@@ -30,11 +121,24 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              const ChallengeMission(title: '제안 5번 하기', progress: 1, total: 5),
-              const SizedBox(height: 16),
-              const ChallengeMission(title: '공감 3번 하기', progress: 2, total: 3),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _weeklyMissions.isEmpty
+                  ? const Text('주간 미션이 존재하지 않습니다.')
+                  : Column(
+                      children: _weeklyMissions.map((mission) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: ChallengeMission(
+                            title: mission['title'] ?? '',
+                            progress: mission['currentCount'] ?? 0,
+                            total: mission['goalCount'] ?? 0,
+                          ),
+                        );
+                      }).toList(),
+                    ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: height * 0.0005),
 
               // 참가 중인 챌린지 섹션
               Row(
@@ -60,14 +164,27 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              const ChallengeItem(
-                categoryType: CategoryType.NATURE,
-                title: '2026 우리 동네 공원 상상하기',
-                location: '서울시',
-              ),
 
-              const SizedBox(height: 50),
+              SizedBox(height: height * 0.01),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _ingChallenges.isEmpty
+                  ? const Text('참여 중인 챌린지가 없습니다.')
+                  : Column(
+                      children: _ingChallenges.map((challenge) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ChallengeItem(
+                            categoryType: _parseCategoryType(
+                              challenge['category'],
+                            ),
+                            title: challenge['title'] ?? '',
+                            location: challenge['host'] ?? '',
+                          ),
+                        );
+                      }).toList(),
+                    ),
+              SizedBox(height: height * 0.015),
 
               // 전체 챌린지 섹션
               Row(
@@ -93,18 +210,26 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              const ChallengeItem(
-                categoryType: CategoryType.RESIDENCE,
-                title: '2026 성북구 편의시설 상상하기',
-                location: '성북구',
-              ),
-              const SizedBox(height: 12),
-              const ChallengeItem(
-                categoryType: CategoryType.ENVIRONMENT,
-                title: '2026 한강변 상상하기',
-                location: '서울시',
-              ),
+
+              SizedBox(height: height * 0.01),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _allChallenges.isEmpty
+                  ? const Text('진행 중인 챌린지가 없습니다.')
+                  : Column(
+                      children: _allChallenges.map((challenge) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ChallengeItem(
+                            categoryType: _parseCategoryType(
+                              challenge['category'],
+                            ),
+                            title: challenge['title'] ?? '',
+                            location: challenge['host'] ?? '',
+                          ),
+                        );
+                      }).toList(),
+                    ),
             ],
           ),
         ),

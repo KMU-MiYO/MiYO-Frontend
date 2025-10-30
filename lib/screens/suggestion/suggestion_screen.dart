@@ -372,7 +372,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
                           ),
                         ],
                       );
-                    }).toList(),
+                    }),
                     GestureDetector(
                       onTap: _showImageSourceDialog,
                       child: Container(

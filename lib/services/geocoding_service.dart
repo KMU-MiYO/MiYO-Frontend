@@ -4,7 +4,39 @@ import 'package:miyo/config/config.dart';
 
 /// 주소를 좌표로 변환하는 Geocoding 서비스
 class GeocodingService {
-  final Dio _dio = Dio();
+  late final Dio _dio;
+
+  GeocodingService() {
+    _dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 5),
+        headers: {
+          'X-NCP-APIGW-API-KEY-ID': naverClientId,
+          'X-NCP-APIGW-API-KEY': naverClientSecret,
+        },
+      ),
+    );
+
+    // 인터셉터 추가 (로깅)
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          print('🚀 NAVER API REQUEST => ${options.uri}');
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          print('✅ NAVER API RESPONSE[${response.statusCode}]');
+          return handler.next(response);
+        },
+        onError: (error, handler) {
+          print('❌ NAVER API ERROR[${error.response?.statusCode}]');
+          print('MESSAGE: ${error.message}');
+          return handler.next(error);
+        },
+      ),
+    );
+  }
 
   /// 주소를 좌표로 변환
   /// 주소 입력 -> (위도, 경도) 반환
@@ -19,13 +51,7 @@ class GeocodingService {
       // 네이버 Geocoding API
       final response = await _dio.get(
         'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode',
-        queryParameters: {'query': address},
-        options: Options(
-          headers: {
-            'X-NCP-APIGW-API-KEY-ID': naverClientId,
-            'X-NCP-APIGW-API-KEY': naverClientSecret,
-          },
-        ),
+        queryParameters: {'query': '${address}'},
       );
 
       print('📡 API 응답 상태 코드: ${response.statusCode}');
@@ -74,12 +100,6 @@ class GeocodingService {
           'output': 'json',
           'orders': 'roadaddr',
         },
-        options: Options(
-          headers: {
-            'X-NCP-APIGW-API-KEY-ID': naverClientId,
-            'X-NCP-APIGW-API-KEY': naverClientSecret,
-          },
-        ),
       );
 
       if (response.statusCode == 200) {
