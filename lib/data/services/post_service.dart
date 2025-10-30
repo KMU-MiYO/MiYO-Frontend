@@ -285,8 +285,16 @@ class PostService {
       );
 
       if (response.statusCode == 200) {
-        print('✅ 주변 게시글 ${(response.data as List).length}개 조회 성공');
-        return response.data as List<dynamic>;
+        // 응답이 페이지네이션 형태: {content: [...], page, size, totalElements, totalPages}
+        if (response.data is Map<String, dynamic>) {
+          final data = response.data as Map<String, dynamic>;
+          final content = data['content'] as List<dynamic>? ?? [];
+          print('✅ 주변 게시글 ${content.length}개 조회 성공');
+          return content;
+        } else {
+          print('✅ 주변 게시글 ${(response.data as List).length}개 조회 성공');
+          return response.data as List<dynamic>;
+        }
       } else {
         throw Exception(
           '주변 게시글 조회에 실패했습니다. (Status: ${response.statusCode})',

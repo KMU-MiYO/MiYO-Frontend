@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:miyo/data/dummy/dummy_suggestions.dart';
 import 'package:miyo/data/services/post_service.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
@@ -53,11 +52,12 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
   List<dynamic> _top3Posts = [];
   bool _isLoadingTop3 = true;
 
+  // 내 주변 게시글 데이터
+  List<dynamic> _nearbyPosts = [];
+  bool _isLoadingNearby = true;
+
   // 제안 목록 스크롤 컨트롤러
   final ScrollController _suggestionScrollController = ScrollController();
-
-  // 더미 데이터
-  final List<Map<String, dynamic>> _allSuggestions = allDummySuggestions();
 
   // 모든 카테고리 리스트
   final List<CategoryType> allCategories = [
@@ -74,6 +74,7 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
   void initState() {
     super.initState();
     _loadTop3Posts();
+    _loadNearbyPosts();
   }
 
   /// zoom 레벨에 따라 검색 반경(미터) 계산
@@ -164,19 +165,62 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
     }
   }
 
-  /// 필터링된 제안 목록 가져오기
-  List<Map<String, dynamic>> get _filteredSuggestions {
-    var filtered = _allSuggestions;
-
-    // 카테고리 필터링
-    if (selectedCategories.isNotEmpty) {
-      filtered = filtered.where((suggestion) {
-        final categoryType = suggestion['categoryType'] as CategoryType;
-        return selectedCategories.contains(categoryType);
-      }).toList();
+  /// FilterType enum을 백엔드 sortBy 문자열로 변환
+  String _filterTypeToSortBy(FilterType filter) {
+    switch (filter) {
+      case FilterType.popularity:
+        return 'empathy'; // 공감순
+      case FilterType.latest:
+        return 'latest'; // 최신순
+      case FilterType.distance:
+        return 'distance'; // 거리순
     }
+  }
 
-    return filtered;
+  /// 현재 지도 위치 및 필터 기반으로 내 주변 게시글 로드
+  Future<void> _loadNearbyPosts() async {
+    setState(() => _isLoadingNearby = true);
+
+    try {
+      // 현재 카메라 위치 가져오기
+      final cameraPosition = await widget.mapController.getCameraPosition();
+      final center = cameraPosition.target;
+      final zoom = cameraPosition.zoom;
+      final radius = _calculateRadiusFromZoom(zoom);
+
+      // 선택된 카테고리를 백엔드 문자열로 변환
+      final categories = selectedCategories.isEmpty
+          ? null
+          : selectedCategories.map(_categoryTypeToString).toList();
+
+      // FilterType을 sortBy 문자열로 변환
+      final sortBy = _filterTypeToSortBy(selectedFilter);
+
+      print(
+        '📍 내 주변 게시글 로드: lat=${center.latitude}, lng=${center.longitude}, radius=$radius, categories=$categories, sortBy=$sortBy',
+      );
+
+      // API 호출
+      final posts = await _postService.getNearbyPosts(
+        latitude: center.latitude,
+        longitude: center.longitude,
+        radius: radius,
+        categories: categories,
+        sortBy: sortBy,
+      );
+
+      setState(() {
+        _nearbyPosts = posts;
+        _isLoadingNearby = false;
+      });
+
+      print('✅ 내 주변 게시글 ${posts.length}개 로드 완료');
+    } catch (e) {
+      print('❌ 내 주변 게시글 로드 실패: $e');
+      setState(() {
+        _isLoadingNearby = false;
+      });
+    }
   }
 
   void toggleCategory(CategoryType category) {
@@ -187,12 +231,16 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
         selectedCategories.add(category);
       }
     });
+    // 카테고리 변경 시 내 주변 게시글 다시 로드
+    _loadNearbyPosts();
   }
 
   void changeFilter(FilterType newFilter) {
     setState(() {
       selectedFilter = newFilter;
     });
+    // 필터 변경 시 내 주변 게시글 다시 로드
+    _loadNearbyPosts();
   }
 
   @override
@@ -338,36 +386,37 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
               // 제안 목록 (고정 높이 + 내부 스크롤)
               SizedBox(
                 height: 300,
-                child: _filteredSuggestions.isEmpty
-                    ? const Center(
-                        child: Text(
-                          '주변에 게시글이 없습니다',
-                          style: TextStyle(color: Color(0xff61758A)),
-                        ),
-                      )
-                    : Scrollbar(
-                        controller: _suggestionScrollController,
-                        thumbVisibility: true,
-                        thickness: 3,
-                        radius: Radius.circular(2),
-                        child: ListView.separated(
-                          controller: _suggestionScrollController,
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                          itemCount: _filteredSuggestions.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 16),
-                          itemBuilder: (context, index) {
-                            final suggestion = _filteredSuggestions[index];
-                            return SuggestionItem(
-                              categoryType:
-                                  suggestion['categoryType'] as CategoryType,
-                              title: suggestion['title'] as String,
-                              writer: suggestion['writer'] as String,
-                              postId: suggestion['id'] as int,
-                            );
-                          },
-                        ),
-                      ),
+                child: _isLoadingNearby
+                    ? const Center(child: CircularProgressIndicator())
+                    : _nearbyPosts.isEmpty
+                        ? const Center(
+                            child: Text(
+                              '주변에 게시글이 없습니다',
+                              style: TextStyle(color: Color(0xff61758A)),
+                            ),
+                          )
+                        : Scrollbar(
+                            controller: _suggestionScrollController,
+                            thumbVisibility: true,
+                            thickness: 3,
+                            radius: Radius.circular(2),
+                            child: ListView.separated(
+                              controller: _suggestionScrollController,
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                              itemCount: _nearbyPosts.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 16),
+                              itemBuilder: (context, index) {
+                                final post = _nearbyPosts[index];
+                                return SuggestionItem(
+                                  categoryType: _parseCategoryType(post['category']),
+                                  title: post['title'] ?? '',
+                                  writer: post['nickname'] ?? '익명',
+                                  postId: post['postId'] as int,
+                                );
+                              },
+                            ),
+                          ),
               ),
             ],
           ),
