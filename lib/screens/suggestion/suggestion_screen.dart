@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'package:miyo/data/services/post_service.dart';
-import 'package:miyo/data/services/challenge_service.dart';
 import 'package:miyo/screens/suggestion/ai_suggestion_screen.dart';
 
 class SuggestionScreen extends StatefulWidget {
@@ -41,7 +39,6 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
   final List<String> _aiImageUrls = []; // AI 생성 이미지 URL 리스트
   final ImagePicker _picker = ImagePicker();
   final PostService _postService = PostService();
-  final ChallengeService _challengeService = ChallengeService();
 
   // 텍스트 컨트롤러
   final TextEditingController _titleController = TextEditingController();
@@ -115,43 +112,6 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
     });
   }
 
-  // 갤러리 이미지를 서버에 업로드
-  Future<String?> _uploadGalleryImage(File imageFile) async {
-    try {
-      print('📤 갤러리 이미지 업로드 시작: ${imageFile.path}');
-
-      // 이미지를 Base64로 인코딩
-      final bytes = await imageFile.readAsBytes();
-      final base64Image = base64Encode(bytes);
-
-      // 파일 확장자로 contentType 결정
-      final extension = imageFile.path.split('.').last.toLowerCase();
-      String contentType = 'image/jpeg';
-      if (extension == 'png') {
-        contentType = 'image/png';
-      } else if (extension == 'jpg' || extension == 'jpeg') {
-        contentType = 'image/jpeg';
-      }
-
-      print('📤 이미지 인코딩 완료, 업로드 API 호출 중...');
-
-      // 서버에 업로드
-      final response = await _challengeService.bitmapImageUpload(
-        base64Image: base64Image,
-        contentType: contentType,
-      );
-
-      // 업로드된 이미지 URL 반환 (응답 구조에 따라 수정 필요)
-      final imageUrl = response['imageUrl'] ?? response['url'] ?? response['imagePath'];
-
-      print('✅ 이미지 업로드 성공: $imageUrl');
-      return imageUrl as String?;
-    } catch (e) {
-      print('❌ 이미지 업로드 실패: $e');
-      return null;
-    }
-  }
-
   // 게시글 등록
   Future<void> _submitPost() async {
     // 유효성 검사
@@ -188,24 +148,15 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
     });
 
     try {
-      // 이미지 선택: AI 이미지가 있으면 AI 이미지 URL, 없으면 갤러리 이미지 업로드
+      // 이미지 선택: AI 이미지가 있으면 AI 이미지 URL, 없으면 갤러리 이미지 경로
       String imagePath = '';
 
       if (_aiImageUrls.isNotEmpty) {
         // AI 생성 이미지가 있으면 첫 번째 AI 이미지 URL 사용
         imagePath = _aiImageUrls.first;
-        print('🎨 AI 이미지 사용: $imagePath');
       } else if (_images.isNotEmpty) {
-        // AI 이미지가 없고 갤러리 이미지가 있으면 서버에 업로드
-        print('📤 갤러리 이미지 업로드 중...');
-        final uploadedUrl = await _uploadGalleryImage(_images.first);
-
-        if (uploadedUrl == null || uploadedUrl.isEmpty) {
-          throw Exception('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
-        }
-
-        imagePath = uploadedUrl;
-        print('✅ 갤러리 이미지 업로드 완료: $imagePath');
+        // AI 이미지가 없고 갤러리 이미지가 있으면 갤러리 이미지 경로 사용
+        imagePath = _images.first.path;
       }
 
       print('📝 게시글 등록 시도:');
@@ -215,6 +166,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       print('- 위도: ${widget.latitude}');
       print('- 경도: ${widget.longitude}');
       print('- 이미지: $imagePath');
+      print('- AI 이미지 사용: ${_aiImageUrls.isNotEmpty}');
 
       // API 호출
       final result = await _postService.createPost(
