@@ -5,7 +5,7 @@
 MiYO는 시민들이 지역 사회의 문제를 발견하고 개선 아이디어를 제안할 수 있는 위치 기반 모바일 애플리케이션입니다. AI 이미지 생성 기술을 활용하여 상상을 현실처럼 시각화하고, 챌린지를 통해 적극적인 시민 참여를 유도합니다.
 
 <p align="center">
-<img width="550" height="300" alt="miyo" src="https://github.com/user-attachments/assets/1b6daf4a-8c05-4a07-abb1-bdf5c5d549a2" />
+  <img width="1242" height="699" alt="github" src="https://github.com/user-attachments/assets/49cc03b8-0209-41a7-9dfa-e2ce4a5b6a16" />
 </p>
 
 ## ✨ 주요 기능
@@ -117,10 +117,6 @@ flutter run
 # 릴리스 빌드
 flutter run --release
 ```
-
-## 🎨 카테고리
-
-
 
 ## 📱 화면 구성
 
