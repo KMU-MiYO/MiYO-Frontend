@@ -25,13 +25,13 @@ class _MapScreenState extends State<MapScreen> {
 
   // 모든 카테고리 리스트
   final List<CategoryType> allCategories = [
-    CategoryType.NaturePark,
-    CategoryType.CultureArts,
-    CategoryType.Transport,
-    CategoryType.Life,
-    CategoryType.Commercial,
-    CategoryType.NightLandscape,
-    CategoryType.EnvironSustain,
+    CategoryType.NATURE,
+    CategoryType.CULTURE,
+    CategoryType.TRAFFIC,
+    CategoryType.RESIDENCE,
+    CategoryType.COMMERCIAL,
+    CategoryType.NIGHT,
+    CategoryType.ENVIRONMENT,
   ];
 
   void toggleCategory(CategoryType category) {

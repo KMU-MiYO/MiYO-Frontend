@@ -22,7 +22,7 @@ class SuggestionScreen extends StatefulWidget {
 class _SuggestionScreenState extends State<SuggestionScreen> {
   int? selectedIndex;
   final List<String> options = ['자연 / 공원', '문화 / 예술', '교통 / 이동', '주거 / 생활', '상권 / 시장', '야간 / 경관', '환경/지속 가능'];
-  final List<String> categoryApiValues = ['NATURE', 'CULTURE', 'TRANSPORT', 'LIFE', 'COMMERCIAL', 'NIGHT', 'ENVIRONMENT'];
+  final List<String> categoryApiValues = ['NATURE', 'CULTURE', 'TRAFFIC', 'RESIDENCE', 'COMMERCIAL', 'NIGHT', 'ENVIRONMENT'];
   final List<File> _images = [];
   final List<String> _aiImageUrls = []; // AI 생성 이미지 URL 리스트
   final ImagePicker _picker = ImagePicker();
