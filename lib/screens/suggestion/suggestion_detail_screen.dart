@@ -6,10 +6,7 @@ import 'package:miyo/data/services/post_service.dart';
 class SuggestionDetailScreen extends StatefulWidget {
   final int postId;
 
-  const SuggestionDetailScreen({
-    super.key,
-    required this.postId,
-  });
+  const SuggestionDetailScreen({super.key, required this.postId});
 
   @override
   State<SuggestionDetailScreen> createState() => _SuggestionDetailScreenState();
@@ -34,7 +31,9 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
     try {
       final data = await _postService.getPostById(postId: widget.postId);
       print('📦 게시글 데이터: $data');
-      print('👤 작성자 정보: ${data['nickname']} / ${data['userNickname']} / ${data['author']}');
+      print(
+        '👤 작성자 정보: ${data['nickname']} / ${data['userNickname']} / ${data['author']}',
+      );
       setState(() {
         postData = data;
         isLoading = false;
@@ -133,9 +132,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
         backgroundColor: Colors.white,
         appBar: TitleAppbar(title: '상세보기', leadingType: LeadingType.back),
         body: Center(
-          child: CircularProgressIndicator(
-            color: Color(0xff00AA5D),
-          ),
+          child: CircularProgressIndicator(color: Color(0xff00AA5D)),
         ),
       );
     }
@@ -211,7 +208,8 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                       context: context,
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
-                      builder: (context) => const CommentBottomSheet(),
+                      builder: (context) =>
+                          CommentBottomSheet(postId: widget.postId),
                     );
                   },
                   child: Text(
