@@ -133,7 +133,9 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SuggestionDetailScreen(),
+                            builder: (context) => SuggestionDetailScreen(
+                              postId: suggestion['id'] as int,
+                            ),
                           ),
                         );
                       },
@@ -204,6 +206,7 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
                             suggestion['categoryType'] as CategoryType,
                         title: suggestion['title'] as String,
                         writer: suggestion['writer'] as String,
+                        postId: suggestion['id'] as int,
                       );
                     },
                   ),

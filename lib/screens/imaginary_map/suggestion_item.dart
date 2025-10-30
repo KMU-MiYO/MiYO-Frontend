@@ -5,12 +5,14 @@ class SuggestionItem extends StatelessWidget {
   final CategoryType? categoryType;
   final String title;
   final String writer;
+  final int postId;
 
   const SuggestionItem({
     super.key,
     required this.categoryType,
     required this.title,
     required this.writer,
+    required this.postId,
   });
 
   @override
@@ -54,7 +56,9 @@ class SuggestionItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SuggestionDetailScreen(),
+                  builder: (context) => SuggestionDetailScreen(
+                    postId: postId,
+                  ),
                 ),
               );
             },

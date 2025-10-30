@@ -315,7 +315,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SuggestionDetailScreen(),
+                          builder: (context) => SuggestionDetailScreen(
+                            postId: suggestion['id'] ?? 1,
+                          ),
                         ),
                       );
                     },
