@@ -23,7 +23,7 @@ class ExchangeListItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '지역 화폐 $localCachePrice권',
+                '지역 화폐 $localCachePrice원권',
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 16,
