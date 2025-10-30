@@ -1,61 +1,115 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/comment.dart';
+import 'package:miyo/data/services/comment_service.dart';
+import 'package:miyo/data/services/user_service.dart';
 
 class CommentBottomSheet extends StatefulWidget {
-  const CommentBottomSheet({super.key});
+  final int postId;
+
+  const CommentBottomSheet({
+    super.key,
+    required this.postId,
+  });
 
   @override
   State<CommentBottomSheet> createState() => _CommentBottomSheetState();
 }
 
 class _CommentBottomSheetState extends State<CommentBottomSheet> {
-  final List<Map<String, dynamic>> _comments = [
-    {
-      'profileImageData': null,
-      'nickname': '일어나라미요',
-      'commentDetail':
-          '진짜 너무 공감돼요... 자전거 타는 사람도 많은데 따로 만들어지면 더 안전한 공원이 될 것 같아요.',
-      'createdAt': '2024/02/03',
-      'empathyCount': 0,
-      'isEmpathied': false,
-      'replies': [
-        {
-          'profileImageData': null,
-          'nickname': '일어나라미요',
-          'commentDetail':
-              '진짜 너무 공감돼요... 자전거 타는 사람도 많은데 따로 만들어지면 더 안전한 공원이 될 것 같아요.',
-          'createdAt': '2024/02/03',
-          'empathyCount': 0,
-          'isEmpathied': false,
-        },
-        {
-          'profileImageData': null,
-          'nickname': 'halulala',
-          'commentDetail': '마자요. 저도 우리 땡솜이랑 같이 다닐 때마다 자전거가 슝 같이 다녀서...더보기',
-          'createdAt': '2024/02/03',
-          'empathyCount': 0,
-          'isEmpathied': false,
-        },
-      ],
-    },
-    {
-      'profileImageData': null,
-      'nickname': '산책러버',
-      'commentDetail': '이 아이디어 정말 좋네요! 저도 동의합니다.',
-      'createdAt': '2024/02/03',
-      'empathyCount': 5,
-      'isEmpathied': false,
-      'replies': [],
-    },
-  ];
+  final CommentService _commentService = CommentService();
+  final UserService _userService = UserService();
+
+  List<Map<String, dynamic>> _comments = [];
+  bool _isLoading = true;
+  int _currentPage = 0;
+  final int _pageSize = 10;
 
   final TextEditingController _commentInputController = TextEditingController();
   final ScrollController _commentScrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    _loadComments();
+  }
+
+  @override
   void dispose() {
     _commentInputController.dispose();
+    _commentScrollController.dispose();
     super.dispose();
+  }
+
+  /// 댓글 목록 가져오기
+  Future<void> _loadComments() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await _commentService.getComments(
+        parentPostId: widget.postId,
+        page: _currentPage,
+        size: _pageSize,
+      );
+
+      final List<dynamic> content = response['content'] ?? [];
+      final List<Map<String, dynamic>> comments = [];
+
+      // 각 댓글에 대해 프로필 이미지 가져오기
+      for (var item in content) {
+        // API 응답에서 userId 필드를 찾아야 합니다.
+        // 현재 응답에는 nickname만 있으므로, userId가 추가되어야 합니다.
+        // 임시로 nickname을 사용하거나, API 응답 구조를 확인해야 합니다.
+
+        Map<String, dynamic>? profileData;
+        // userId가 있다면 프로필 이미지를 가져옵니다
+        // if (item['userId'] != null) {
+        //   try {
+        //     final user = await _userService.getUserById(item['userId']);
+        //     profileData = user['profileImage'];
+        //   } catch (e) {
+        //     print('프로필 이미지 로드 실패: $e');
+        //   }
+        // }
+
+        comments.add({
+          'profileImageData': profileData,
+          'nickname': item['nickname'] ?? 'Unknown',
+          'commentDetail': item['title'] ?? '', // API에 content 필드가 없어 title 사용
+          'createdAt': _formatDate(item['createdAt']),
+          'empathyCount': item['empathyCount'] ?? 0,
+          'isEmpathied': false, // API 응답에 없으므로 기본값
+          'replies': [], // 현재 API 응답에 대댓글 정보가 없음
+        });
+      }
+
+      setState(() {
+        _comments = comments;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('댓글 로드 실패: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('댓글을 불러오는데 실패했습니다: $e')),
+        );
+      }
+    }
+  }
+
+  /// 날짜 포맷 변환
+  String _formatDate(String? dateString) {
+    if (dateString == null) return '';
+    try {
+      final date = DateTime.parse(dateString);
+      return '${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return dateString;
+    }
   }
 
   void _toggleEmpathy(int index) {
@@ -81,22 +135,36 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     });
   }
 
-  void _submitComment() {
+  Future<void> _submitComment() async {
     if (_commentInputController.text.trim().isEmpty) return;
 
-    setState(() {
-      _comments.add({
-        'profileImageData': null,
-        'nickname': '나',
-        'commentDetail': _commentInputController.text,
-        'createdAt': '방금 전',
-        'empathyCount': 0,
-        'isEmpathied': false,
-        'replies': [],
-      });
-    });
-
+    final content = _commentInputController.text;
     _commentInputController.clear();
+
+    try {
+      await _commentService.writeComment(
+        parentPostId: widget.postId,
+        content: content,
+      );
+
+      // 댓글 작성 후 목록 새로고침
+      await _loadComments();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('댓글이 작성되었습니다.')),
+        );
+      }
+    } catch (e) {
+      print('댓글 작성 실패: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('댓글 작성에 실패했습니다: $e')),
+        );
+      }
+      // 실패 시 입력 내용 복원
+      _commentInputController.text = content;
+    }
   }
 
   @override
@@ -145,105 +213,133 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                       // 댓글 리스트
                       SizedBox(
                         height: currentHeight,
-                        child: Scrollbar(
-                          controller: _commentScrollController,
-                          thumbVisibility: true,
-                          thickness: 3,
-                          radius: Radius.circular(2),
-                          child: Expanded(
-                            child: ListView.builder(
-                              controller: _commentScrollController,
-                              padding: const EdgeInsets.fromLTRB(
-                                16,
-                                0,
-                                16,
-                                100,
-                              ),
-                              itemCount: _comments.length,
-                              itemBuilder: (context, index) {
-                                final comment = _comments[index];
-                                final replies =
-                                    comment['replies'] as List<dynamic>;
+                        child: _isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: Color(0xff00AA5D),
+                                ),
+                              )
+                            : _comments.isEmpty
+                                ? const Center(
+                                    child: Text(
+                                      '첫 번째 댓글을 작성해보세요!',
+                                      style: TextStyle(
+                                        color: Color(0xff61758A),
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  )
+                                : Scrollbar(
+                                    controller: _commentScrollController,
+                                    thumbVisibility: true,
+                                    thickness: 3,
+                                    radius: const Radius.circular(2),
+                                    child: ListView.builder(
+                                      controller: _commentScrollController,
+                                      padding: const EdgeInsets.fromLTRB(
+                                        16,
+                                        0,
+                                        16,
+                                        100,
+                                      ),
+                                      itemCount: _comments.length,
+                                      itemBuilder: (context, index) {
+                                        final comment = _comments[index];
+                                        final replies =
+                                            comment['replies'] as List<dynamic>;
 
-                                return Column(
-                                  children: [
-                                    CommentWidget(
-                                      profileImageData:
-                                          comment['profileImageData'],
-                                      nickname: comment['nickname'],
-                                      commentDetail: comment['commentDetail'],
-                                      createdAt: comment['createdAt'],
-                                      empathyCount: comment['empathyCount'],
-                                      isEmpathied: comment['isEmpathied'],
-                                      onReplyTap: () {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('답글 기능은 준비 중입니다.'),
-                                            duration: Duration(seconds: 1),
-                                          ),
-                                        );
-                                      },
-                                      onEmpathyTap: () => _toggleEmpathy(index),
-                                      onReportTap: () {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('신고 기능은 준비 중입니다.'),
-                                            duration: Duration(seconds: 1),
-                                          ),
+                                        return Column(
+                                          children: [
+                                            CommentWidget(
+                                              profileImageData:
+                                                  comment['profileImageData'],
+                                              nickname: comment['nickname'],
+                                              commentDetail:
+                                                  comment['commentDetail'],
+                                              createdAt: comment['createdAt'],
+                                              empathyCount:
+                                                  comment['empathyCount'],
+                                              isEmpathied: comment['isEmpathied'],
+                                              onReplyTap: () {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        '답글 기능은 준비 중입니다.'),
+                                                    duration:
+                                                        Duration(seconds: 1),
+                                                  ),
+                                                );
+                                              },
+                                              onEmpathyTap: () =>
+                                                  _toggleEmpathy(index),
+                                              onReportTap: () {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        '신고 기능은 준비 중입니다.'),
+                                                    duration:
+                                                        Duration(seconds: 1),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                            if (replies.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 44,
+                                                ),
+                                                child: Column(
+                                                  children: replies
+                                                      .asMap()
+                                                      .entries
+                                                      .map(
+                                                    (entry) {
+                                                      final replyIndex =
+                                                          entry.key;
+                                                      final reply = entry.value;
+                                                      return CommentWidget(
+                                                        profileImageData: reply[
+                                                            'profileImageData'],
+                                                        nickname:
+                                                            reply['nickname'],
+                                                        commentDetail: reply[
+                                                            'commentDetail'],
+                                                        createdAt:
+                                                            reply['createdAt'],
+                                                        empathyCount: reply[
+                                                            'empathyCount'],
+                                                        isEmpathied:
+                                                            reply['isEmpathied'],
+                                                        onReplyTap: () {},
+                                                        onEmpathyTap: () =>
+                                                            _toggleReplyEmpathy(
+                                                          index,
+                                                          replyIndex,
+                                                        ),
+                                                        onReportTap: () {},
+                                                      );
+                                                    },
+                                                  ).toList(),
+                                                ),
+                                              ),
+                                            if (index < _comments.length - 1)
+                                              Container(
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                  vertical: 8,
+                                                ),
+                                                height: 1,
+                                                color: const Color(0xffE0E0E0),
+                                              ),
+                                          ],
                                         );
                                       },
                                     ),
-                                    if (replies.isNotEmpty)
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 44,
-                                        ),
-                                        child: Column(
-                                          children: replies.asMap().entries.map(
-                                            (entry) {
-                                              final replyIndex = entry.key;
-                                              final reply = entry.value;
-                                              return CommentWidget(
-                                                profileImageData:
-                                                    reply['profileImageData'],
-                                                nickname: reply['nickname'],
-                                                commentDetail:
-                                                    reply['commentDetail'],
-                                                createdAt: reply['createdAt'],
-                                                empathyCount:
-                                                    reply['empathyCount'],
-                                                isEmpathied:
-                                                    reply['isEmpathied'],
-                                                onReplyTap: () {},
-                                                onEmpathyTap: () =>
-                                                    _toggleReplyEmpathy(
-                                                      index,
-                                                      replyIndex,
-                                                    ),
-                                                onReportTap: () {},
-                                              );
-                                            },
-                                          ).toList(),
-                                        ),
-                                      ),
-                                    if (index < _comments.length - 1)
-                                      Container(
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 8,
-                                        ),
-                                        height: 1,
-                                        color: const Color(0xffE0E0E0),
-                                      ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        ),
+                                  ),
                       ),
                     ],
                   );
