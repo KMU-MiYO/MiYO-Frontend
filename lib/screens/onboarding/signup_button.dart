@@ -22,6 +22,7 @@ class _SignupButtonState extends State<SignupButton> {
 
   // text 조건 달성 여부
   bool? isIdValid; // null: 회색, true: 초록, false: 빨강
+  bool? isIdChecked = false; // 중복 확인 버튼을 눌렀는지
   bool? isEmailValid;
   bool? isVerificationCodeValid;
   bool? isPasswordValid;
@@ -30,6 +31,7 @@ class _SignupButtonState extends State<SignupButton> {
   bool _isLoading = false;
   bool _isCodeSending = false;
   bool _isCodeVerifying = false;
+  bool _isIdChecking = false;
 
   @override
   void initState() {
@@ -59,12 +61,98 @@ class _SignupButtonState extends State<SignupButton> {
       final id = idController.text;
       if (id.isEmpty) {
         isIdValid = null;
+        isIdChecked = false;
       } else {
-        // TODO: API 호출로 중복 확인 후 결과에 따라 isIdValid 설정
-        // 임시: 영어/숫자 4자리 이상 체크
-        isIdValid = RegExp(r'^[a-zA-Z0-9]{4,}$').hasMatch(id);
+        // 형식만 체크 (영어/숫자 4자리 이상)
+        // 중복 확인은 버튼을 통해 별도로 수행
+        final formatValid = RegExp(r'^[a-zA-Z0-9]{4,}$').hasMatch(id);
+        if (!formatValid) {
+          isIdValid = false;
+          isIdChecked = false;
+        } else {
+          // 형식은 맞지만 중복 확인이 안 됐으면 null
+          if (isIdChecked != true) {
+            isIdValid = null;
+          }
+        }
       }
     });
+  }
+
+  Future<void> _handleCheckUserId() async {
+    final userId = idController.text;
+
+    if (userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('아이디를 입력해주세요.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // 형식 체크
+    if (!RegExp(r'^[a-zA-Z0-9]{4,}$').hasMatch(userId)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('아이디는 영어/숫자 4자리 이상이어야 합니다.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isIdChecking = true;
+    });
+
+    try {
+      final isAvailable = await _userService.isUserIdAvailable(userId);
+
+      if (!mounted) return;
+
+      setState(() {
+        isIdChecked = true;
+        isIdValid = isAvailable;
+      });
+
+      if (isAvailable) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('사용 가능한 아이디입니다.'),
+            backgroundColor: Color(0xff00AA5D),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미 사용 중인 아이디입니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isIdChecked = false;
+        isIdValid = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('중복 확인 중 오류가 발생했습니다.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isIdChecking = false;
+        });
+      }
+    }
   }
 
   void _validateEmail() {
@@ -379,17 +467,24 @@ class _SignupButtonState extends State<SignupButton> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  print('아이디 중복 확인');
-                },
-                child: Text(
-                  '중복 확인',
-                  style: TextStyle(
-                    color: Color(0xffffffff),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                onPressed: _isIdChecking ? null : _handleCheckUserId,
+                child: _isIdChecking
+                    ? SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        '중복 확인',
+                        style: TextStyle(
+                          color: Color(0xffffffff),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
               ),
             ),
           ],

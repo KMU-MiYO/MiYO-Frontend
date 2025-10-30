@@ -789,4 +789,37 @@ class UserService {
       rethrow;
     }
   }
+
+  // 아이디 중복 확인
+  // GET /users/isExists/{userId}
+  // returns true if exists, false if available
+  Future<bool> isUserIdExists(String userId) async {
+    try {
+      // 개발 모드: 더미 응답 반환
+      if (ApiService.isDevelopmentMode) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        // 더미 로직: "existingUser"는 이미 존재하는 아이디
+        return userId == 'existingUser';
+      }
+
+      // 프로덕션 모드: 실제 API 호출
+      // GET /users/isExists/{userId}
+      final response = await _apiService.get('/users/isExists/$userId');
+
+      if (response.statusCode == 200) {
+        final data = response.data as Map<String, dynamic>;
+        return data['exists'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('Error checking userId: $e');
+      rethrow;
+    }
+  }
+
+  // 아이디 사용 가능 여부 확인 (exists의 반대)
+  Future<bool> isUserIdAvailable(String userId) async {
+    final exists = await isUserIdExists(userId);
+    return !exists;
+  }
 }
