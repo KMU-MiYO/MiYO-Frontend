@@ -53,9 +53,14 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
     }
   }
 
-  void toggleEmpathy() {
+  Future<void> toggleEmpathy() async {
     if (postData == null) return;
 
+    // 이전 상태 저장 (API 실패 시 롤백용)
+    final previousIsEmpathized = postData!['isEmpathized'];
+    final previousCount = postData!['empathyCount'];
+
+    // 낙관적 UI 업데이트
     setState(() {
       if (postData!['isEmpathized']) {
         postData!['isEmpathized'] = false;
@@ -65,6 +70,34 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
         postData!['empathyCount']++;
       }
     });
+
+    try {
+      // API 호출
+      final response = await _postService.toggleEmpathy(postId: widget.postId);
+      print('✅ 공감 처리 성공: ${response['message']}');
+
+      // API 응답에 따라 상태 업데이트 (서버와 동기화)
+      setState(() {
+        postData!['isEmpathized'] = response['isAdded'];
+      });
+    } catch (e) {
+      print('❌ 공감 처리 실패: $e');
+
+      // 실패 시 이전 상태로 롤백
+      setState(() {
+        postData!['isEmpathized'] = previousIsEmpathized;
+        postData!['empathyCount'] = previousCount;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('공감 처리에 실패했습니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   String getCategoryKorean(String category) {
