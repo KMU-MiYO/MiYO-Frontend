@@ -7,36 +7,36 @@ class CommentService {
   final ApiService _apiService = ApiService();
   final TokenStorageService _tokenStorage = TokenStorageService();
 
-  /// 댓글 목록 가져오기
-  ///
-  Future<Map<String, dynamic>> getComments({
-    required int parentPostId,
-    required int page,
-    required int size,
-  }) async {
-    try {
-      final response = await _apiService.get(
-        '/v0/comments',
-        queryParameters: {
-          'parentPostId': parentPostId,
-          'page': page,
-          'size': size,
-        },
-      );
+  // /// 댓글 목록 가져오기
+  // ///
+  // Future<Map<String, dynamic>> getComments({
+  //   required int parentPostId,
+  //   required int page,
+  //   required int size,
+  // }) async {
+  //   try {
+  //     final response = await _apiService.get(
+  //       '/v0/comments',
+  //       queryParameters: {
+  //         'parentPostId': parentPostId,
+  //         'page': page,
+  //         'size': size,
+  //       },
+  //     );
 
-      if (response.statusCode == 200) {
-        return response.data as Map<String, dynamic>;
-      } else {
-        throw Exception('댓글 목록을 가져오는데 실패했습니다.');
-      }
-    } on DioException catch (e) {
-      print('DioException: ${e.message}');
-      rethrow;
-    } catch (e) {
-      print('Error: $e');
-      rethrow;
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       return response.data as Map<String, dynamic>;
+  //     } else {
+  //       throw Exception('댓글 목록을 가져오는데 실패했습니다.');
+  //     }
+  //   } on DioException catch (e) {
+  //     print('DioException: ${e.message}');
+  //     rethrow;
+  //   } catch (e) {
+  //     print('Error: $e');
+  //     rethrow;
+  //   }
+  // }
 
   /// 댓글 작성하기
   ///

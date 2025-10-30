@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/comment.dart';
 import 'package:miyo/data/services/comment_service.dart';
+import 'package:miyo/data/services/post_service.dart';
 import 'package:miyo/data/services/user_service.dart';
 
 class CommentBottomSheet extends StatefulWidget {
@@ -14,12 +15,11 @@ class CommentBottomSheet extends StatefulWidget {
 
 class _CommentBottomSheetState extends State<CommentBottomSheet> {
   final CommentService _commentService = CommentService();
+  final PostService _postService = PostService();
   final UserService _userService = UserService();
 
   List<Map<String, dynamic>> _comments = [];
   bool _isLoading = true;
-  int _currentPage = 0;
-  final int _pageSize = 10;
 
   // 답글 작성 관련
   bool _isReplyMode = false;
@@ -49,41 +49,62 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     });
 
     try {
-      final response = await _commentService.getComments(
-        parentPostId: widget.postId,
-        page: _currentPage,
-        size: _pageSize,
-      );
+      // getPostById를 사용하여 게시글과 댓글 정보를 함께 가져오기
+      final postData = await _postService.getPostById(postId: widget.postId);
 
-      final List<dynamic> content = response['content'] ?? [];
+      final List<dynamic> commentsFromApi = postData['comments'] ?? [];
       final List<Map<String, dynamic>> comments = [];
 
-      // 각 댓글에 대해 프로필 이미지 가져오기
-      for (var item in content) {
-        // API 응답에서 userId 필드를 찾아야 합니다.
-        // 현재 응답에는 nickname만 있으므로, userId가 추가되어야 합니다.
-        // 임시로 nickname을 사용하거나, API 응답 구조를 확인해야 합니다.
-
-        Map<String, dynamic>? profileData;
+      // 댓글 데이터 처리
+      for (var item in commentsFromApi) {
+        String? profileImageUrl;
         // userId가 있다면 프로필 이미지를 가져옵니다
-        // if (item['userId'] != null) {
-        //   try {
-        //     final user = await _userService.getUserById(item['userId']);
-        //     profileData = user['profileImage'];
-        //   } catch (e) {
-        //     print('프로필 이미지 로드 실패: $e');
-        //   }
-        // }
+        if (item['userId'] != null) {
+          try {
+            final user = await _userService.getUserById(item['userId']);
+            // API 응답에서 profilePicture 필드를 사용
+            profileImageUrl = user['profilePicture'];
+          } catch (e) {
+            print('프로필 이미지 로드 실패 (userId: ${item['userId']}): $e');
+          }
+        }
+
+        // 대댓글 처리
+        final List<Map<String, dynamic>> replies = [];
+        if (item['replies'] != null && item['replies'] is List) {
+          for (var reply in item['replies']) {
+            String? replyProfileImageUrl;
+            if (reply['userId'] != null) {
+              try {
+                final user = await _userService.getUserById(reply['userId']);
+                // API 응답에서 profilePicture 필드를 사용
+                replyProfileImageUrl = user['profilePicture'];
+              } catch (e) {
+                print('대댓글 프로필 이미지 로드 실패 (userId: ${reply['userId']}): $e');
+              }
+            }
+
+            replies.add({
+              'postId': reply['postId'],
+              'profileImageData': replyProfileImageUrl,
+              'nickname': reply['userNickname'] ?? 'Unknown',
+              'commentDetail': reply['content'] ?? '',
+              'createdAt': _formatDate(reply['createdAt']),
+              'empathyCount': reply['empathyCount'] ?? 0,
+              'isEmpathied': reply['isEmpathized'] ?? false,
+            });
+          }
+        }
 
         comments.add({
           'postId': item['postId'],
-          'profileImageData': profileData,
-          'nickname': item['nickname'] ?? 'Unknown',
+          'profileImageData': profileImageUrl,
+          'nickname': item['userNickname'] ?? 'Unknown',
           'commentDetail': item['content'] ?? '',
           'createdAt': _formatDate(item['createdAt']),
           'empathyCount': item['empathyCount'] ?? 0,
-          'isEmpathied': false, // API 응답에 없으므로 기본값
-          'replies': [], // 현재 API 응답에 대댓글 정보가 없음
+          'isEmpathied': item['isEmpathized'] ?? false,
+          'replies': replies,
         });
       }
 
@@ -122,26 +143,6 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
       _replyToPostId = postId;
       _replyToNickname = nickname;
     });
-
-    // SnackBar 표시
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Expanded(child: Text('@$nickname의 답글을 작성중')),
-            GestureDetector(
-              onTap: _cancelReplyMode,
-              child: const Icon(Icons.close, color: Colors.white, size: 20),
-            ),
-          ],
-        ),
-        duration: const Duration(days: 1), // 수동으로 닫을 때까지 유지
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    // 입력창에 포커스
-    FocusScope.of(context).requestFocus(FocusNode());
   }
 
   /// 답글 작성 모드 취소
@@ -151,9 +152,6 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
       _replyToPostId = null;
       _replyToNickname = null;
     });
-
-    // SnackBar 닫기
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
   void _toggleEmpathy(int index) {
@@ -415,7 +413,6 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
           right: 0,
           bottom: 0,
           child: Container(
-            padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(
@@ -424,44 +421,86 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
             ),
             child: SafeArea(
               top: false,
-              child: Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _commentInputController,
-                      decoration: InputDecoration(
-                        hintText: '댓글을 작성해보세요.',
-                        hintStyle: const TextStyle(color: Color(0xff61758A)),
-                        filled: true,
-                        fillColor: const Color(0xffF0F2F5),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
+                  // 답글 모드일 때 표시되는 바
+                  if (_isReplyMode && _replyToNickname != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _submitComment(),
+                      color: const Color(0xffF0F2F5),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '@$_replyToNickname',
+                              style: const TextStyle(
+                                color: Color(0xff00AA5D),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _cancelReplyMode,
+                            child: const Icon(
+                              Icons.close,
+                              color: Color(0xff61758A),
+                              size: 20,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: _submitComment,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xff00AA5D),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                  // 입력창
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _commentInputController,
+                            decoration: InputDecoration(
+                              hintText: '댓글을 작성해보세요.',
+                              hintStyle: const TextStyle(
+                                color: Color(0xff61758A),
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xffF0F2F5),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            maxLines: null,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => _submitComment(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: _submitComment,
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xff00AA5D),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.send,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
