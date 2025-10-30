@@ -205,7 +205,9 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SuggestionDetailScreen(),
+                            builder: (context) => SuggestionDetailScreen(
+                              postId: suggestion['id'] as int,
+                            ),
                           ),
                         );
                       },

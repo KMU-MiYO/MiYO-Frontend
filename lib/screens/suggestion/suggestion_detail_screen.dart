@@ -1,42 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/screens/imaginary_map/comment_bottom_sheet.dart';
+import 'package:miyo/data/services/post_service.dart';
 
 class SuggestionDetailScreen extends StatefulWidget {
-  const SuggestionDetailScreen({super.key});
+  final int postId;
+
+  const SuggestionDetailScreen({
+    super.key,
+    required this.postId,
+  });
 
   @override
   State<SuggestionDetailScreen> createState() => _SuggestionDetailScreenState();
 }
 
 class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
-  // 임시 데이터
-  final Map<String, dynamic> postData = {
-    "postId": 0,
-    "nickname": "string",
-    "parentPostId": 0,
-    "imagePath": "string",
-    "latitude": 0,
-    "longitude": 0,
-    "category": "ENVIRONMENT",
-    "title": "공원에 벤치를 더 설치해주세요",
-    "content":
-        "산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.산책하다가 쉴 곳이 부족합니다. 더 많은 벤치가 필요해요.",
-    "createdAt": "2025-10-26T19:29:12.015Z",
-    "empathyCount": 0,
-    "isEmpathized": false,
-  };
+  final PostService _postService = PostService();
+  Map<String, dynamic>? postData;
+  bool isLoading = true;
 
-  void toggleEmpathy() {
+  @override
+  void initState() {
+    super.initState();
+    _loadPostData();
+  }
+
+  Future<void> _loadPostData() async {
     setState(() {
-      if (postData['isEmpathized']) {
-        postData['isEmpathized'] = false;
-        postData['empathyCount']--;
+      isLoading = true;
+    });
+
+    try {
+      final data = await _postService.getPostById(postId: widget.postId);
+      setState(() {
+        postData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('❌ 게시글 로드 실패: $e');
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('게시글을 불러오는데 실패했습니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> toggleEmpathy() async {
+    if (postData == null) return;
+
+    // 이전 상태 저장 (API 실패 시 롤백용)
+    final previousIsEmpathized = postData!['isEmpathized'];
+    final previousCount = postData!['empathyCount'];
+
+    // 낙관적 UI 업데이트
+    setState(() {
+      if (postData!['isEmpathized']) {
+        postData!['isEmpathized'] = false;
+        postData!['empathyCount']--;
       } else {
-        postData['isEmpathized'] = true;
-        postData['empathyCount']++;
+        postData!['isEmpathized'] = true;
+        postData!['empathyCount']++;
       }
     });
+
+    try {
+      // API 호출
+      final response = await _postService.toggleEmpathy(postId: widget.postId);
+      print('✅ 공감 처리 성공: ${response['message']}');
+
+      // API 응답에 따라 상태 업데이트 (서버와 동기화)
+      setState(() {
+        postData!['isEmpathized'] = response['isAdded'];
+      });
+    } catch (e) {
+      print('❌ 공감 처리 실패: $e');
+
+      // 실패 시 이전 상태로 롤백
+      setState(() {
+        postData!['isEmpathized'] = previousIsEmpathized;
+        postData!['empathyCount'] = previousCount;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('공감 처리에 실패했습니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   String getCategoryKorean(String category) {
@@ -65,6 +126,40 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
+    // 로딩 중
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: TitleAppbar(title: '상세보기', leadingType: LeadingType.back),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xff00AA5D),
+          ),
+        ),
+      );
+    }
+
+    // 데이터 로드 실패
+    if (postData == null) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: TitleAppbar(title: '상세보기', leadingType: LeadingType.back),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text(
+                '게시글을 불러올 수 없습니다.',
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: TitleAppbar(title: '상세보기', leadingType: LeadingType.back),
@@ -78,10 +173,10 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               GestureDetector(
                 onTap: toggleEmpathy,
                 child: Icon(
-                  postData['isEmpathized']
+                  postData!['isEmpathized']
                       ? Icons.favorite
                       : Icons.favorite_border,
-                  color: postData['isEmpathized']
+                  color: postData!['isEmpathized']
                       ? Colors.red
                       : Color(0xff61758A),
                   size: 24,
@@ -90,7 +185,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               GestureDetector(
                 onTap: toggleEmpathy,
                 child: Text(
-                  '${postData['empathyCount']}',
+                  '${postData!['empathyCount']}',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -136,16 +231,31 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image(
-                image: AssetImage('assets/images/miyo_logo.png'),
-                width: width,
-                height: height * 0.5,
-                fit: BoxFit.fitWidth,
-              ),
+              postData!['imagePath'] != null
+                  ? Image.network(
+                      postData!['imagePath'],
+                      width: width,
+                      height: height * 0.5,
+                      fit: BoxFit.fitWidth,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image(
+                          image: AssetImage('assets/images/miyo_logo.png'),
+                          width: width,
+                          height: height * 0.5,
+                          fit: BoxFit.fitWidth,
+                        );
+                      },
+                    )
+                  : Image(
+                      image: AssetImage('assets/images/miyo_logo.png'),
+                      width: width,
+                      height: height * 0.5,
+                      fit: BoxFit.fitWidth,
+                    ),
               SizedBox(height: height * 0.02),
               // 제목
               Text(
-                postData['title'],
+                postData!['title'] ?? '제목 없음',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -156,7 +266,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               Row(
                 children: [
                   Text(
-                    postData['nickname'],
+                    postData!['nickname'] ?? '익명',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -167,7 +277,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                   Text('•', style: TextStyle(color: Color(0xff61758A))),
                   SizedBox(width: 8),
                   Text(
-                    postData['createdAt'].substring(0, 10),
+                    postData!['createdAt']?.toString().substring(0, 10) ?? '',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -179,7 +289,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               SizedBox(height: height * 0.02),
               // 내용
               Text(
-                postData['content'],
+                postData!['content'] ?? '',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
@@ -205,7 +315,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  getCategoryKorean(postData['category']),
+                  getCategoryKorean(postData!['category'] ?? 'NATURE'),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,

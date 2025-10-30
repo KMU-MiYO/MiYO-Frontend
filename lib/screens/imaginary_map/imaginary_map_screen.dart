@@ -89,9 +89,18 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   }
 
   void _onMarkerTap(Map<String, dynamic> data) {
+    // id가 String일 수 있으므로 int로 변환
+    final postId = data['id'] is int
+        ? data['id'] as int
+        : int.tryParse(data['id']?.toString() ?? '1') ?? 1;
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SuggestionDetailScreen()),
+      MaterialPageRoute(
+        builder: (context) => SuggestionDetailScreen(
+          postId: postId,
+        ),
+      ),
     );
   }
 

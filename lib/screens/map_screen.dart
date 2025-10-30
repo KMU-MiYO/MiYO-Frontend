@@ -6,6 +6,7 @@ import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_category_button.dart';
 import 'package:miyo/screens/exchanges/exchange.dart';
 import 'package:miyo/screens/suggestion/suggestion_screen.dart';
+import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/data/services/post_service.dart';
 
 class MapScreen extends StatefulWidget {
@@ -218,12 +219,16 @@ class _MapScreenState extends State<MapScreen> {
       position: latLng,
     );
 
-    // 마커 클릭 이벤트 추가 (향후 suggestion_detail로 이동)
+    // 마커 클릭 이벤트 추가 - suggestion_detail로 이동
     marker.setOnTapListener((overlay) {
       print('마커 클릭: $title (postId: $postId, category: $category)');
-      // TODO: suggestion_detail 화면으로 이동
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$title (상세보기 기능 준비중)')),
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SuggestionDetailScreen(
+            postId: int.parse(postId),
+          ),
+        ),
       );
     });
 
