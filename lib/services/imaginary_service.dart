@@ -49,7 +49,7 @@ class ImaginaryService {
                 'id': item['postId'].toString(),
                 'latitude': item['latitude'] ?? 0.0,
                 'longitude': item['longitude'] ?? 0.0,
-                'imageUrl': item['imageUrl'] ?? '',
+                'imageUrl': item['imagePath'] ?? '', // imagePath -> imageUrl로 매핑
                 'favoriteCnt': item['empathyCount'] ?? 0,
                 'nickname': item['nickname'] ?? '',
                 'category': item['category'] ?? '',
