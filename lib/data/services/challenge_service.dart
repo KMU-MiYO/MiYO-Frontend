@@ -8,12 +8,12 @@ class ChallengeService {
   final TokenStorageService _tokenStorage = TokenStorageService();
 
   // 주간 미션 불러오기
-  Future<Map<String, dynamic>> loadWeeklyMissions() async {
+  Future<List<dynamic>> loadWeeklyMissions() async {
     try {
       final response = await _apiService.get('/v0/missions');
 
       if (response.statusCode == 200) {
-        return response.data as Map<String, dynamic>;
+        return response.data as List<dynamic>;
       } else {
         throw Exception('주간 미션 조회에 실패했습니다. (Status: ${response.statusCode})');
       }

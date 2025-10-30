@@ -18,13 +18,33 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   List<dynamic> _allChallenges = [];
   List<dynamic> _ingChallenges = [];
+  List<dynamic> _weeklyMissions = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _loadChallenges();
+    _loadMissions();
     _loadParticipatingChallenges();
+  }
+
+  // 주간 미션 조회
+  Future<void> _loadMissions() async {
+    try {
+      final response = await _challengeService.loadWeeklyMissions();
+      print('✅ 주간 미션 ${response.length}개 로드 성공');
+
+      setState(() {
+        _weeklyMissions = response.toList();
+        _isLoading = false;
+      });
+    } catch (e, stackTrace) {
+      print('❌ 주간 미션 로드 실패: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   // 전체 챌린지 조회
@@ -101,11 +121,24 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              const ChallengeMission(title: '제안 5번 하기', progress: 1, total: 5),
-              const SizedBox(height: 16),
-              const ChallengeMission(title: '공감 3번 하기', progress: 2, total: 3),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _weeklyMissions.isEmpty
+                  ? const Text('주간 미션이 존재하지 않습니다.')
+                  : Column(
+                      children: _weeklyMissions.map((mission) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: ChallengeMission(
+                            title: mission['title'] ?? '',
+                            progress: mission['currentCount'] ?? 0,
+                            total: mission['goalCount'] ?? 0,
+                          ),
+                        );
+                      }).toList(),
+                    ),
 
-              SizedBox(height: height * 0.02),
+              SizedBox(height: height * 0.0005),
 
               // 참가 중인 챌린지 섹션
               Row(
@@ -150,7 +183,6 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                         );
                       }).toList(),
                     ),
-
               SizedBox(height: height * 0.015),
 
               // 전체 챌린지 섹션
