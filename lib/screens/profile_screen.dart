@@ -303,7 +303,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 20,
-                  childAspectRatio: 0.85,
+                  childAspectRatio: 0.75,
                 ),
                 itemCount: _suggestions.length,
                 itemBuilder: (context, index) {
