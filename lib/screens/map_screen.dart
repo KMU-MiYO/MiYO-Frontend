@@ -156,7 +156,8 @@ class _MapScreenState extends State<MapScreen> {
 
         // 선택된 카테고리가 없으면 모두 표시
         // 선택된 카테고리가 있으면 해당 카테고리만 표시
-        final shouldShow = selectedCategories.isEmpty ||
+        final shouldShow =
+            selectedCategories.isEmpty ||
             selectedCategories.contains(categoryType);
 
         // 마커를 지도에서 추가/제거
@@ -197,7 +198,9 @@ class _MapScreenState extends State<MapScreen> {
       if (result != null && result is Map<String, dynamic>) {
         await _addMarker(
           latLng: latLng,
-          postId: result['postId']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          postId:
+              result['postId']?.toString() ??
+              DateTime.now().millisecondsSinceEpoch.toString(),
           title: result['title'] ?? '제목 없음',
         );
       }
@@ -214,10 +217,7 @@ class _MapScreenState extends State<MapScreen> {
     final controller = await _mapControllerCompleter.future;
 
     // 새로운 마커 생성
-    final marker = NMarker(
-      id: 'post_$postId',
-      position: latLng,
-    );
+    final marker = NMarker(id: 'post_$postId', position: latLng);
 
     // 마커 클릭 이벤트 추가 - suggestion_detail로 이동
     marker.setOnTapListener((overlay) {
@@ -225,9 +225,8 @@ class _MapScreenState extends State<MapScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SuggestionDetailScreen(
-            postId: int.parse(postId),
-          ),
+          builder: (context) =>
+              SuggestionDetailScreen(postId: int.parse(postId)),
         ),
       );
     });
@@ -251,18 +250,15 @@ class _MapScreenState extends State<MapScreen> {
     final controller = await _mapControllerCompleter.future;
 
     // 새로운 마커 생성
-    final marker = NMarker(
-      id: 'post_$postId',
-      position: latLng,
-    );
+    final marker = NMarker(id: 'post_$postId', position: latLng);
 
     // 마커 클릭 이벤트 추가 (향후 suggestion_detail로 이동)
     marker.setOnTapListener((overlay) {
       print('마커 클릭: $title (postId: $postId)');
       // TODO: suggestion_detail 화면으로 이동
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$title (상세보기 기능 준비중)')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$title (상세보기 기능 준비중)')));
     });
 
     // 마커를 지도에 추가
@@ -321,7 +317,7 @@ class _MapScreenState extends State<MapScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        const ExchangeScreen(point: '500, 000'),
+                        const ExchangeScreen(point: '500,000'),
                   ),
                 );
               },
