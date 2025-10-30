@@ -79,7 +79,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
           'postId': item['postId'],
           'profileImageData': profileData,
           'nickname': item['nickname'] ?? 'Unknown',
-          'commentDetail': item['title'] ?? '', // API에 content 필드가 없어 title 사용
+          'commentDetail': item['content'] ?? '',
           'createdAt': _formatDate(item['createdAt']),
           'empathyCount': item['empathyCount'] ?? 0,
           'isEmpathied': false, // API 응답에 없으므로 기본값

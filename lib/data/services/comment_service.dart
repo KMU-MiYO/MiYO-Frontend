@@ -49,17 +49,18 @@ class CommentService {
     required String content,
   }) async {
     try {
-      final formData = FormData.fromMap({
-        'parentPostId': parentPostId,
-        'content': content,
-      });
+      print('📤 댓글 작성 요청: parentPostId=$parentPostId, content=$content');
 
-      final response = await _apiService.postMultipart(
+      final response = await _apiService.post(
         '/v0/comments',
-        formData,
+        data: {'parentPostId': parentPostId, 'content': content},
       );
 
-      if (response.statusCode == 200) {
+      print(
+        '📥 댓글 작성 응답: statusCode=${response.statusCode}, data=${response.data}',
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data as Map<String, dynamic>;
       } else {
         throw Exception('댓글 작성에 실패했습니다.');
