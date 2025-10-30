@@ -97,9 +97,7 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SuggestionDetailScreen(
-          postId: postId,
-        ),
+        builder: (context) => SuggestionDetailScreen(postId: postId),
       ),
     );
   }
@@ -122,7 +120,9 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
               ),
             ),
             onMapReady: (controller) async {
-              _controller = controller;
+              setState(() {
+                _controller = controller;
+              });
               // 지도 초기 로드 시 마커 가져오기
               await _loadMarkersForCurrentView();
             },
@@ -152,7 +152,8 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
               ),
             ),
           ),
-          const ImaginaryMapBottomSheet(),
+          if (_controller != null)
+            ImaginaryMapBottomSheet(mapController: _controller!),
         ],
       ),
     );
