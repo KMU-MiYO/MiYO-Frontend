@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
-import 'package:miyo/components/challenge_item.dart';
+import 'package:miyo/screens/challenges/challenge_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_top3.dart';
-import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
+import 'package:miyo/screens/imaginary_map/suggestion_item.dart' as suggestion_lib;
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/data/services/challenge_service.dart';
 
@@ -58,9 +58,29 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     }
   }
 
-  String getCategoryIcon(String? category) {
-    // 카테고리에 따라 아이콘 반환 (필요시 수정)
-    return category ?? 'NATURE';
+  /// 카테고리 문자열을 CategoryType enum으로 변환
+  CategoryType _parseCategoryType(String? category) {
+    if (category == null) return CategoryType.NATURE;
+
+    switch (category.toUpperCase()) {
+      case 'NATURE':
+        return CategoryType.NATURE;
+      case 'CULTURE':
+        return CategoryType.CULTURE;
+      case 'TRAFFIC':
+        return CategoryType.TRAFFIC;
+      case 'RESIDENCE':
+        return CategoryType.RESIDENCE;
+      case 'COMMERCE':
+      case 'COMMERCIAL':
+        return CategoryType.COMMERCIAL;
+      case 'NIGHT':
+        return CategoryType.NIGHT;
+      case 'ENVIRONMENT':
+        return CategoryType.ENVIRONMENT;
+      default:
+        return CategoryType.NATURE;
+    }
   }
 
   @override
@@ -122,9 +142,35 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
             ),
             onPressed: contestData!['isParticipant'] == true
                 ? null
-                : () {
+                : () async {
                     // 참여하기 버튼 동작
-                    print('챌린지 참여하기');
+                    try {
+                      await _challengeService.joinContest(
+                        contestId: widget.contestId,
+                      );
+
+                      // 참여 성공 후 데이터 다시 로드
+                      await _loadContestData();
+
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('챌린지 참가가 완료되었습니다!'),
+                            backgroundColor: Color(0xff00AA5D),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      print('❌ 챌린지 참가 실패: $e');
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.toString().replaceAll('Exception: ', '')),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
                   },
             child: Text(
               contestData!['isParticipant'] == true ? '참여중' : '참여하기',
@@ -143,10 +189,9 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           child: Column(
             children: [
               ChallengeItem(
-                icon: Icons.apartment_rounded,
+                categoryType: _parseCategoryType(contestData!['category']),
                 title: contestData!['title'] ?? '제목 없음',
                 location: contestData!['host'] ?? '주최자 미상',
-                isTitleBox: true,
                 contestId: widget.contestId,
               ),
               SizedBox(
@@ -327,7 +372,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                     itemBuilder: (context, index) {
                       final post = topPosts[index];
                       return SuggestionTop3(
-                        categoryType: _getCategoryType(post['category']),
+                        categoryType: _getSuggestionCategoryType(post['category']),
                         title: post['title'] ?? '제목 없음',
                         writer: post['userId'] ?? '익명',
                         rank: index + 1,
@@ -352,25 +397,26 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     );
   }
 
-  CategoryType _getCategoryType(String? category) {
+  /// SuggestionTop3용 카테고리 변환 (suggestion_item.dart의 CategoryType)
+  suggestion_lib.CategoryType _getSuggestionCategoryType(String? category) {
     switch (category?.toUpperCase()) {
       case 'NATURE':
-        return CategoryType.NATURE;
+        return suggestion_lib.CategoryType.NATURE;
       case 'CULTURE':
-        return CategoryType.CULTURE;
+        return suggestion_lib.CategoryType.CULTURE;
       case 'TRAFFIC':
-        return CategoryType.TRAFFIC;
+        return suggestion_lib.CategoryType.TRAFFIC;
       case 'RESIDENCE':
-        return CategoryType.RESIDENCE;
+        return suggestion_lib.CategoryType.RESIDENCE;
       case 'COMMERCE':
       case 'COMMERCIAL':
-        return CategoryType.COMMERCIAL;
+        return suggestion_lib.CategoryType.COMMERCIAL;
       case 'NIGHT':
-        return CategoryType.NIGHT;
+        return suggestion_lib.CategoryType.NIGHT;
       case 'ENVIRONMENT':
-        return CategoryType.ENVIRONMENT;
+        return suggestion_lib.CategoryType.ENVIRONMENT;
       default:
-        return CategoryType.NATURE;
+        return suggestion_lib.CategoryType.NATURE;
     }
   }
 }
