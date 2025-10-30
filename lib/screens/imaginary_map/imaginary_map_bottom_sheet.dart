@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:miyo/data/dummy/dummy_suggestions.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:miyo/data/services/post_service.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_top3.dart';
@@ -7,22 +8,53 @@ import 'package:miyo/screens/imaginary_map/suggestion_category_button.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_filtering_button.dart';
 
 class ImaginaryMapBottomSheet extends StatefulWidget {
-  const ImaginaryMapBottomSheet({super.key});
+  final NaverMapController mapController;
+  final VoidCallback? onMapMoved;
+
+  const ImaginaryMapBottomSheet({
+    super.key,
+    required this.mapController,
+    this.onMapMoved,
+  });
 
   @override
   State<ImaginaryMapBottomSheet> createState() =>
       _ImaginaryMapBottomSheetState();
 }
 
+// Bottom sheet를 외부에서 reload할 수 있도록 GlobalKey 사용
+class ImaginaryMapBottomSheetController {
+  _ImaginaryMapBottomSheetState? _state;
+
+  void _attach(_ImaginaryMapBottomSheetState state) {
+    _state = state;
+  }
+
+  void _detach() {
+    _state = null;
+  }
+
+  void reloadTop3() {
+    _state?._loadTop3Posts();
+  }
+}
+
 class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
+  final PostService _postService = PostService();
+
   // 선택된 카테고리들 (빈 Set = 전체 보기)
   Set<CategoryType> selectedCategories = {};
 
   // 선택된 필터 (기본: 인기순)
   FilterType selectedFilter = FilterType.popularity;
 
-  // 제안 리스트
-  final suggestionLists = allDummySuggestions();
+  // Top3 데이터
+  List<dynamic> _top3Posts = [];
+  bool _isLoadingTop3 = true;
+
+  // 내 주변 게시글 데이터
+  List<dynamic> _nearbyPosts = [];
+  bool _isLoadingNearby = true;
 
   // 제안 목록 스크롤 컨트롤러
   final ScrollController _suggestionScrollController = ScrollController();
@@ -38,6 +70,159 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
     CategoryType.ENVIRONMENT,
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadTop3Posts();
+    _loadNearbyPosts();
+  }
+
+  /// zoom 레벨에 따라 검색 반경(미터) 계산
+  double _calculateRadiusFromZoom(double zoom) {
+    if (zoom >= 15) return 500;
+    if (zoom >= 14) return 1000;
+    if (zoom >= 13) return 2000;
+    if (zoom >= 12) return 4000;
+    if (zoom >= 11) return 8000;
+    return 10000;
+  }
+
+  /// 현재 지도 위치 기반으로 Top3 게시글 로드
+  Future<void> _loadTop3Posts() async {
+    try {
+      // 현재 카메라 위치 가져오기
+      final cameraPosition = await widget.mapController.getCameraPosition();
+      final center = cameraPosition.target;
+      final zoom = cameraPosition.zoom;
+      final radius = _calculateRadiusFromZoom(zoom);
+
+      print(
+        '📍 Top3 로드: lat=${center.latitude}, lng=${center.longitude}, zoom=$zoom, radius=$radius',
+      );
+
+      // API 호출
+      final posts = await _postService.getTop3Posts(
+        latitude: center.latitude,
+        longitude: center.longitude,
+        radius: radius,
+      );
+
+      setState(() {
+        _top3Posts = posts;
+        _isLoadingTop3 = false;
+      });
+
+      print('✅ Top3 게시글 ${posts.length}개 로드 완료');
+    } catch (e) {
+      print('❌ Top3 게시글 로드 실패: $e');
+      setState(() {
+        _isLoadingTop3 = false;
+      });
+    }
+  }
+
+  /// 카테고리 문자열을 CategoryType enum으로 변환
+  CategoryType? _parseCategoryType(String? category) {
+    if (category == null) return null;
+
+    switch (category.toUpperCase()) {
+      case 'NATURE':
+        return CategoryType.NATURE;
+      case 'CULTURE':
+        return CategoryType.CULTURE;
+      case 'TRAFFIC':
+        return CategoryType.TRAFFIC;
+      case 'RESIDENCE':
+        return CategoryType.RESIDENCE;
+      case 'COMMERCIAL':
+        return CategoryType.COMMERCIAL;
+      case 'NIGHT':
+        return CategoryType.NIGHT;
+      case 'ENVIRONMENT':
+        return CategoryType.ENVIRONMENT;
+      default:
+        return null;
+    }
+  }
+
+  /// CategoryType enum을 백엔드 카테고리 문자열로 변환
+  String _categoryTypeToString(CategoryType category) {
+    switch (category) {
+      case CategoryType.NATURE:
+        return 'NATURE';
+      case CategoryType.CULTURE:
+        return 'CULTURE';
+      case CategoryType.TRAFFIC:
+        return 'TRAFFIC';
+      case CategoryType.RESIDENCE:
+        return 'RESIDENCE';
+      case CategoryType.COMMERCIAL:
+        return 'COMMERCIAL';
+      case CategoryType.NIGHT:
+        return 'NIGHT';
+      case CategoryType.ENVIRONMENT:
+        return 'ENVIRONMENT';
+    }
+  }
+
+  /// FilterType enum을 백엔드 sortBy 문자열로 변환
+  String _filterTypeToSortBy(FilterType filter) {
+    switch (filter) {
+      case FilterType.popularity:
+        return 'empathy'; // 공감순
+      case FilterType.latest:
+        return 'latest'; // 최신순
+      case FilterType.distance:
+        return 'distance'; // 거리순
+    }
+  }
+
+  /// 현재 지도 위치 및 필터 기반으로 내 주변 게시글 로드
+  Future<void> _loadNearbyPosts() async {
+    setState(() => _isLoadingNearby = true);
+
+    try {
+      // 현재 카메라 위치 가져오기
+      final cameraPosition = await widget.mapController.getCameraPosition();
+      final center = cameraPosition.target;
+      final zoom = cameraPosition.zoom;
+      final radius = _calculateRadiusFromZoom(zoom);
+
+      // 선택된 카테고리를 백엔드 문자열로 변환
+      final categories = selectedCategories.isEmpty
+          ? null
+          : selectedCategories.map(_categoryTypeToString).toList();
+
+      // FilterType을 sortBy 문자열로 변환
+      final sortBy = _filterTypeToSortBy(selectedFilter);
+
+      print(
+        '📍 내 주변 게시글 로드: lat=${center.latitude}, lng=${center.longitude}, radius=$radius, categories=$categories, sortBy=$sortBy',
+      );
+
+      // API 호출
+      final posts = await _postService.getNearbyPosts(
+        latitude: center.latitude,
+        longitude: center.longitude,
+        radius: radius,
+        categories: categories,
+        sortBy: sortBy,
+      );
+
+      setState(() {
+        _nearbyPosts = posts;
+        _isLoadingNearby = false;
+      });
+
+      print('✅ 내 주변 게시글 ${posts.length}개 로드 완료');
+    } catch (e) {
+      print('❌ 내 주변 게시글 로드 실패: $e');
+      setState(() {
+        _isLoadingNearby = false;
+      });
+    }
+  }
+
   void toggleCategory(CategoryType category) {
     setState(() {
       if (selectedCategories.contains(category)) {
@@ -46,19 +231,21 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
         selectedCategories.add(category);
       }
     });
+    // 카테고리 변경 시 내 주변 게시글 다시 로드
+    _loadNearbyPosts();
   }
 
   void changeFilter(FilterType newFilter) {
     setState(() {
       selectedFilter = newFilter;
-      // TODO: 필터에 따라 제안 목록 정렬
     });
+    // 필터 변경 시 내 주변 게시글 다시 로드
+    _loadNearbyPosts();
   }
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    final top3Suggestions = getTop3Suggestions();
 
     return DraggableScrollableSheet(
       initialChildSize: 0.3,
@@ -115,33 +302,44 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
               // Top3 제안
               SizedBox(
                 height: 100,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                  itemCount: top3Suggestions.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final suggestion = top3Suggestions[index];
-                    return SuggestionTop3(
-                      categoryType: suggestion['categoryType'] as CategoryType,
-                      title: suggestion['title'] as String,
-                      writer: suggestion['writer'] as String,
-                      rank: index + 1,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SuggestionDetailScreen(
-                              postId: suggestion['id'] as int,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
+                child: _isLoadingTop3
+                    ? const Center(child: CircularProgressIndicator())
+                    : _top3Posts.isEmpty
+                    ? const Center(
+                        child: Text(
+                          '주변에 게시글이 없습니다',
+                          style: TextStyle(color: Color(0xff61758A)),
+                        ),
+                      )
+                    : ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        clipBehavior: Clip.none,
+                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                        itemCount: _top3Posts.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final post = _top3Posts[index];
+                          return SuggestionTop3(
+                            categoryType:
+                                _parseCategoryType(post['category']) ??
+                                CategoryType.NATURE,
+                            title: post['title'] ?? '',
+                            writer: post['nickname'] ?? '익명',
+                            rank: index + 1,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SuggestionDetailScreen(
+                                    postId: post['postId'] as int,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
               ),
               SizedBox(height: height * 0.001),
               // 내 주변 제목 + 필터링 버튼
@@ -188,29 +386,37 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
               // 제안 목록 (고정 높이 + 내부 스크롤)
               SizedBox(
                 height: 300,
-                child: Scrollbar(
-                  controller: _suggestionScrollController,
-                  thumbVisibility: true,
-                  thickness: 3,
-                  radius: Radius.circular(2),
-                  child: ListView.separated(
-                    controller: _suggestionScrollController,
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                    itemCount: suggestionLists.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final suggestion = suggestionLists[index];
-                      return SuggestionItem(
-                        categoryType:
-                            suggestion['categoryType'] as CategoryType,
-                        title: suggestion['title'] as String,
-                        writer: suggestion['writer'] as String,
-                        postId: suggestion['id'] as int,
-                      );
-                    },
-                  ),
-                ),
+                child: _isLoadingNearby
+                    ? const Center(child: CircularProgressIndicator())
+                    : _nearbyPosts.isEmpty
+                        ? const Center(
+                            child: Text(
+                              '주변에 게시글이 없습니다',
+                              style: TextStyle(color: Color(0xff61758A)),
+                            ),
+                          )
+                        : Scrollbar(
+                            controller: _suggestionScrollController,
+                            thumbVisibility: true,
+                            thickness: 3,
+                            radius: Radius.circular(2),
+                            child: ListView.separated(
+                              controller: _suggestionScrollController,
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                              itemCount: _nearbyPosts.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 16),
+                              itemBuilder: (context, index) {
+                                final post = _nearbyPosts[index];
+                                return SuggestionItem(
+                                  categoryType: _parseCategoryType(post['category']),
+                                  title: post['title'] ?? '',
+                                  writer: post['nickname'] ?? '익명',
+                                  postId: post['postId'] as int,
+                                );
+                              },
+                            ),
+                          ),
               ),
             ],
           ),
