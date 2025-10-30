@@ -37,6 +37,15 @@ class ImaginaryMarkerWidget extends StatelessWidget {
               width: 80,
               height: 80,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                print('❌ 마커 이미지 로드 실패: $error');
+                return Container(
+                  width: 80,
+                  height: 80,
+                  color: Colors.grey,
+                  child: const Icon(Icons.error, color: Colors.white),
+                );
+              },
             ),
           ),
           Positioned(

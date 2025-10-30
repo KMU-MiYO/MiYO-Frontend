@@ -80,6 +80,11 @@ class _SettingsChallengeProfileScreenState
                 isLoading: _isLoading,
                 errorMessage: _errorMessage,
                 userInfo: _userInfo,
+                onProfileImageChanged: (updatedUserInfo) {
+                  setState(() {
+                    _userInfo = updatedUserInfo;
+                  });
+                },
               ),
               SizedBox(height: height * 0.01),
               SettingButton(

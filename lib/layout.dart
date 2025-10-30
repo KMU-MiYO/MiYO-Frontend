@@ -29,19 +29,7 @@ class _LayoutState extends State<Layout> {
     MapScreen(),
     const ImaginaryMapScreen(),
     const ChallengeScreen(),
-    const ProfileScreen(
-      nickname: '미요',
-      id: 'MIYO',
-      badgeCnt: 6,
-      favorateCnt: 34,
-      commentCnt: 56,
-      suggestionCnt: 3,
-      suggestions: [
-        {'imageData': null, 'title': '공공 정원'},
-        {'imageData': null, 'title': '자전거 도로 확장'},
-        {'imageData': null, 'title': '수영장 개설'},
-      ],
-    ),
+    const ProfileScreen(),
   ];
 
   void _onBottomNavTapped(int index) {

@@ -5,12 +5,14 @@ class SuggestionItem extends StatelessWidget {
   final CategoryType? categoryType;
   final String title;
   final String writer;
+  final int postId;
 
   const SuggestionItem({
     super.key,
     required this.categoryType,
     required this.title,
     required this.writer,
+    required this.postId,
   });
 
   @override
@@ -54,7 +56,9 @@ class SuggestionItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SuggestionDetailScreen(),
+                  builder: (context) => SuggestionDetailScreen(
+                    postId: postId,
+                  ),
                 ),
               );
             },
@@ -68,49 +72,49 @@ class SuggestionItem extends StatelessWidget {
     if (categoryType == null) return null;
 
     switch (categoryType!) {
-      case CategoryType.NaturePark:
+      case CategoryType.NATURE:
         return Image.asset(
           'assets/images/challenge_icons/NaturePark.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.CultureArts:
+      case CategoryType.CULTURE:
         return Image.asset(
           'assets/images/challenge_icons/CultureArts.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.Transport:
+      case CategoryType.TRAFFIC:
         return Image.asset(
           'assets/images/challenge_icons/Transport.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.Life:
+      case CategoryType.RESIDENCE:
         return Image.asset(
           'assets/images/challenge_icons/Life.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.Commercial:
+      case CategoryType.COMMERCIAL:
         return Image.asset(
           'assets/images/challenge_icons/Commercial.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.NightLandscape:
+      case CategoryType.NIGHT:
         return Image.asset(
           'assets/images/challenge_icons/NightLandscape.png',
           width: 32,
           height: 32,
         );
 
-      case CategoryType.EnvironSustain:
+      case CategoryType.ENVIRONMENT:
         return Image.asset(
           'assets/images/challenge_icons/EnvironSustain.png',
           width: 32,
@@ -121,11 +125,11 @@ class SuggestionItem extends StatelessWidget {
 }
 
 enum CategoryType {
-  NaturePark, // 자연/공원
-  CultureArts, // 문화/예술
-  Transport, // 교통/이동
-  Life, // 주거/생활
-  Commercial, // 상권/시장
-  NightLandscape, // 야간/경관
-  EnvironSustain, // 환경/지속가능
+  NATURE, // 자연/공원
+  CULTURE, // 문화/예술
+  TRAFFIC, // 교통/이동
+  RESIDENCE, // 주거/생활
+  COMMERCIAL, // 상권/시장
+  NIGHT, // 야간/경관
+  ENVIRONMENT // 환경/지속가능
 }

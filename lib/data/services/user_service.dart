@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'api_service.dart';
 import 'token_storage_service.dart';
@@ -89,6 +91,51 @@ class UserService {
       } else {
         throw Exception('닉네임 변경을 실패했습니다.');
       }
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 프로필 이미지 변경
+  ///
+  /// [imagePath]: 변경할 프로필 이미지 파일 경로
+  Future<Map<String, dynamic>> updateProfileImage(String imagePath) async {
+    try {
+      // 개발 모드: 더미 응답 반환
+      if (ApiService.isDevelopmentMode) {
+        await Future.delayed(const Duration(milliseconds: 800));
+        return await getCurrentUser();
+      }
+
+      final formData = FormData.fromMap({
+        'profileImage': await MultipartFile.fromFile(
+          imagePath,
+          filename: imagePath.split('/').last,
+        ),
+      });
+
+      final response = await _apiService.patchMultipart(
+        '/users/my/profile',
+        formData,
+      );
+
+      if (response.statusCode == 200) {
+        // API는 성공 메시지만 반환하므로, 업데이트된 유저 정보를 다시 가져옴
+        return await getCurrentUser();
+      } else {
+        throw Exception('프로필 이미지 변경을 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 400) {
+        throw Exception('잘못된 요청입니다.');
+      } else if (e.response?.statusCode == 500) {
+        throw Exception('서버 오류가 발생했습니다.');
+      } else if (e.response?.statusCode == 415) {
+        throw Exception('지원하지 않는 미디어 타입입니다.');
+      }
+      print('DioException: ${e.message}');
+      rethrow;
     } catch (e) {
       print('Error: $e');
       rethrow;
@@ -501,5 +548,278 @@ class UserService {
   /// 토큰 존재 여부 확인
   Future<bool> isLoggedIn() async {
     return await _tokenStorage.hasAccessToken();
+  }
+
+  /// 내가 쓴 글 목록 가져오기
+  ///
+  /// [categories]: 카테고리 필터 (예: ['NATURE', 'FACILITY'])
+  /// [sortBy]: 정렬 방식 ('latest' - 기본값)
+  /// [page]: 페이지 번호 (0부터 시작, 기본값: 0)
+  /// [size]: 페이지 크기 (기본값: 20)
+  Future<Map<String, dynamic>> getMyPostList({
+    List<String>? categories,
+    String sortBy = 'latest',
+    int page = 0,
+    int size = 20,
+  }) async {
+    try {
+      // 쿼리 파라미터 구성
+      final queryParameters = <String, dynamic>{
+        'sortBy': sortBy,
+        'page': page,
+        'size': size,
+      };
+
+      // categories가 있으면 추가
+      if (categories != null && categories.isNotEmpty) {
+        queryParameters['categories'] = categories;
+      }
+
+      // Spring Boot 엔드포인트: GET /v0/users/posts/posts
+      final response = await _apiService.get(
+        '/v0/users/posts/posts',
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('내 게시글 목록을 가져오는데 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 내가 쓴 글 수 가져오기
+  ///
+  /// [categories]: 카테고리 필터 (예: ['NATURE', 'FACILITY'])
+  Future<int> getMyPostCnt({List<String>? categories}) async {
+    try {
+      // 쿼리 파라미터 구성
+      final queryParameters = <String, dynamic>{};
+
+      // categories가 있으면 추가 (배열 형태)
+      if (categories != null && categories.isNotEmpty) {
+        queryParameters['categories'] = categories;
+      }
+
+      // Spring Boot 엔드포인트: GET /v0/users/posts/posts/count
+      final response = await _apiService.get(
+        '/v0/users/posts/posts/count',
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        // 응답: {"count": 0}
+        final data = response.data as Map<String, dynamic>;
+        return data['count'] as int;
+      } else {
+        throw Exception('내 게시글 수를 가져오는데 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 내가 좋아요한 글 목록 가져오기
+  ///
+  /// [categories]: 카테고리 필터 (예: ['NATURE', 'FACILITY'])
+  /// [sortBy]: 정렬 방식 ('latest' - 기본값)
+  /// [page]: 페이지 번호 (0부터 시작, 기본값: 0)
+  /// [size]: 페이지 크기 (기본값: 20)
+  Future<Map<String, dynamic>> getMyEmpathyList({
+    List<String>? categories,
+    String sortBy = 'latest',
+    int page = 0,
+    int size = 20,
+  }) async {
+    try {
+      // 쿼리 파라미터 구성
+      final queryParameters = <String, dynamic>{
+        'sortBy': sortBy,
+        'page': page,
+        'size': size,
+      };
+
+      // categories가 있으면 추가
+      if (categories != null && categories.isNotEmpty) {
+        queryParameters['categories'] = categories;
+      }
+
+      // Spring Boot 엔드포인트: GET /v0/users/posts/empathy
+      final response = await _apiService.get(
+        '/v0/users/posts/empathy',
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('내 좋아요한 글 목록을 가져오는데 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 내가 좋아요한 글 수 가져오기
+  ///
+  /// [categories]: 카테고리 필터 (예: ['NATURE', 'FACILITY'])
+  Future<int> getMyEmpathyCnt({List<String>? categories}) async {
+    try {
+      // 쿼리 파라미터 구성
+      final queryParameters = <String, dynamic>{};
+
+      // categories가 있으면 추가
+      if (categories != null && categories.isNotEmpty) {
+        queryParameters['categories'] = categories;
+      }
+
+      // Spring Boot 엔드포인트: GET /v0/users/posts/empathy/count
+      final response = await _apiService.get(
+        '/v0/users/posts/empathy/count',
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        // 응답: {"count": 0}
+        final data = response.data as Map<String, dynamic>;
+        return data['count'] as int;
+      } else {
+        throw Exception('내 좋아요한 글 개수를 가져오는데 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 내가 댓글 쓴 글 목록 가져오기
+  ///
+  /// [categories]: 카테고리 필터 (예: ['NATURE', 'FACILITY'])
+  /// [sortBy]: 정렬 방식 ('latest' - 기본값)
+  /// [page]: 페이지 번호 (0부터 시작, 기본값: 0)
+  /// [size]: 페이지 크기 (기본값: 20)
+  Future<Map<String, dynamic>> getMyCommentList({
+    List<String>? categories,
+    String sortBy = 'latest',
+    int page = 0,
+    int size = 20,
+  }) async {
+    try {
+      // 쿼리 파라미터 구성
+      final queryParameters = <String, dynamic>{
+        'sortBy': sortBy,
+        'page': page,
+        'size': size,
+      };
+
+      // categories가 있으면 추가
+      if (categories != null && categories.isNotEmpty) {
+        queryParameters['categories'] = categories;
+      }
+
+      // Spring Boot 엔드포인트: GET /v0/users/posts/comments
+      final response = await _apiService.get(
+        '/v0/users/posts/comments',
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('내 댓글 쓴 글 목록을 가져오는데 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 내가 댓글 쓴 글 수 가져오기
+  ///
+  /// [categories]: 카테고리 필터 (예: ['NATURE', 'FACILITY'])
+  Future<int> getMyCommentCnt({List<String>? categories}) async {
+    try {
+      // 쿼리 파라미터 구성
+      final queryParameters = <String, dynamic>{};
+
+      // categories가 있으면 추가
+      if (categories != null && categories.isNotEmpty) {
+        queryParameters['categories'] = categories;
+      }
+
+      // Spring Boot 엔드포인트: GET /v0/users/posts/comments/count
+      final response = await _apiService.get(
+        '/v0/users/posts/comments/count',
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        // 응답: {"count": 0}
+        final data = response.data as Map<String, dynamic>;
+        return data['count'] as int;
+      } else {
+        throw Exception('내 댓글 쓴 글 개수를 가져오는데 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  // 아이디 중복 확인
+  // GET /users/isExists/{userId}
+  // returns true if exists, false if available
+  Future<bool> isUserIdExists(String userId) async {
+    try {
+      // 개발 모드: 더미 응답 반환
+      if (ApiService.isDevelopmentMode) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        // 더미 로직: "existingUser"는 이미 존재하는 아이디
+        return userId == 'existingUser';
+      }
+
+      // 프로덕션 모드: 실제 API 호출
+      // GET /users/isExists/{userId}
+      final response = await _apiService.get('/users/isExists/$userId');
+
+      if (response.statusCode == 200) {
+        final data = response.data as Map<String, dynamic>;
+        return data['exists'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('Error checking userId: $e');
+      rethrow;
+    }
+  }
+
+  // 아이디 사용 가능 여부 확인 (exists의 반대)
+  Future<bool> isUserIdAvailable(String userId) async {
+    final exists = await isUserIdExists(userId);
+    return !exists;
   }
 }

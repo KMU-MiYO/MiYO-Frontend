@@ -5,10 +5,10 @@ class BottomNavbar extends StatelessWidget {
   final void Function(int index) onTap; // 부모에게 전달할 탭 변경 콜백
 
   const BottomNavbar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/screens/settings/settings_account_section.dart';
 import 'package:miyo/screens/settings/settings_application_section.dart';
-import 'package:miyo/screens/settings/settings_myactivity_section.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
   const ProfileSettingScreen({super.key});
@@ -27,9 +26,9 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
             children: [
               // 계정 섹션
               SettingsAccountSection(),
-              // 내 활동 섹션
-              SizedBox(height: height * 0.02),
-              SettingsMyactivitySection(),
+              // // 내 활동 섹션
+              // SizedBox(height: height * 0.02),
+              // SettingsMyactivitySection(),
               // 어플리케이션 섹션
               SizedBox(height: height * 0.02),
               SettingsApplicationSection(),
