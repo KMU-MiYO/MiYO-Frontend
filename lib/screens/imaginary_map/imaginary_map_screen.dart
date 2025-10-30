@@ -14,6 +14,7 @@ class ImaginaryMapScreen extends StatefulWidget {
 
 class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   final ImaginaryMapController _mapController = ImaginaryMapController();
+  final TextEditingController _searchController = TextEditingController();
 
   List<Map<String, dynamic>> _markers = [];
   bool _isLoading = true;
@@ -27,8 +28,32 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _mapController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onSearchSubmitted(String address) async {
+    if (_controller == null || address.trim().isEmpty) return;
+
+    try {
+      final success = await _mapController.searchAndMoveToAddress(
+        _controller!,
+        address,
+      );
+
+      if (!success && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('검색 오류: $e')));
+      }
+    }
   }
 
   Future<void> _initializeLocation() async {
@@ -102,12 +127,15 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
             child: TextField(
+              controller: _searchController,
+              onSubmitted: _onSearchSubmitted,
+              textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: '게시글 검색하기',
-                hintStyle: TextStyle(color: Color(0xff61758A)),
+                hintText: '장소 검색하기',
+                hintStyle: const TextStyle(color: Color(0xff61758A)),
                 prefixIcon: const Icon(Icons.search, color: Color(0xff61758A)),
                 filled: true,
-                fillColor: Color(0xffF0F2F5),
+                fillColor: const Color(0xffF0F2F5),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
