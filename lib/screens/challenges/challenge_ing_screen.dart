@@ -44,19 +44,19 @@ class _ChallengeIngScreen extends State<ChallengeIngScreen> {
 
     switch (category.toUpperCase()) {
       case 'NATURE':
-        return CategoryType.NaturePark;
+        return CategoryType.NATURE;
       case 'CULTURE':
-        return CategoryType.CultureArts;
+        return CategoryType.CULTURE;
       case 'TRAFFIC':
-        return CategoryType.Transport;
+        return CategoryType.TRAFFIC;
       case 'RESIDENCE':
-        return CategoryType.Life;
+        return CategoryType.RESIDENCE;
       case 'COMMERCIAL':
-        return CategoryType.Commercial;
+        return CategoryType.COMMERCIAL;
       case 'NIGHT':
-        return CategoryType.NightLandscape;
+        return CategoryType.NIGHT;
       case 'ENVIRONMENT':
-        return CategoryType.EnvironSustain;
+        return CategoryType.ENVIRONMENT;
       default:
         return null;
     }
