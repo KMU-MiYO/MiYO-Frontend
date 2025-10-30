@@ -82,6 +82,7 @@ class _ChallengeIngScreen extends State<ChallengeIngScreen> {
                       categoryType: _parseCategoryType(challenge['category']),
                       title: challenge['title'] ?? '',
                       location: challenge['host'] ?? '',
+                      contestId: challenge['contestId'] ?? 0,
                     );
                   },
                 ),

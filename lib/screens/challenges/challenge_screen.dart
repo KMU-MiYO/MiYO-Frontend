@@ -180,6 +180,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                             ),
                             title: challenge['title'] ?? '',
                             location: challenge['host'] ?? '',
+                            contestId: challenge['contestId'] ?? 0,
                           ),
                         );
                       }).toList(),
@@ -226,6 +227,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                             ),
                             title: challenge['title'] ?? '',
                             location: challenge['host'] ?? '',
+                            contestId: challenge['contestId'] ?? 0,
                           ),
                         );
                       }).toList(),
