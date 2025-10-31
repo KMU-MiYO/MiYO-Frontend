@@ -330,9 +330,12 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                         const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final post = topPosts[index];
+                      // 게시글 category가 null이면 챌린지 category 사용
+                      final categoryToUse =
+                          post['category'] ?? contestData!['category'];
                       return SuggestionTop3(
                         categoryType: _getSuggestionCategoryType(
-                          post['category'],
+                          categoryToUse,
                         ),
                         title: post['title'] ?? '제목 없음',
                         writer: post['userId'] ?? '익명',
