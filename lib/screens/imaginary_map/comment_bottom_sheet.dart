@@ -28,18 +28,40 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
   final TextEditingController _commentInputController = TextEditingController();
   final ScrollController _commentScrollController = ScrollController();
+  final DraggableScrollableController _sheetController = DraggableScrollableController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _loadComments();
+
+    // TextField 포커스 감지
+    _focusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
+    _focusNode.removeListener(_onFocusChanged);
+    _focusNode.dispose();
     _commentInputController.dispose();
     _commentScrollController.dispose();
     super.dispose();
+  }
+
+  void _onFocusChanged() {
+    if (_focusNode.hasFocus) {
+      // TextField가 포커스될 때 시트를 최대로 확장
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_sheetController.isAttached) {
+          _sheetController.animateTo(
+            0.90,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
   }
 
   /// 댓글 목록 가져오기
@@ -226,9 +248,10 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     return Stack(
       children: [
         DraggableScrollableSheet(
+          controller: _sheetController,
           initialChildSize: 0.5,
-          minChildSize: 0.05,
-          maxChildSize: 0.95,
+          minChildSize: 0.4,
+          maxChildSize: 0.90,
           builder: (BuildContext context, ScrollController sheetController) {
             return Container(
               decoration: const BoxDecoration(
@@ -407,11 +430,11 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
           },
         ),
 
-        // ✅ 항상 고정된 입력창
+        // ✅ 키보드 높이에 반응하는 입력창
         Positioned(
           left: 0,
           right: 0,
-          bottom: 0,
+          bottom: MediaQuery.of(context).viewInsets.bottom,
           child: Container(
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -436,7 +459,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                         children: [
                           Expanded(
                             child: Text(
-                              '@$_replyToNickname',
+                              '@$_replyToNickname에게 답글을 남기는 중',
                               style: const TextStyle(
                                 color: Color(0xff00AA5D),
                                 fontSize: 14,
@@ -448,7 +471,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                             onTap: _cancelReplyMode,
                             child: const Icon(
                               Icons.close,
-                              color: Color(0xff61758A),
+                              color: Color(0x8061758A),
                               size: 20,
                             ),
                           ),
@@ -463,6 +486,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                         Expanded(
                           child: TextField(
                             controller: _commentInputController,
+                            focusNode: _focusNode,
                             decoration: InputDecoration(
                               hintText: '댓글을 작성해보세요.',
                               hintStyle: const TextStyle(
