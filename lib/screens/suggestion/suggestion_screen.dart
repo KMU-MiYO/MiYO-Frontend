@@ -62,7 +62,6 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
-    // _promptController.dispose();
     super.dispose();
   }
 
@@ -126,8 +125,6 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
   // 갤러리 이미지를 서버에 업로드
   Future<String?> _uploadGalleryImage(File imageFile) async {
     try {
-      print('📤 갤러리 이미지 업로드 시작: ${imageFile.path}');
-
       // 이미지를 Base64로 인코딩
       final bytes = await imageFile.readAsBytes();
       final base64Image = base64Encode(bytes);
@@ -141,8 +138,6 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
         contentType = 'image/jpeg';
       }
 
-      print('📤 이미지 인코딩 완료, 업로드 API 호출 중...');
-
       // 서버에 업로드
       final response = await _challengeService.bitmapImageUpload(
         base64Image: base64Image,
@@ -153,10 +148,8 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       final imageUrl =
           response['imageUrl'] ?? response['url'] ?? response['imagePath'];
 
-      print('✅ 이미지 업로드 성공: $imageUrl');
       return imageUrl as String?;
     } catch (e) {
-      print('❌ 이미지 업로드 실패: $e');
       return null;
     }
   }
@@ -186,7 +179,8 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
     }
 
     // 일반 게시글(isContest가 false)일 때만 위치 정보 필수
-    if (!widget.isContest && (widget.latitude == null || widget.longitude == null)) {
+    if (!widget.isContest &&
+        (widget.latitude == null || widget.longitude == null)) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('위치 정보가 없습니다.')));
@@ -204,10 +198,8 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       if (_aiImageUrls.isNotEmpty) {
         // AI 생성 이미지가 있으면 첫 번째 AI 이미지 URL 사용
         imagePath = _aiImageUrls.first;
-        print('🎨 AI 이미지 사용: $imagePath');
       } else if (_images.isNotEmpty) {
         // AI 이미지가 없고 갤러리 이미지가 있으면 서버에 업로드
-        print('📤 갤러리 이미지 업로드 중...');
         final uploadedUrl = await _uploadGalleryImage(_images.first);
 
         if (uploadedUrl == null || uploadedUrl.isEmpty) {
@@ -215,16 +207,7 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
         }
 
         imagePath = uploadedUrl;
-        print('✅ 갤러리 이미지 업로드 완료: $imagePath');
       }
-
-      print('📝 게시글 등록 시도:');
-      print('- 제목: ${_titleController.text.trim()}');
-      print('- 내용: ${_contentController.text.trim()}');
-      print('- 카테고리: ${categoryApiValues[selectedIndex!]}');
-      print('- 위도: ${widget.latitude}');
-      print('- 경도: ${widget.longitude}');
-      print('- 이미지: $imagePath');
 
       // API 호출
       final result;
@@ -250,8 +233,6 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
         );
       }
 
-      print('✅ 게시글 등록 성공: $result');
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -264,8 +245,6 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
         Navigator.pop(context, result);
       }
     } catch (e) {
-      print('❌ 게시글 등록 실패: $e');
-
       if (mounted) {
         // Exception 객체에서 메시지만 추출
         final errorMessage = e.toString().replaceFirst('Exception: ', '');

@@ -40,12 +40,6 @@ class _ChallengeAllScreen extends State<ChallengeAllScreen> {
         sortBy: sortByValue,
       );
 
-      // 디버깅: 첫 번째 챌린지 데이터 구조 출력
-      if (challenges.isNotEmpty) {
-        print('📦 첫 번째 챌린지 데이터: ${challenges[0]}');
-        print('📦 사용 가능한 키들: ${(challenges[0] as Map).keys.toList()}');
-      }
-
       setState(() {
         _allChallenges = challenges;
         _isLoading = false;

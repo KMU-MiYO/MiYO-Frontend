@@ -112,8 +112,6 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
         // 교환 완료 후 이전 화면으로 돌아가면서 결과 전달
         Navigator.pop(context, true);
       }
-
-      print('✅ 교환 완료: $localCachePrice원권, 차감 포인트: $pointValue');
     } catch (e) {
       setState(() {
         _isExchanging = false;
@@ -127,8 +125,6 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
           ),
         );
       }
-
-      print('❌ 교환 실패: $e');
     }
   }
 

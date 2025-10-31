@@ -60,23 +60,11 @@ class PostService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data as Map<String, dynamic>;
-        print('✅ createPost API 응답:');
-        print('  - postId: ${data['postId']}');
-        print('  - userId: ${data['userId']}');
-        print('  - userNickname: ${data['userNickname']}');
-        print('  - title: ${data['title']}');
-        print('  - 전체 데이터: $data');
         return data;
       } else {
         throw Exception('게시글 작성에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
-
       if (e.response?.statusCode == 400) {
         final errorMsg = e.response?.data?.toString() ?? '잘못된 요청입니다.';
         throw Exception('잘못된 요청: $errorMsg');
@@ -92,7 +80,6 @@ class PostService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -126,23 +113,11 @@ class PostService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data as Map<String, dynamic>;
-        print('✅ createPost API 응답:');
-        print('  - postId: ${data['postId']}');
-        print('  - userId: ${data['userId']}');
-        print('  - userNickname: ${data['userNickname']}');
-        print('  - title: ${data['title']}');
-        print('  - 전체 데이터: $data');
         return data;
       } else {
         throw Exception('게시글 작성에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생 (createContestPost):');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
-
       if (e.response?.statusCode == 400) {
         final errorMsg = e.response?.data?.toString() ?? '잘못된 요청입니다.';
         throw Exception('잘못된 요청: $errorMsg');
@@ -152,7 +127,6 @@ class PostService {
         throw Exception('권한이 없습니다.');
       } else if (e.response?.statusCode == 409) {
         final errorMsg = e.response?.data?.toString() ?? '이미 참여한 챌린지입니다.';
-        print('⚠️ 409 에러 상세: $errorMsg');
         throw Exception('중복 참여: $errorMsg');
       } else if (e.response?.statusCode == 500) {
         final errorMsg = e.response?.data?.toString() ?? '서버 오류가 발생했습니다.';
@@ -162,7 +136,6 @@ class PostService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -244,11 +217,6 @@ class PostService {
         throw Exception('게시글 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       if (e.response?.statusCode == 401) {
         throw Exception('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
       } else if (e.response?.statusCode == 403) {
@@ -261,7 +229,6 @@ class PostService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -289,11 +256,6 @@ class PostService {
         throw Exception('공감 처리에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       if (e.response?.statusCode == 404) {
         throw Exception('게시글을 찾을 수 없습니다.');
       } else if (e.response?.statusCode == 401) {
@@ -308,7 +270,6 @@ class PostService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -334,10 +295,6 @@ class PostService {
     int size = 20,
   }) async {
     try {
-      print(
-        '📍 주변 게시글 조회: lat=$latitude, lng=$longitude, radius=$radius, sortBy=$sortBy, categories=$categories',
-      );
-
       // 쿼리 파라미터 생성
       final queryParameters = <String, dynamic>{
         'lat': latitude,
@@ -368,21 +325,14 @@ class PostService {
         if (response.data is Map<String, dynamic>) {
           final data = response.data as Map<String, dynamic>;
           final content = data['content'] as List<dynamic>? ?? [];
-          print('✅ 주변 게시글 ${content.length}개 조회 성공');
           return content;
         } else {
-          print('✅ 주변 게시글 ${(response.data as List).length}개 조회 성공');
           return response.data as List<dynamic>;
         }
       } else {
         throw Exception('주변 게시글 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       if (e.response?.statusCode == 401) {
         throw Exception('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
       } else if (e.response?.statusCode == 403) {
@@ -395,7 +345,6 @@ class PostService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -411,8 +360,6 @@ class PostService {
     required double radius,
   }) async {
     try {
-      print('📍 Top3 게시글 조회: lat=$latitude, lng=$longitude, radius=$radius');
-
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: GET /v0/posts/top3
       final response = await _apiService.get(
@@ -426,18 +373,13 @@ class PostService {
       );
 
       if (response.statusCode == 200) {
-        // 응답 구조 확인
-        print('📦 Top3 API 응답: ${response.data}');
-
         // response.data가 Map인지 List인지 확인
         if (response.data is List) {
-          print('✅ Top3 게시글 ${(response.data as List).length}개 조회 성공');
           return response.data as List<dynamic>;
         } else if (response.data is Map) {
           // Map 구조인 경우 posts 키에서 리스트 추출
           final data = response.data as Map<String, dynamic>;
           final posts = data['posts'] as List<dynamic>? ?? [];
-          print('✅ Top3 게시글 ${posts.length}개 조회 성공');
           return posts;
         } else {
           throw Exception('예상치 못한 응답 형식입니다.');
@@ -448,11 +390,6 @@ class PostService {
         );
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       if (e.response?.statusCode == 401) {
         throw Exception('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
       } else if (e.response?.statusCode == 403) {
@@ -465,7 +402,6 @@ class PostService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -532,21 +468,11 @@ class PostService {
 
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
-        print('✅ getPostById API 응답:');
-        print('  - postId: ${data['postId']}');
-        print('  - nickname: ${data['nickname']}');
-        print('  - title: ${data['title']}');
-        print('  - 전체 데이터: $data');
         return data;
       } else {
         throw Exception('게시글 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       if (e.response?.statusCode == 404) {
         throw Exception('게시글을 찾을 수 없습니다.');
       } else if (e.response?.statusCode == 401) {
@@ -561,7 +487,6 @@ class PostService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -582,21 +507,11 @@ class PostService {
 
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
-        print('✅ getPostById API 응답:');
-        print('  - postId: ${data['postId']}');
-        print('  - nickname: ${data['nickname']}');
-        print('  - title: ${data['title']}');
-        print('  - 전체 데이터: $data');
         return data;
       } else {
         throw Exception('게시글 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       if (e.response?.statusCode == 404) {
         throw Exception('게시글을 찾을 수 없습니다.');
       } else if (e.response?.statusCode == 401) {
@@ -611,7 +526,6 @@ class PostService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }

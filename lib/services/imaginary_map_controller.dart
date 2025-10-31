@@ -1,4 +1,3 @@
-// lib/services/imaginary_map_controller.dart
 import 'dart:io';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -33,18 +32,12 @@ class ImaginaryMapController {
   }) async {
     try {
       // 1. 현재 카메라 위치 가져오기
-      print('📍 카메라 위치 가져오기 시작');
       final cameraPosition = await controller.getCameraPosition();
       final center = cameraPosition.target;
       final zoom = cameraPosition.zoom;
       final radius = calculateRadiusFromZoom(zoom);
 
-      print(
-        '✅ 카메라 위치: lat=${center.latitude}, lng=${center.longitude}, zoom=$zoom, radius=$radius',
-      );
-
       // 2. API 호출
-      print('📍 백엔드 API 호출 시작');
       final markers = await _service.fetchMarkers(
         latitude: center.latitude,
         longitude: center.longitude,
@@ -52,12 +45,8 @@ class ImaginaryMapController {
         categories: categories,
         region: region,
       );
-
-      print('✅ API 응답: ${markers.length}개 마커 받음');
       return markers;
     } catch (e, stackTrace) {
-      print('❌ 마커 로드 오류: $e');
-      print('Stack trace: $stackTrace');
       rethrow;
     }
   }
@@ -69,58 +58,42 @@ class ImaginaryMapController {
     Function(Map<String, dynamic>)? onMarkerTap,
   }) async {
     if (markers.isEmpty) {
-      print('⚠️ 마커 리스트가 비어있습니다');
       return;
     }
 
     try {
-      print('📍 마커 이미지 생성 시작: ${markers.length}개');
-      print('📍 받은 마커 데이터: $markers');
-
       // 배치로 모든 마커 이미지를 한번에 생성 (최적화)
       final markerImagePaths = await _imageGenerator.generateBatchMarkerImages(
         markers,
       );
-      print('✅ 마커 이미지 생성 완료');
-      print('📍 생성된 이미지 경로: $markerImagePaths');
 
       // 생성된 이미지로 마커 추가
       int successCount = 0;
       for (var data in markers) {
         final markerId = data['id'];
         if (markerId == null) {
-          print('⚠️ 마커 ID가 null입니다: $data');
           continue;
         }
 
         final imagePath = markerImagePaths[markerId];
         if (imagePath == null) {
-          print('⚠️ 이미지 경로가 없습니다: ID=$markerId');
-          print('   사용 가능한 경로: ${markerImagePaths.keys.toList()}');
           continue;
         }
 
         final latitude = data['latitude'];
         final longitude = data['longitude'];
         if (latitude == null || longitude == null) {
-          print('⚠️ 위도/경도가 null입니다: ID=$markerId');
           continue;
         }
-
-        print(
-          '📍 마커 추가 시도: id=$markerId, lat=$latitude, lng=$longitude, path=$imagePath',
-        );
 
         // 파일 존재 확인
         final file = File(imagePath);
         final fileExists = await file.exists();
         if (!fileExists) {
-          print('❌ 마커 파일이 존재하지 않습니다: $imagePath');
           continue;
         }
 
         final fileSize = await file.length();
-        print('✅ 마커 파일 확인: 크기=$fileSize bytes');
 
         final marker = NMarker(
           id: markerId,
@@ -135,12 +108,8 @@ class ImaginaryMapController {
 
         await controller.addOverlay(marker);
         successCount++;
-        print('✅ 마커 추가 성공: id=$markerId');
       }
-      print('✅ 총 $successCount개 마커 추가 완료 (전체 ${markers.length}개 중)');
     } catch (e, stackTrace) {
-      print('❌ 마커 추가 중 오류: $e');
-      print('Stack trace: $stackTrace');
       rethrow;
     }
   }
@@ -196,7 +165,6 @@ class ImaginaryMapController {
         ),
       );
     } catch (e) {
-      print('위치 가져오기 실패: $e');
       return null;
     }
   }
@@ -214,30 +182,22 @@ class ImaginaryMapController {
     String address,
   ) async {
     try {
-      print('🔍 주소 검색 시작: $address');
-
       // 주소 → 좌표 변환
       final coordinates = await _geocodingService.getCoordinatesFromAddress(
         address,
       );
 
       if (coordinates == null) {
-        print('⚠️ 검색 결과 없음');
         return false;
       }
 
       final lat = coordinates['latitude']!;
       final lng = coordinates['longitude']!;
 
-      print('📍 좌표 변환 완료: lat=$lat, lng=$lng');
-
       // 지도 카메라 이동
       await moveCamera(controller, lat, lng, zoom: 15);
-
-      print('✅ 지도 이동 완료');
       return true;
     } catch (e) {
-      print('❌ 주소 검색 오류: $e');
       return false;
     }
   }

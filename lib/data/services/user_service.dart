@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'api_service.dart';
 import 'token_storage_service.dart';
@@ -33,10 +31,8 @@ class UserService {
         throw Exception('유저 정보를 가져오는데 실패했습니다.');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -67,7 +63,6 @@ class UserService {
         throw Exception('유저 정보를 가져오는데 실패했습니다.');
       }
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -79,20 +74,17 @@ class UserService {
     try {
       // 프로덕션 모드: 실제 API 호출
       // Spring Boot 엔드포인트: PATCH /api/users/my/nickname
-      // Request body: JSON 문자열 형태
       final response = await _apiService.patch(
         '/users/my/nickname',
         data: nickname,
       );
 
       if (response.statusCode == 200) {
-        // API는 성공 메시지(String)만 반환하므로, 업데이트된 유저 정보를 다시 가져옴
         return await getCurrentUser();
       } else {
         throw Exception('닉네임 변경을 실패했습니다.');
       }
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -121,7 +113,6 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        // API는 성공 메시지만 반환하므로, 업데이트된 유저 정보를 다시 가져옴
         return await getCurrentUser();
       } else {
         throw Exception('프로필 이미지 변경을 실패했습니다.');
@@ -134,10 +125,8 @@ class UserService {
       } else if (e.response?.statusCode == 415) {
         throw Exception('지원하지 않는 미디어 타입입니다.');
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -161,7 +150,6 @@ class UserService {
         throw Exception('유저 목록을 가져오는데 실패했습니다.');
       }
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -244,10 +232,8 @@ class UserService {
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -289,14 +275,7 @@ class UserService {
         // JWT 토큰 저장
         if (data.containsKey('accessToken')) {
           await _tokenStorage.saveAccessToken(data['accessToken']);
-          print('✅ Access token saved');
         }
-
-        // // Refresh 토큰이 있으면 저장
-        // if (data.containsKey('refreshToken')) {
-        //   await _tokenStorage.saveRefreshToken(data['refreshToken']);
-        //   print('✅ Refresh token saved');
-        // }
 
         return data;
       } else {
@@ -306,10 +285,8 @@ class UserService {
       if (e.response?.statusCode == 401) {
         throw Exception('아이디 또는 비밀번호가 올바르지 않습니다.');
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -335,7 +312,6 @@ class UserService {
         throw Exception('이메일 인증코드 요청에 실패했습니다.');
       }
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -366,10 +342,8 @@ class UserService {
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -400,10 +374,8 @@ class UserService {
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -442,10 +414,8 @@ class UserService {
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -458,7 +428,6 @@ class UserService {
       // 개발 모드: 더미 응답 반환
       if (ApiService.isDevelopmentMode) {
         await Future.delayed(const Duration(milliseconds: 400));
-        // 더미 코드: "123456"
         return code == '123456';
       }
 
@@ -467,25 +436,21 @@ class UserService {
       final response = await _apiService.post(
         '/users/email-verification-confirm',
         data: {'email': email, 'code': code},
-        responseType: ResponseType.plain, // plain text 응답 처리
+        responseType: ResponseType.plain,
       );
 
       if (response.statusCode == 200) {
-        // API는 성공 시 plain string
         return true;
       }
       return false;
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {
-        // 400 응답은 plain text로 에러 메시지 반환
         final errorMessage =
             e.response?.data?.toString() ?? '유효하지 않거나 만료된 인증코드입니다.';
         throw Exception(errorMessage);
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -495,9 +460,7 @@ class UserService {
   Future<void> logout() async {
     try {
       await _tokenStorage.deleteAllTokens();
-      print('✅ Logged out successfully');
     } catch (e) {
-      print('Error during logout: $e');
       rethrow;
     }
   }
@@ -508,12 +471,10 @@ class UserService {
       final response = await _apiService.delete('/users/my');
       if (response.statusCode == 200) {
         await _tokenStorage.deleteAllTokens();
-        print('✅ Delete Account successfully');
       } else {
         throw Exception('계정 탈퇴를 실패했습니다.');
       }
     } catch (e) {
-      print('Error during delete account: $e');
       rethrow;
     }
   }
@@ -522,9 +483,7 @@ class UserService {
   Future<void> debugPrintTokens() async {
     try {
       final accessToken = await _tokenStorage.getAccessToken();
-      // final refreshToken = await _tokenStorage.getRefreshToken();
 
-      print('=== 저장된 토큰 디버깅 ===');
       if (accessToken != null && accessToken.isNotEmpty) {
         print(
           '✅ Access Token: ${accessToken.substring(0, accessToken.length > 20 ? 20 : accessToken.length)}...',
@@ -532,14 +491,6 @@ class UserService {
       } else {
         print('❌ Access Token: 없음');
       }
-
-      // 리프레시 토큰은 없어서 우선 주석처리
-      // if (refreshToken != null && refreshToken.isNotEmpty) {
-      //   print('✅ Refresh Token: ${refreshToken.substring(0, refreshToken.length > 20 ? 20 : refreshToken.length)}...');
-      // } else {
-      //   print('❌ Refresh Token: 없음');
-      // }
-      // print('========================');
     } catch (e) {
       print('Error checking tokens: $e');
     }
@@ -587,10 +538,8 @@ class UserService {
         throw Exception('내 게시글 목록을 가져오는데 실패했습니다.');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -622,10 +571,8 @@ class UserService {
         throw Exception('내 게시글 수를 가져오는데 실패했습니다.');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -667,10 +614,8 @@ class UserService {
         throw Exception('내 좋아요한 글 목록을 가져오는데 실패했습니다.');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -702,10 +647,8 @@ class UserService {
         throw Exception('내 좋아요한 글 개수를 가져오는데 실패했습니다.');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -747,10 +690,8 @@ class UserService {
         throw Exception('내 댓글 쓴 글 목록을 가져오는데 실패했습니다.');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -782,10 +723,8 @@ class UserService {
         throw Exception('내 댓글 쓴 글 개수를 가져오는데 실패했습니다.');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -798,7 +737,6 @@ class UserService {
       // 개발 모드: 더미 응답 반환
       if (ApiService.isDevelopmentMode) {
         await Future.delayed(const Duration(milliseconds: 300));
-        // 더미 로직: "existingUser"는 이미 존재하는 아이디
         return userId == 'existingUser';
       }
 
@@ -812,7 +750,6 @@ class UserService {
       }
       return false;
     } catch (e) {
-      print('Error checking userId: $e');
       rethrow;
     }
   }

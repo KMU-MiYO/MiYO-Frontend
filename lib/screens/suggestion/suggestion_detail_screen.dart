@@ -39,27 +39,18 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
           contestId: widget.postId,
           postId: widget.postId,
         );
-        print('📦 게시글 데이터: $data');
-        print(
-          '👤 작성자 정보: ${data['nickname']} / ${data['userNickname']} / ${data['author']}',
-        );
         setState(() {
           postData = data;
           isLoading = false;
         });
       } else {
         final data = await _postService.getPostById(postId: widget.postId);
-        print('📦 게시글 데이터: $data');
-        print(
-          '👤 작성자 정보: ${data['nickname']} / ${data['userNickname']} / ${data['author']}',
-        );
         setState(() {
           postData = data;
           isLoading = false;
         });
       }
     } catch (e) {
-      print('❌ 게시글 로드 실패: $e');
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -94,15 +85,12 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
     try {
       // API 호출
       final response = await _postService.toggleEmpathy(postId: widget.postId);
-      print('✅ 공감 처리 성공: ${response['message']}');
 
       // API 응답에 따라 상태 업데이트
       setState(() {
         postData!['isEmpathized'] = response['isAdded'];
       });
     } catch (e) {
-      print('❌ 공감 처리 실패: $e');
-
       // 실패 시 이전 상태로 롤백
       setState(() {
         postData!['isEmpathized'] = previousIsEmpathized;

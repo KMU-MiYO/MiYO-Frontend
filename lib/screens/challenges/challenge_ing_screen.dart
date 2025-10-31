@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:miyo/data/services/challenge_service.dart';
 import 'package:miyo/screens/challenges/challenge_item.dart';
 import 'package:miyo/components/title_appbar.dart';
-import 'package:miyo/data/dummy/dummy_challenges.dart';
 
 class ChallengeIngScreen extends StatefulWidget {
   const ChallengeIngScreen({super.key});
@@ -70,22 +69,21 @@ class _ChallengeIngScreen extends State<ChallengeIngScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _ingChallenges.isEmpty
-              ? const Center(child: Text('참가 중인 챌린지가 없습니다.'))
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: _ingChallenges.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 20),
-                  itemBuilder: (context, index) {
-                    final challenge = _ingChallenges[index];
-                    return ChallengeItem(
-                      categoryType: _parseCategoryType(challenge['category']),
-                      title: challenge['title'] ?? '',
-                      location: challenge['host'] ?? '',
-                      contestId: challenge['contestId'] ?? 0,
-                    );
-                  },
-                ),
+          ? const Center(child: Text('참가 중인 챌린지가 없습니다.'))
+          : ListView.separated(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: _ingChallenges.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 20),
+              itemBuilder: (context, index) {
+                final challenge = _ingChallenges[index];
+                return ChallengeItem(
+                  categoryType: _parseCategoryType(challenge['category']),
+                  title: challenge['title'] ?? '',
+                  location: challenge['host'] ?? '',
+                  contestId: challenge['contestId'] ?? 0,
+                );
+              },
+            ),
     );
   }
 }

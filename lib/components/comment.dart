@@ -1,4 +1,3 @@
-// lib/components/comment.dart
 import 'package:flutter/material.dart';
 
 // 댓글 위젯
@@ -50,7 +49,11 @@ class CommentWidget extends StatelessWidget {
                           profileImagePath!,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.person, color: Colors.white, size: 20);
+                            return Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 20,
+                            );
                           },
                         ),
                       )

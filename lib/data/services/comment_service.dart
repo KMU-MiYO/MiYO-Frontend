@@ -40,10 +40,6 @@ class CommentService {
 
   /// 댓글(그냥 제안글) 작성하기
   ///
-  ///{
-  //   "parentPostId": 1,
-  //   "content": "저도 가봤는데 정말 좋았어요!"
-  // }
   Future<Map<String, dynamic>> writeComment({
     required int parentPostId,
     required String content,
@@ -53,10 +49,6 @@ class CommentService {
       final response = await _apiService.post(
         '/v0/comments',
         data: {'parentPostId': parentPostId, 'content': content},
-      );
-
-      print(
-        '📥 댓글 작성 응답: statusCode=${response.statusCode}, data=${response.data}',
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -89,14 +81,9 @@ class CommentService {
     required String content,
   }) async {
     try {
-      print('📤 댓글 작성 요청: parentPostId=$postId, content=$content');
       final response = await _apiService.post(
         '/v0/contests/posts/$postId/comments',
         data: {'content': content},
-      );
-
-      print(
-        '📥 댓글 작성 응답: statusCode=${response.statusCode}, data=${response.data}',
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -114,10 +101,8 @@ class CommentService {
       } else if (e.response?.statusCode == 500) {
         throw Exception('서버 오류가 발생했습니다.');
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }

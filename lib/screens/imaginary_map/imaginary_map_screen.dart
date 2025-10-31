@@ -1,4 +1,3 @@
-// lib/screens/imaginary_map/imaginary_map_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:miyo/services/imaginary_map_controller.dart';
@@ -20,7 +19,7 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   List<Map<String, dynamic>> _markers = [];
   bool _isLoading = true;
   NaverMapController? _controller;
-  double _bottomSheetHeight = 0.3; // bottom sheet의 현재 높이 비율
+  double _bottomSheetHeight = 0.3;
 
   @override
   void initState() {
@@ -77,16 +76,16 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
         );
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('위치 권한을 허용해주세요')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('위치 권한을 허용해주세요')));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('내 위치를 가져올 수 없습니다: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('내 위치를 가져올 수 없습니다: $e')));
       }
     }
   }
@@ -187,14 +186,12 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
           // 커스텀 위치 버튼
           Positioned(
             right: 16,
-            bottom: MediaQuery.of(context).size.height * _bottomSheetHeight + 16,
+            bottom:
+                MediaQuery.of(context).size.height * _bottomSheetHeight + 16,
             child: FloatingActionButton(
               onPressed: _moveToMyLocation,
               backgroundColor: Colors.white,
-              child: const Icon(
-                Icons.my_location,
-                color: Color(0xff00AA5D),
-              ),
+              child: const Icon(Icons.my_location, color: Color(0xff00AA5D)),
             ),
           ),
           if (_controller != null)

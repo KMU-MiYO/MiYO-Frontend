@@ -113,16 +113,12 @@ class _AiSuggestionScreenState extends State<AiSuggestionScreen> {
           contentType: 'image/jpeg',
         );
 
-        print('📦 Upload Result: $uploadResult');
-
         // 업로드된 이미지 URL로 AI 이미지 생성
         final imageUrl =
             uploadResult['imageUrl'] ??
             uploadResult['url'] ??
             uploadResult['base64Image'] ??
             '';
-
-        print('🖼️ Image URL: $imageUrl');
 
         result = await _challengeService.createImageFromImage(
           imageUrl: imageUrl,
@@ -157,8 +153,6 @@ class _AiSuggestionScreenState extends State<AiSuggestionScreen> {
         }
       }
     } catch (e) {
-      print('❌ AI 이미지 생성 실패: $e');
-
       if (mounted) {
         final errorMessage = e.toString().replaceFirst('Exception: ', '');
         ScaffoldMessenger.of(context).showSnackBar(

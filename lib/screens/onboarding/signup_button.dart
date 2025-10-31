@@ -14,9 +14,11 @@ class _SignupButtonState extends State<SignupButton> {
   final TextEditingController idController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nicknameController = TextEditingController();
-  final TextEditingController verificationCodeController = TextEditingController();
+  final TextEditingController verificationCodeController =
+      TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordVerificationController = TextEditingController();
+  final TextEditingController passwordVerificationController =
+      TextEditingController();
 
   final UserService _userService = UserService();
 
@@ -84,10 +86,7 @@ class _SignupButtonState extends State<SignupButton> {
 
     if (userId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('아이디를 입력해주세요.'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('아이디를 입력해주세요.'), backgroundColor: Colors.red),
       );
       return;
     }
@@ -161,9 +160,9 @@ class _SignupButtonState extends State<SignupButton> {
       if (email.isEmpty) {
         isEmailValid = null;
       } else {
-        // TODO: API 호출로 이메일 형식 및 중복 확인 후 결과에 따라 isEmailValid 설정
-        // 임시: 이메일 형식 체크
-        isEmailValid = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+        isEmailValid = RegExp(
+          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+        ).hasMatch(email);
       }
     });
   }
@@ -174,8 +173,6 @@ class _SignupButtonState extends State<SignupButton> {
       if (code.isEmpty) {
         isVerificationCodeValid = null;
       } else {
-        // TODO: API 호출로 인증 코드 확인 후 결과에 따라 isVerificationCodeValid 설정
-        // 임시: 6자리 숫자 체크
         isVerificationCodeValid = RegExp(r'^\d{6}$').hasMatch(code);
       }
     });
@@ -215,11 +212,11 @@ class _SignupButtonState extends State<SignupButton> {
 
   bool get _isAllValid {
     return isIdValid == true &&
-           isEmailValid == true &&
-           isVerificationCodeValid == true &&
-           isPasswordValid == true &&
-           isPasswordConfirmValid == true &&
-           nicknameController.text.isNotEmpty;
+        isEmailValid == true &&
+        isVerificationCodeValid == true &&
+        isPasswordValid == true &&
+        isPasswordConfirmValid == true &&
+        nicknameController.text.isNotEmpty;
   }
 
   Future<void> _handleSendVerificationCode() async {
@@ -394,7 +391,7 @@ class _SignupButtonState extends State<SignupButton> {
             decoration: InputDecoration(
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 12,
-                vertical: 15
+                vertical: 15,
               ),
               hintText: '닉네임',
               hintStyle: const TextStyle(
@@ -412,7 +409,7 @@ class _SignupButtonState extends State<SignupButton> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 4,),
+              padding: const EdgeInsets.only(left: 4),
               child: Text(
                 '프로필 상의 이름을 설정해 주세요.',
                 style: TextStyle(
@@ -425,7 +422,7 @@ class _SignupButtonState extends State<SignupButton> {
           ),
         ),
         SizedBox(height: height * 0.02),
-            
+
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -441,8 +438,8 @@ class _SignupButtonState extends State<SignupButton> {
                 ),
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12, 
-                    vertical: 15
+                    horizontal: 12,
+                    vertical: 15,
                   ),
                   hintText: '아이디',
                   hintStyle: const TextStyle(
@@ -450,7 +447,7 @@ class _SignupButtonState extends State<SignupButton> {
                     color: Color(0xff757575),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12), 
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -494,7 +491,7 @@ class _SignupButtonState extends State<SignupButton> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 4,),
+              padding: const EdgeInsets.only(left: 4),
               child: Text(
                 '아이디는 영어/숫자 4자리 이상으로 설정해 주세요.',
                 style: TextStyle(
@@ -523,8 +520,8 @@ class _SignupButtonState extends State<SignupButton> {
                 ),
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12, 
-                    vertical: 15
+                    horizontal: 12,
+                    vertical: 15,
                   ),
                   hintText: '이메일',
                   hintStyle: const TextStyle(
@@ -532,7 +529,7 @@ class _SignupButtonState extends State<SignupButton> {
                     color: Color(0xff757575),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12), 
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -576,7 +573,7 @@ class _SignupButtonState extends State<SignupButton> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 4,),
+              padding: const EdgeInsets.only(left: 4),
               child: Text(
                 '이메일을 입력해 주세요.',
                 style: TextStyle(
@@ -605,8 +602,8 @@ class _SignupButtonState extends State<SignupButton> {
                 ),
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12, 
-                    vertical: 15
+                    horizontal: 12,
+                    vertical: 15,
                   ),
                   hintText: '인증 코드',
                   hintStyle: const TextStyle(
@@ -614,7 +611,7 @@ class _SignupButtonState extends State<SignupButton> {
                     color: Color(0xff757575),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12), 
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -658,7 +655,7 @@ class _SignupButtonState extends State<SignupButton> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 4,),
+              padding: const EdgeInsets.only(left: 4),
               child: Text(
                 '인증 코드를 입력해 주세요.',
                 style: TextStyle(
@@ -685,8 +682,8 @@ class _SignupButtonState extends State<SignupButton> {
             ),
             decoration: InputDecoration(
               contentPadding: EdgeInsets.symmetric(
-                horizontal: 12, 
-                vertical: 15
+                horizontal: 12,
+                vertical: 15,
               ),
               hintText: '비밀번호',
               hintStyle: const TextStyle(
@@ -704,7 +701,7 @@ class _SignupButtonState extends State<SignupButton> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 4,),
+              padding: const EdgeInsets.only(left: 4),
               child: Text(
                 '영어/숫자/특수문자 2가지 이상 조합 8자리 이상으로 설정해 주세요.',
                 style: TextStyle(
@@ -730,8 +727,8 @@ class _SignupButtonState extends State<SignupButton> {
             ),
             decoration: InputDecoration(
               contentPadding: EdgeInsets.symmetric(
-                horizontal: 12, 
-                vertical: 15
+                horizontal: 12,
+                vertical: 15,
               ),
               hintText: '비밀번호 확인',
               hintStyle: const TextStyle(
@@ -739,7 +736,7 @@ class _SignupButtonState extends State<SignupButton> {
                 color: Color(0xff757575),
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12), 
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),
@@ -749,7 +746,7 @@ class _SignupButtonState extends State<SignupButton> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 4,),
+              padding: const EdgeInsets.only(left: 4),
               child: Text(
                 '비밀번호를 한 번 더 입력해 주세요.',
                 style: TextStyle(
@@ -768,7 +765,9 @@ class _SignupButtonState extends State<SignupButton> {
           width: width * 0.8,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: _isAllValid ? Color(0xff00AA5D) : Color(0xff757575),
+              backgroundColor: _isAllValid
+                  ? Color(0xff00AA5D)
+                  : Color(0xff757575),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -809,9 +808,11 @@ class _SignupButtonState extends State<SignupButton> {
             TextButton(
               onPressed: () {
                 Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => LoginScreen()));                
-              },               
-            child: Text(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              },
+              child: Text(
                 '로그인 하기',
                 style: TextStyle(
                   color: Color(0xff00AA5D),

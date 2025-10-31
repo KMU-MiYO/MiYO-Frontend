@@ -17,10 +17,8 @@ class RewardService {
         throw Exception('리워드 정보를 가져오는데 실패했습니다.');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }
@@ -49,10 +47,8 @@ class RewardService {
       if (e.response?.statusCode == 400) {
         throw Exception('요청이 올바르지 않습니다.');
       }
-      print('DioException: ${e.message}');
       rethrow;
     } catch (e) {
-      print('Error: $e');
       rethrow;
     }
   }

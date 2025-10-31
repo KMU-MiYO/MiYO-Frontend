@@ -79,15 +79,12 @@ class _MapScreenState extends State<MapScreen> {
       setState(() {
         // 천 단위 콤마 추가
         _currentPoint = reward.toString().replaceAllMapped(
-              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-              (Match m) => '${m[1]},',
-            );
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
         _isLoadingReward = false;
       });
-
-      print('✅ 리워드 포인트: $_currentPoint');
     } catch (e) {
-      print('❌ 리워드 로드 실패: $e');
       setState(() {
         _currentPoint = '0';
         _isLoadingReward = false;
@@ -107,8 +104,6 @@ class _MapScreenState extends State<MapScreen> {
       final result = await _postService.getMyPosts();
       final posts = result['content'] as List;
 
-      print('📦 로드된 게시글 수: ${posts.length}');
-
       final controller = await _mapControllerCompleter.future;
       final currentPostIds = <String>{};
 
@@ -126,7 +121,6 @@ class _MapScreenState extends State<MapScreen> {
 
         // 캐시에 마커가 있는지 확인
         if (_markerCache.containsKey(postId)) {
-          print('✅ 캐시에서 마커 재사용: $postId');
           // 기존 마커 재사용 - 위치가 변경되었을 수 있으므로 업데이트
           final cachedMarker = _markerCache[postId]!;
           // 위치 업데이트가 필요한 경우에만
@@ -150,7 +144,6 @@ class _MapScreenState extends State<MapScreen> {
           }
         } else {
           // 새로운 마커 생성
-          print('🆕 새로운 마커 생성: $postId');
           await _addMarkerFromPost(
             postId: postId,
             latLng: NLatLng(latitude, longitude),
@@ -173,10 +166,7 @@ class _MapScreenState extends State<MapScreen> {
         _markerCache.remove(postId);
         _markerPostData.remove(postId);
       }
-
-      print('✅ 마커 로드 완료: ${_markerCache.length}개');
     } catch (e) {
-      print('❌ 게시글 로드 실패: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -201,17 +191,16 @@ class _MapScreenState extends State<MapScreen> {
     try {
       final controller = await _mapControllerCompleter.future;
 
-      print('🔍 주소 검색 시작: $address');
-
       // 주소 → 좌표 변환
-      final coordinates = await _geocodingService.getCoordinatesFromAddress(address);
+      final coordinates = await _geocodingService.getCoordinatesFromAddress(
+        address,
+      );
 
       if (coordinates == null) {
-        print('⚠️ 검색 결과 없음');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')));
         }
         return;
       }
@@ -219,26 +208,20 @@ class _MapScreenState extends State<MapScreen> {
       final lat = coordinates['latitude']!;
       final lng = coordinates['longitude']!;
 
-      print('📍 좌표 변환 완료: lat=$lat, lng=$lng');
-
       // 지도 카메라 이동
-      final cameraUpdate = NCameraUpdate.withParams(
-        target: NLatLng(lat, lng),
-        zoom: 15,
-      )..setAnimation(
-        animation: NCameraAnimation.easing,
-        duration: const Duration(milliseconds: 500),
-      );
+      final cameraUpdate =
+          NCameraUpdate.withParams(target: NLatLng(lat, lng), zoom: 15)
+            ..setAnimation(
+              animation: NCameraAnimation.easing,
+              duration: const Duration(milliseconds: 500),
+            );
 
       await controller.updateCamera(cameraUpdate);
-
-      print('✅ 지도 이동 완료');
     } catch (e) {
-      print('❌ 주소 검색 오류: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('검색 오류: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('검색 오류: $e')));
       }
     }
   }
@@ -309,7 +292,8 @@ class _MapScreenState extends State<MapScreen> {
         final categoryType = _getCategoryType(categoryStr);
 
         // 줌 레벨 체크 + 카테고리 필터 체크
-        final shouldShow = _currentZoom >= _minZoomForMarkers &&
+        final shouldShow =
+            _currentZoom >= _minZoomForMarkers &&
             (selectedCategories.isEmpty ||
                 selectedCategories.contains(categoryType));
 
@@ -369,12 +353,8 @@ class _MapScreenState extends State<MapScreen> {
   }) async {
     final controller = await _mapControllerCompleter.future;
 
-
     // 새로운 마커 생성 (기본 마커 사용)
-    final marker = NMarker(
-      id: 'post_$postId',
-      position: latLng,
-    );
+    final marker = NMarker(id: 'post_$postId', position: latLng);
 
     // 마커 클릭 이벤트 추가 - suggestion_detail로 이동
     marker.setOnTapListener((overlay) {
@@ -393,8 +373,6 @@ class _MapScreenState extends State<MapScreen> {
 
     // 캐시에 저장
     _markerCache[postId] = marker;
-
-    print('마커 추가 완료: $title at (${latLng.latitude}, ${latLng.longitude})');
   }
 
   // 마커 추가 (새 게시글 작성 후)
@@ -410,14 +388,11 @@ class _MapScreenState extends State<MapScreen> {
 
     // 마커 클릭 이벤트 추가
     marker.setOnTapListener((overlay) {
-      print('마커 클릭: $title (postId: $postId)');
-
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SuggestionDetailScreen(
-            postId: int.parse(postId),
-          ),
+          builder: (context) =>
+              SuggestionDetailScreen(postId: int.parse(postId)),
         ),
       );
     });
@@ -427,8 +402,6 @@ class _MapScreenState extends State<MapScreen> {
 
     // 캐시에 저장
     _markerCache[postId] = marker;
-
-    print('마커 추가 완료: $title at (${latLng.latitude}, ${latLng.longitude})');
   }
 
   @override
@@ -565,7 +538,11 @@ class _MapScreenState extends State<MapScreen> {
                               _loadReward();
                             }
                           },
-                          icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
+                          icon: Icon(
+                            Icons.card_giftcard,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                           label: Text(
                             '교환소',
                             style: TextStyle(
@@ -579,7 +556,10 @@ class _MapScreenState extends State<MapScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                           ),
                         ),
                       ],

@@ -21,10 +21,7 @@ class SuggestionService {
   }) async {
     try {
       // 쿼리 파라미터 구성
-      final queryParams = <String, dynamic>{
-        'page': page,
-        'size': size,
-      };
+      final queryParams = <String, dynamic>{'page': page, 'size': size};
 
       if (sortBy != null) {
         queryParams['sortBy'] = sortBy;
@@ -36,9 +33,6 @@ class SuggestionService {
       );
 
       if (response.statusCode == 200) {
-        print('📦 API 응답 데이터 타입: ${response.data.runtimeType}');
-        print('📦 API 응답 데이터: ${response.data}');
-
         // 응답이 Map인 경우 (페이징된 데이터)
         if (response.data is Map<String, dynamic>) {
           final data = response.data as Map<String, dynamic>;
@@ -59,14 +53,8 @@ class SuggestionService {
         throw Exception('제출물 목록 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
       throw Exception('제출물 목록 조회 중 오류가 발생했습니다.');
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
