@@ -38,6 +38,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
       final data = await _challengeService.getContestById(
         contestId: widget.contestId,
       );
+
       print('📦 챌린지 데이터: $data');
       setState(() {
         contestData = data;
