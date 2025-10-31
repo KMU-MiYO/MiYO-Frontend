@@ -33,31 +33,34 @@ class ChallengeFilterButton extends StatelessWidget {
       ],
       child: Container(
         // 필터링 버튼
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xffE0E0E0)),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min, // Row 크기를 내용물에 맞춤
           children: [
+            Icon(Icons.filter_list, size: 18, color: Color(0xff61758A)),
+            const SizedBox(width: 4),
             Text(
               filterNames[selectedFilter] ?? '',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color(0xff000000),
+                color: Color(0xff61758A),
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.keyboard_arrow_down, size: 20, color: Color(0xff000000)),
+            Icon(Icons.arrow_drop_down, size: 18, color: Color(0xff61758A)),
           ],
         ),
       ),
     );
   }
 
-  PopupMenuItem<ChallengeFilterType> _buildMenuItem(ChallengeFilterType filterType) {
+  PopupMenuItem<ChallengeFilterType> _buildMenuItem(
+    ChallengeFilterType filterType,
+  ) {
     final isSelected = selectedFilter == filterType;
     return PopupMenuItem<ChallengeFilterType>(
       value: filterType,
@@ -69,10 +72,13 @@ class ChallengeFilterButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? const Color(0xff00AA5D) : const Color(0xff000000),
+              color: isSelected
+                  ? const Color(0xff00AA5D)
+                  : const Color(0xff000000),
             ),
           ),
-          if (isSelected) const Icon(Icons.check, size: 18, color: Color(0xff00AA5D)),
+          if (isSelected)
+            const Icon(Icons.check, size: 18, color: Color(0xff00AA5D)),
         ],
       ),
     );
@@ -130,31 +136,34 @@ class ChallengeCategoryButton extends StatelessWidget {
       ],
       child: Container(
         // 필터링 버튼
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xffE0E0E0)),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min, // Row 크기를 내용물에 맞춤
           children: [
+            Icon(Icons.filter_list, size: 18, color: Color(0xff61758A)),
+            const SizedBox(width: 4),
             Text(
               categoryNames[selectedCategory] ?? '',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color(0xff000000),
+                color: Color(0xff61758A),
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.keyboard_arrow_down, size: 20, color: Color(0xff000000)),
+            Icon(Icons.arrow_drop_down, size: 18, color: Color(0xff61758A)),
           ],
         ),
       ),
     );
   }
 
-  PopupMenuItem<ChallengeCategoryType> _buildMenuItem(ChallengeCategoryType categoryType) {
+  PopupMenuItem<ChallengeCategoryType> _buildMenuItem(
+    ChallengeCategoryType categoryType,
+  ) {
     final isSelected = selectedCategory == categoryType;
     return PopupMenuItem<ChallengeCategoryType>(
       value: categoryType,
@@ -166,10 +175,13 @@ class ChallengeCategoryButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? const Color(0xff00AA5D) : const Color(0xff000000),
+              color: isSelected
+                  ? const Color(0xff00AA5D)
+                  : const Color(0xff000000),
             ),
           ),
-          if (isSelected) const Icon(Icons.check, size: 18, color: Color(0xff00AA5D)),
+          if (isSelected)
+            const Icon(Icons.check, size: 18, color: Color(0xff00AA5D)),
         ],
       ),
     );
