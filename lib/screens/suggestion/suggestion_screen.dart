@@ -10,8 +10,16 @@ import 'package:miyo/screens/suggestion/ai_suggestion_screen.dart';
 class SuggestionScreen extends StatefulWidget {
   final double? latitude;
   final double? longitude;
+  final bool isContest;
+  final int? contestId;
 
-  const SuggestionScreen({super.key, this.latitude, this.longitude});
+  const SuggestionScreen({
+    super.key,
+    this.latitude,
+    this.longitude,
+    this.isContest = false,
+    this.contestId,
+  });
 
   @override
   State<SuggestionScreen> createState() => _SuggestionScreenState();
@@ -142,7 +150,8 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       );
 
       // 업로드된 이미지 URL 반환 (응답 구조에 따라 수정 필요)
-      final imageUrl = response['imageUrl'] ?? response['url'] ?? response['imagePath'];
+      final imageUrl =
+          response['imageUrl'] ?? response['url'] ?? response['imagePath'];
 
       print('✅ 이미지 업로드 성공: $imageUrl');
       return imageUrl as String?;
@@ -176,7 +185,8 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       return;
     }
 
-    if (widget.latitude == null || widget.longitude == null) {
+    if ((widget.latitude == null && widget.isContest) ||
+        (widget.longitude == null && widget.isContest)) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('위치 정보가 없습니다.')));
@@ -217,14 +227,28 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       print('- 이미지: $imagePath');
 
       // API 호출
-      final result = await _postService.createPost(
-        imagePath: imagePath,
-        latitude: widget.latitude!,
-        longitude: widget.longitude!,
-        category: categoryApiValues[selectedIndex!],
-        title: _titleController.text.trim(),
-        content: _contentController.text.trim(),
-      );
+      final result;
+      if (widget.isContest) {
+        if (widget.contestId == null) {
+          throw Exception('챌린지 ID가 필요합니다.');
+        }
+        result = await _postService.createContestPost(
+          contestId: widget.contestId!,
+          imagePath: imagePath,
+          category: categoryApiValues[selectedIndex!],
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+        );
+      } else {
+        result = await _postService.createPost(
+          imagePath: imagePath,
+          latitude: widget.latitude!,
+          longitude: widget.longitude!,
+          category: categoryApiValues[selectedIndex!],
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+        );
+      }
 
       print('✅ 게시글 등록 성공: $result');
 

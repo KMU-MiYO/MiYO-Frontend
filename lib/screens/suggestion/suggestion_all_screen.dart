@@ -7,10 +7,7 @@ import 'package:miyo/data/services/suggestion_service.dart';
 class SuggestionAllScreen extends StatefulWidget {
   final int contestId;
 
-  const SuggestionAllScreen({
-    super.key,
-    required this.contestId,
-  });
+  const SuggestionAllScreen({super.key, required this.contestId});
 
   @override
   State<SuggestionAllScreen> createState() => _SuggestionAllScreenState();
@@ -90,103 +87,102 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '제안 글을 불러오는데 실패했습니다',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _errorMessage!,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadSuggestions,
+                    child: const Text('다시 시도'),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadSuggestions,
+              child: ListView(
+                padding: const EdgeInsets.all(16.0),
+                children: [
+                  // 인기 제안 TOP3 섹션
+                  const Text(
+                    '인기 제안 TOP3',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // TOP3 제안 리스트
+                  if (_topSuggestions.isNotEmpty)
+                    ..._topSuggestions.map((suggestion) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: SuggestionItem(
+                          categoryType: null, // 필요시 카테고리 파싱 로직 추가
+                          title: suggestion['title']?.toString() ?? '제목 없음',
+                          writer:
+                              suggestion['userId']?.toString() ?? '작성자 정보 없음',
+                          postId: suggestion['postId'] ?? 0,
+                        ),
+                      );
+                    })
+                  else
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Center(child: Text('인기 제안이 없습니다')),
+                    ),
+
+                  const SizedBox(height: 8),
+
+                  // 필터 드롭다운
+                  Row(
                     children: [
-                      Text(
-                        '제안 글을 불러오는데 실패했습니다',
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _errorMessage!,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadSuggestions,
-                        child: const Text('다시 시도'),
+                      // 정렬 드롭다운
+                      SuggestionFilteringButton(
+                        selectedFilter: _sortBy,
+                        onFilterChanged: (filter) {
+                          setState(() {
+                            _sortBy = filter;
+                          });
+                          _loadSuggestions();
+                        },
                       ),
                     ],
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadSuggestions,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16.0),
-                    children: [
-                      // 인기 제안 TOP3 섹션
-                      const Text(
-                        '인기 제안 TOP3',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 16),
 
-                      // TOP3 제안 리스트
-                      if (_topSuggestions.isNotEmpty)
-                        ..._topSuggestions.map((suggestion) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: SuggestionItem(
-                              categoryType: null, // 필요시 카테고리 파싱 로직 추가
-                              title: suggestion['title']?.toString() ?? '제목 없음',
-                              writer:
-                                  suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                              postId: suggestion['postId'] ?? 0,
-                            ),
-                          );
-                        })
-                      else
-                        const Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Center(child: Text('인기 제안이 없습니다')),
+                  const SizedBox(height: 16),
+
+                  // 전체 제안 리스트
+                  if (_allSuggestions.isNotEmpty)
+                    ..._allSuggestions.map((suggestion) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: SuggestionItem(
+                          categoryType: null, // 필요시 카테고리 파싱 로직 추가
+                          title: suggestion['title']?.toString() ?? '제목 없음',
+                          writer:
+                              suggestion['userId']?.toString() ?? '작성자 정보 없음',
+                          postId: suggestion['postId'] ?? 0,
                         ),
-
-                      const SizedBox(height: 8),
-
-                      // 필터 드롭다운
-                      Row(
-                        children: [
-                          // 정렬 드롭다운
-                          SuggestionFilteringButton(
-                            selectedFilter: _sortBy,
-                            onFilterChanged: (filter) {
-                              setState(() {
-                                _sortBy = filter;
-                              });
-                              _loadSuggestions();
-                            },
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // 전체 제안 리스트
-                      if (_allSuggestions.isNotEmpty)
-                        ..._allSuggestions.map((suggestion) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: SuggestionItem(
-                              categoryType: null, // 필요시 카테고리 파싱 로직 추가
-                              title: suggestion['title']?.toString() ?? '제목 없음',
-                              writer:
-                                  suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                              postId: suggestion['postId'] ?? 0,
-                            ),
-                          );
-                        })
-                      else
-                        const Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Center(child: Text('제안이 없습니다')),
-                        ),
-                    ],
-                  ),
-                ),
+                      );
+                    })
+                  else
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Center(child: Text('제안이 없습니다')),
+                    ),
+                ],
+              ),
+            ),
     );
   }
 }

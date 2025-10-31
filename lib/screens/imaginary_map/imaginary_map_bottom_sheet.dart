@@ -159,8 +159,6 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
         return 'empathy'; // 공감순
       case FilterType.latest:
         return 'latest'; // 최신순
-      case FilterType.distance:
-        return 'distance'; // 거리순
     }
   }
 
