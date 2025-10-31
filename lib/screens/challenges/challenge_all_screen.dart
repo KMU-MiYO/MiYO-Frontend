@@ -161,7 +161,8 @@ class _ChallengeAllScreen extends State<ChallengeAllScreen> {
                       final categoryType = _parseCategoryType(
                         challenge['category'],
                       );
-                      final hostText = challenge['host']?.toString() ?? '주최자 정보 없음';
+                      final hostText =
+                          challenge['host']?.toString() ?? '주최자 정보 없음';
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
@@ -195,16 +196,6 @@ class _ChallengeAllScreen extends State<ChallengeAllScreen> {
                         },
                       ),
                       const SizedBox(width: 8),
-
-                      // 카테고리 드롭다운
-                      ChallengeCategoryButton(
-                        selectedCategory: _category,
-                        onCategoryChanged: (category) {
-                          setState(() {
-                            _category = category;
-                          });
-                        },
-                      ),
                     ],
                   ),
 
@@ -216,7 +207,8 @@ class _ChallengeAllScreen extends State<ChallengeAllScreen> {
                       final categoryType = _parseCategoryType(
                         challenge['category'],
                       );
-                      final hostText = challenge['host']?.toString() ?? '주최자 정보 없음';
+                      final hostText =
+                          challenge['host']?.toString() ?? '주최자 정보 없음';
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
