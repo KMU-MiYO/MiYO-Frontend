@@ -6,8 +6,13 @@ import 'package:miyo/data/services/suggestion_service.dart';
 
 class SuggestionAllScreen extends StatefulWidget {
   final int contestId;
+  final bool isChallenge;
 
-  const SuggestionAllScreen({super.key, required this.contestId});
+  const SuggestionAllScreen({
+    super.key,
+    required this.contestId,
+    this.isChallenge = false,
+  });
 
   @override
   State<SuggestionAllScreen> createState() => _SuggestionAllScreenState();
@@ -157,7 +162,10 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                          postId: suggestion['postId'] ?? 0,
+                          postId: widget.isChallenge
+                              ? suggestion['id']
+                              : suggestion['postId'] ?? 0,
+                          isChallenge: widget.isChallenge,
                         ),
                       );
                     })
@@ -199,7 +207,10 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                          postId: suggestion['postId'] ?? 0,
+                          postId: widget.isChallenge
+                              ? suggestion['id']
+                              : suggestion['postId'] ?? 0,
+                          isChallenge: widget.isChallenge,
                         ),
                       );
                     })

@@ -571,13 +571,12 @@ class PostService {
   /// [postId]: 조회할 게시글 ID
   Future<Map<String, dynamic>> getContestsPostById({
     required int contestId,
+    required int postId,
   }) async {
     try {
-      // 프로덕션 모드: 실제 API 호출
-      // Spring Boot 엔드포인트: GET /v0/posts/id
       final response = await _apiService.get(
-        '/v0/contests/$contestId',
-        queryParameters: {'contestId': contestId},
+        '/v0/contests/$contestId/posts/$postId',
+        queryParameters: {'contestId': contestId, 'postId': postId},
       );
 
       if (response.statusCode == 200) {

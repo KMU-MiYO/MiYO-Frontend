@@ -121,7 +121,6 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     }
 
     final topPosts = (contestData!['topPosts'] as List<dynamic>?) ?? [];
-    print(topPosts);
 
     return Scaffold(
       appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
@@ -345,8 +344,10 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              SuggestionAllScreen(contestId: widget.contestId),
+                          builder: (context) => SuggestionAllScreen(
+                            contestId: widget.contestId,
+                            isChallenge: true,
+                          ),
                         ),
                       );
                     },
@@ -390,11 +391,12 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                         writer: post['userId'] ?? '익명',
                         rank: index + 1,
                         onTap: () {
+                          print(post);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => SuggestionDetailScreen(
-                                postId: post['id'] ?? post['postId'] ?? 0,
+                                postId: post['id'] ?? 0,
                                 isChallenge: true,
                               ),
                             ),

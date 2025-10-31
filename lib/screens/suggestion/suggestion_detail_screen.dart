@@ -37,6 +37,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
       if (widget.isChallenge) {
         final data = await _postService.getContestsPostById(
           contestId: widget.postId,
+          postId: widget.postId,
         );
         print('📦 게시글 데이터: $data');
         print(
@@ -77,16 +78,16 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
     if (postData == null) return;
 
     // 이전 상태 저장
-    final previousIsEmpathized = postData!['isEmpathized'];
-    final previousCount = postData!['empathyCount'];
+    final previousIsEmpathized = postData!['isEmpathized'] ?? false;
+    final previousCount = postData!['empathyCount'] ?? 0;
 
     setState(() {
-      if (postData!['isEmpathized']) {
+      if (postData!['isEmpathized'] ?? false) {
         postData!['isEmpathized'] = false;
-        postData!['empathyCount']--;
+        postData!['empathyCount'] = (postData!['empathyCount'] ?? 0) - 1;
       } else {
         postData!['isEmpathized'] = true;
-        postData!['empathyCount']++;
+        postData!['empathyCount'] = (postData!['empathyCount'] ?? 0) + 1;
       }
     });
 
@@ -193,10 +194,10 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               GestureDetector(
                 onTap: toggleEmpathy,
                 child: Icon(
-                  postData!['isEmpathized']
+                  (postData!['isEmpathized'] ?? false)
                       ? Icons.favorite
                       : Icons.favorite_border,
-                  color: postData!['isEmpathized']
+                  color: (postData!['isEmpathized'] ?? false)
                       ? Colors.red
                       : Color(0xff61758A),
                   size: 24,
@@ -206,7 +207,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               GestureDetector(
                 onTap: toggleEmpathy,
                 child: Text(
-                  '${postData!['empathyCount']}',
+                  '${postData!['empathyCount'] ?? 0}',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -230,8 +231,10 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                       context: context,
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
-                      builder: (context) =>
-                          CommentBottomSheet(postId: widget.postId),
+                      builder: (context) => CommentBottomSheet(
+                        postId: widget.postId,
+                        isChallenge: true,
+                      ),
                     );
                   },
                   child: Text(
@@ -294,7 +297,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
               Row(
                 children: [
                   Text(
-                    postData!['nickname'] ?? '익명',
+                    postData!['userNickname'] ?? '익명',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

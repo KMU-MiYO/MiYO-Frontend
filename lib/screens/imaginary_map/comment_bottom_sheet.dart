@@ -6,8 +6,13 @@ import 'package:miyo/data/services/user_service.dart';
 
 class CommentBottomSheet extends StatefulWidget {
   final int postId;
+  final bool isChallenge;
 
-  const CommentBottomSheet({super.key, required this.postId});
+  const CommentBottomSheet({
+    super.key,
+    required this.postId,
+    this.isChallenge = false,
+  });
 
   @override
   State<CommentBottomSheet> createState() => _CommentBottomSheetState();
@@ -28,7 +33,8 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
   final TextEditingController _commentInputController = TextEditingController();
   final ScrollController _commentScrollController = ScrollController();
-  final DraggableScrollableController _sheetController = DraggableScrollableController();
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -71,8 +77,17 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     });
 
     try {
-      // getPostById를 사용하여 게시글과 댓글 정보를 함께 가져오기
-      final postData = await _postService.getPostById(postId: widget.postId);
+      final Map<String, dynamic> postData;
+
+      if (widget.isChallenge) {
+        postData = await _postService.getContestsPostById(
+          contestId: widget.postId,
+          postId: widget.postId,
+        );
+      } else {
+        // getPostById를 사용하여 게시글과 댓글 정보를 함께 가져오기
+        postData = await _postService.getPostById(postId: widget.postId);
+      }
 
       final List<dynamic> commentsFromApi = postData['comments'] ?? [];
       final List<Map<String, dynamic>> comments = [];
