@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiYO - 웹뷰 테스트 환경</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 1400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 140px);
+        }
+
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .device-select {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .device-select:hover {
+            border-color: #764ba2;
+        }
+
+        .device-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .orientation-btn {
+            padding: 8px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .orientation-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .reload-btn {
+            padding: 8px 20px;
+            border: none;
+            background: #00AA5D;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .reload-btn:hover {
+            background: #009450;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 170, 93, 0.3);
+        }
+
+        .device-info {
+            font-size: 0.85rem;
+            color: #666;
+            padding: 5px 15px;
+            background: #e8eaf6;
+            border-radius: 6px;
+        }
+
+        .viewer-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            background: #f0f0f0;
+            overflow: auto;
+        }
+
+        .device-frame {
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .device-frame::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .device-screen {
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        iframe {
+            border: none;
+            display: block;
+            background: white;
+        }
+
+        .footer {
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .device-select,
+            .orientation-btn,
+            .reload-btn {
+                width: 100%;
+            }
+
+            .viewer-container {
+                padding: 15px;
+            }
+
+            .device-frame {
+                padding: 10px;
+                border-radius: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌱 MiYO 웹뷰 테스트 환경</h1>
+        <p>모바일 앱 웹뷰를 시뮬레이션하여 테스트할 수 있습니다</p>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label for="deviceSelect">디바이스:</label>
+                <select id="deviceSelect" class="device-select">
+                    <option value="iphone14" selected>iPhone 14 (390x844)</option>
+                    <option value="iphone14pro">iPhone 14 Pro (393x852)</option>
+                    <option value="iphone14promax">iPhone 14 Pro Max (430x932)</option>
+                    <option value="iphonese">iPhone SE (375x667)</option>
+                    <option value="galaxys23">Galaxy S23 (360x780)</option>
+                    <option value="galaxys23ultra">Galaxy S23 Ultra (412x915)</option>
+                    <option value="pixel7">Pixel 7 (412x915)</option>
+                    <option value="custom">커스텀</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button class="orientation-btn" onclick="toggleOrientation()">🔄 회전</button>
+            </div>
+
+            <div class="control-group">
+                <button class="reload-btn" onclick="reloadApp()">↻ 새로고침</button>
+            </div>
+
+            <div class="device-info">
+                <span id="deviceInfo">해상도: 390x844</span>
+            </div>
+        </div>
+
+        <div class="viewer-container">
+            <div class="device-frame" id="deviceFrame">
+                <div class="device-screen">
+                    <iframe
+                        id="appFrame"
+                        src="index.html"
+                        width="390"
+                        height="844"
+                        allow="geolocation; camera; microphone"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                💡 <strong>Tip:</strong> 이 페이지를 사용하여 웹 환경에서 모바일 앱 동작을 테스트하세요.
+                실제 APK 테스트는 Android 디바이스나 에뮬레이터를 사용하세요.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const devices = {
+            iphone14: { width: 390, height: 844, name: 'iPhone 14' },
+            iphone14pro: { width: 393, height: 852, name: 'iPhone 14 Pro' },
+            iphone14promax: { width: 430, height: 932, name: 'iPhone 14 Pro Max' },
+            iphonese: { width: 375, height: 667, name: 'iPhone SE' },
+            galaxys23: { width: 360, height: 780, name: 'Galaxy S23' },
+            galaxys23ultra: { width: 412, height: 915, name: 'Galaxy S23 Ultra' },
+            pixel7: { width: 412, height: 915, name: 'Pixel 7' },
+        };
+
+        let currentDevice = 'iphone14';
+        let isPortrait = true;
+
+        const deviceSelect = document.getElementById('deviceSelect');
+        const appFrame = document.getElementById('appFrame');
+        const deviceInfo = document.getElementById('deviceInfo');
+
+        deviceSelect.addEventListener('change', function() {
+            currentDevice = this.value;
+            if (currentDevice === 'custom') {
+                const width = prompt('가로 해상도를 입력하세요:', '375');
+                const height = prompt('세로 해상도를 입력하세요:', '667');
+                if (width && height) {
+                    devices.custom = {
+                        width: parseInt(width),
+                        height: parseInt(height),
+                        name: 'Custom Device'
+                    };
+                    updateDeviceSize();
+                } else {
+                    this.value = 'iphone14';
+                    currentDevice = 'iphone14';
+                }
+            } else {
+                updateDeviceSize();
+            }
+        });
+
+        function updateDeviceSize() {
+            const device = devices[currentDevice];
+            if (!device) return;
+
+            const width = isPortrait ? device.width : device.height;
+            const height = isPortrait ? device.height : device.width;
+
+            appFrame.width = width;
+            appFrame.height = height;
+
+            deviceInfo.textContent = `${device.name} - ${width}x${height}px`;
+        }
+
+        function toggleOrientation() {
+            isPortrait = !isPortrait;
+            updateDeviceSize();
+        }
+
+        function reloadApp() {
+            appFrame.src = appFrame.src;
+        }
+
+        // 초기 로드
+        updateDeviceSize();
+    </script>
+</body>
+</html>
