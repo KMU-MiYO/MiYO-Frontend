@@ -137,7 +137,7 @@ class PostService {
         throw Exception('게시글 작성에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
+      print('❌ DioException 발생 (createContestPost):');
       print('Status Code: ${e.response?.statusCode}');
       print('Response Data: ${e.response?.data}');
       print('Error Message: ${e.message}');
@@ -150,6 +150,10 @@ class PostService {
         throw Exception('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
       } else if (e.response?.statusCode == 403) {
         throw Exception('권한이 없습니다.');
+      } else if (e.response?.statusCode == 409) {
+        final errorMsg = e.response?.data?.toString() ?? '이미 참여한 챌린지입니다.';
+        print('⚠️ 409 에러 상세: $errorMsg');
+        throw Exception('중복 참여: $errorMsg');
       } else if (e.response?.statusCode == 500) {
         final errorMsg = e.response?.data?.toString() ?? '서버 오류가 발생했습니다.';
         throw Exception('서버 오류: $errorMsg');
