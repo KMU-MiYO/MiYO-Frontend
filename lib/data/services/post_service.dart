@@ -97,6 +97,76 @@ class PostService {
     }
   }
 
+  /// 챌린지 내 제안 글 게시글 작성
+  ///
+  /// [contestId]: 챌린지(공모전) ID
+  /// [title]: 게시글 제목
+  /// [content]: 게시글 내용
+  /// [category]: 카테고리 (NATURE 등)
+  /// [imagePath]: 이미지 파일 경로
+  Future<Map<String, dynamic>> createContestPost({
+    required int contestId,
+    required String title,
+    required String content,
+    required String category,
+    required String imagePath,
+  }) async {
+    try {
+      // 프로덕션 모드: 실제 API 호출
+      // Spring Boot 엔드포인트: POST /v0/contests/{contestId}/posts
+      final response = await _apiService.post(
+        '/v0/contests/$contestId/posts',
+        data: {
+          'title': title,
+          'content': content,
+          'category': category,
+          'imagePath': imagePath,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data as Map<String, dynamic>;
+        print('✅ createPost API 응답:');
+        print('  - postId: ${data['postId']}');
+        print('  - userId: ${data['userId']}');
+        print('  - userNickname: ${data['userNickname']}');
+        print('  - title: ${data['title']}');
+        print('  - 전체 데이터: $data');
+        return data;
+      } else {
+        throw Exception('게시글 작성에 실패했습니다. (Status: ${response.statusCode})');
+      }
+    } on DioException catch (e) {
+      print('❌ DioException 발생 (createContestPost):');
+      print('Status Code: ${e.response?.statusCode}');
+      print('Response Data: ${e.response?.data}');
+      print('Error Message: ${e.message}');
+      print('Request Data: ${e.requestOptions.data}');
+
+      if (e.response?.statusCode == 400) {
+        final errorMsg = e.response?.data?.toString() ?? '잘못된 요청입니다.';
+        throw Exception('잘못된 요청: $errorMsg');
+      } else if (e.response?.statusCode == 401) {
+        throw Exception('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+      } else if (e.response?.statusCode == 403) {
+        throw Exception('권한이 없습니다.');
+      } else if (e.response?.statusCode == 409) {
+        final errorMsg = e.response?.data?.toString() ?? '이미 참여한 챌린지입니다.';
+        print('⚠️ 409 에러 상세: $errorMsg');
+        throw Exception('중복 참여: $errorMsg');
+      } else if (e.response?.statusCode == 500) {
+        final errorMsg = e.response?.data?.toString() ?? '서버 오류가 발생했습니다.';
+        throw Exception('서버 오류: $errorMsg');
+      }
+      throw Exception(
+        '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
+      );
+    } catch (e) {
+      print('❌ Unexpected Error: $e');
+      rethrow;
+    }
+  }
+
   /// 내 게시글 목록 조회
   ///
   /// [categories]: 카테고리 필터 (옵션)
@@ -264,7 +334,9 @@ class PostService {
     int size = 20,
   }) async {
     try {
-      print('📍 주변 게시글 조회: lat=$latitude, lng=$longitude, radius=$radius, sortBy=$sortBy, categories=$categories');
+      print(
+        '📍 주변 게시글 조회: lat=$latitude, lng=$longitude, radius=$radius, sortBy=$sortBy, categories=$categories',
+      );
 
       // 쿼리 파라미터 생성
       final queryParameters = <String, dynamic>{
@@ -303,9 +375,7 @@ class PostService {
           return response.data as List<dynamic>;
         }
       } else {
-        throw Exception(
-          '주변 게시글 조회에 실패했습니다. (Status: ${response.statusCode})',
-        );
+        throw Exception('주변 게시글 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
       print('❌ DioException 발생:');

@@ -290,4 +290,85 @@ class ChallengeService {
       rethrow;
     }
   }
+
+  /// contestId로 챌린지 상세 정보 조회
+  ///
+  /// [contestId]: 조회할 챌린지 ID
+  Future<Map<String, dynamic>> getContestById({required int contestId}) async {
+    try {
+      // 프로덕션 모드: 실제 API 호출
+      // Spring Boot 엔드포인트: GET /v0/contests/{contestId}
+      final response = await _apiService.get('/v0/contests/$contestId');
+
+      if (response.statusCode == 200) {
+        final data = response.data as Map<String, dynamic>;
+        print('✅ getContestById API 응답:');
+        print('  - contestId: ${data['contestId']}');
+        print('  - title: ${data['title']}');
+        print('  - 전체 데이터: $data');
+        return data;
+      } else {
+        throw Exception('챌린지 조회에 실패했습니다. (Status: ${response.statusCode})');
+      }
+    } on DioException catch (e) {
+      print('❌ DioException 발생:');
+      print('Status Code: ${e.response?.statusCode}');
+      print('Response Data: ${e.response?.data}');
+      print('Error Message: ${e.message}');
+
+      if (e.response?.statusCode == 400) {
+        throw Exception('이미 참가한 공모전입니다.');
+      } else if (e.response?.statusCode == 401) {
+        throw Exception('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('공모전을 찾을 수 없습니다.');
+      }
+      throw Exception(
+        '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
+      );
+    } catch (e) {
+      print('❌ Unexpected Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 챌린지 참가
+  ///
+  /// [contestId]: 참가할 챌린지 ID
+  Future<void> joinContest({required int contestId}) async {
+    try {
+      // 개발 모드: 더미 응답
+      if (ApiService.isDevelopmentMode) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        return;
+      }
+      final response = await _apiService.post('/v0/contests/$contestId/join');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('✅ 챌린지 참가 성공: contestId=$contestId');
+        return;
+      } else {
+        throw Exception('챌린지 참가에 실패했습니다. (Status: ${response.statusCode})');
+      }
+    } on DioException catch (e) {
+      print('❌ DioException 발생:');
+      print('Status Code: ${e.response?.statusCode}');
+      print('Response Data: ${e.response?.data}');
+      print('Error Message: ${e.message}');
+
+      if (e.response?.statusCode == 400) {
+        throw Exception('이미 참가한 공모전입니다.');
+      } else if (e.response?.statusCode == 401) {
+        throw Exception('인증 실패');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('공모전을 찾을 수 없습니다.');
+      }
+      throw Exception(
+        '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
+      );
+    } catch (e) {
+      print('❌ Unexpected Error: $e');
+      rethrow;
+    }
+  }
 }

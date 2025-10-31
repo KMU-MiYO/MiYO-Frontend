@@ -169,6 +169,7 @@ class _ChallengeAllScreen extends State<ChallengeAllScreen> {
                           categoryType: categoryType ?? CategoryType.NATURE,
                           title: challenge['title']?.toString() ?? '제목 없음',
                           location: hostText,
+                          contestId: challenge['contestId'] ?? 0,
                         ),
                       );
                     })
@@ -223,6 +224,7 @@ class _ChallengeAllScreen extends State<ChallengeAllScreen> {
                           categoryType: categoryType ?? CategoryType.NATURE,
                           title: challenge['title']?.toString() ?? '제목 없음',
                           location: hostText,
+                          contestId: challenge['contestId'] ?? 0,
                         ),
                       );
                     })

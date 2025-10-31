@@ -6,12 +6,14 @@ class ChallengeItem extends StatelessWidget {
   final CategoryType? categoryType;
   final String title;
   final String location;
+  final int contestId;
 
   const ChallengeItem({
     super.key,
     required this.categoryType,
     required this.title,
     required this.location,
+    required this.contestId,
   });
 
   @override
@@ -55,7 +57,9 @@ class ChallengeItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ChallengeDetailScreen(),
+                  builder: (context) => ChallengeDetailScreen(
+                    contestId: contestId,
+                  ),
                 ),
               );
             },

@@ -1,24 +1,127 @@
 import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
-import 'package:miyo/components/challenge_item.dart';
+import 'package:miyo/screens/challenges/challenge_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_top3.dart';
-import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
-import 'package:miyo/data/dummy/dummy_suggestions.dart';
+import 'package:miyo/screens/imaginary_map/suggestion_item.dart'
+    as suggestion_lib;
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
+import 'package:miyo/screens/suggestion/suggestion_screen.dart';
+import 'package:miyo/data/services/challenge_service.dart';
+import 'package:miyo/screens/suggestion/suggestion_all_screen.dart';
 
 class ChallengeDetailScreen extends StatefulWidget {
-  const ChallengeDetailScreen({super.key});
+  final int contestId;
+
+  const ChallengeDetailScreen({super.key, required this.contestId});
 
   @override
-  State<ChallengeDetailScreen> createState() => _ChallengeDetailScreen();
+  State<ChallengeDetailScreen> createState() => _ChallengeDetailScreenState();
 }
 
-class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
-  // 챌린지 정보(챌린지 제목, 주관, 기간, 설명, 보상)내용 받아오기 필요
+class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
+  final ChallengeService _challengeService = ChallengeService();
+  Map<String, dynamic>? contestData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContestData();
+  }
+
+  Future<void> _loadContestData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final data = await _challengeService.getContestById(
+        contestId: widget.contestId,
+      );
+      print('📦 챌린지 데이터: $data');
+      setState(() {
+        contestData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('❌ 챌린지 로드 실패: $e');
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('챌린지를 불러오는데 실패했습니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// 카테고리 문자열을 CategoryType enum으로 변환
+  CategoryType _parseCategoryType(String? category) {
+    if (category == null) return CategoryType.NATURE;
+
+    switch (category.toUpperCase()) {
+      case 'NATURE':
+        return CategoryType.NATURE;
+      case 'CULTURE':
+        return CategoryType.CULTURE;
+      case 'TRAFFIC':
+        return CategoryType.TRAFFIC;
+      case 'RESIDENCE':
+        return CategoryType.RESIDENCE;
+      case 'COMMERCE':
+      case 'COMMERCIAL':
+        return CategoryType.COMMERCIAL;
+      case 'NIGHT':
+        return CategoryType.NIGHT;
+      case 'ENVIRONMENT':
+        return CategoryType.ENVIRONMENT;
+      default:
+        return CategoryType.NATURE;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final top3Suggestions = getTop3Suggestions();
+    final width = MediaQuery.of(context).size.width;
+
+    // 로딩 중
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xff00AA5D)),
+        ),
+      );
+    }
+
+    // 데이터 로드 실패
+    if (contestData == null) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text(
+                '챌린지를 불러올 수 없습니다.',
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final topPosts = (contestData!['topPosts'] as List<dynamic>?) ?? [];
+
     return Scaffold(
       appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
       backgroundColor: Colors.white,
@@ -34,8 +137,28 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
               ),
               minimumSize: const Size.fromHeight(50),
             ),
-            onPressed: () {
-              // 참여하기 버튼 동작
+            onPressed: () async {
+              // 챌린지 참여 화면으로 이동
+              final latitude = contestData?['latitude'] as double?;
+              final longitude = contestData?['longitude'] as double?;
+
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SuggestionScreen(
+                    isContest: true,
+                    contestId: widget.contestId,
+                    latitude: latitude,
+                    longitude: longitude,
+                  ),
+                ),
+              );
+
+              // 게시글 작성 완료 후 돌아왔을 때 데이터 새로고침
+              if (result != null) {
+                print('✅ 게시글 작성 완료, 챌린지 데이터 새로고침');
+                _loadContestData();
+              }
             },
             child: const Text(
               '참여하기',
@@ -53,14 +176,14 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const ChallengeItem(
-                icon: Icons.apartment_rounded,
-                title: '2026 우리 동네 공원 상상하기',
-                location: '서울시',
-                isTitleBox: true,
+              ChallengeItem(
+                categoryType: _parseCategoryType(contestData!['category']),
+                title: contestData!['title'] ?? '제목 없음',
+                location: contestData!['host'] ?? '주최자 미상',
+                contestId: widget.contestId,
               ),
               SizedBox(
-                width: MediaQuery.of(context).size.width,
+                width: width,
                 child: Divider(color: Color(0x3E000000), thickness: 1.0),
               ),
               SizedBox(height: 17),
@@ -85,7 +208,7 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
                           ),
                         ),
                         Text(
-                          '2025-09-24 ~ 2026-08-19',
+                          '${contestData!['startDate'] ?? ''} ~ ${contestData!['endDate'] ?? ''}',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
@@ -100,7 +223,37 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
                           ),
                         ),
                         Text(
-                          '성북구 정릉로 77로에 새로 생길 공원에 대한 의견을 모집합니다.',
+                          contestData!['description'] ?? '설명이 없습니다.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        SizedBox(height: 7),
+                        const Text(
+                          '참여자 수',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${contestData!['participantCount'] ?? 0}명',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        SizedBox(height: 7),
+                        const Text(
+                          '제출된 글',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${contestData!['submissionCount'] ?? 0}개',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
@@ -118,39 +271,45 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
                   Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '1등 : 1000포인트',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
+                        if (contestData!['reward1st'] != null)
+                          Text(
+                            '1등 : ${contestData!['reward1st']}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '2등 : 700포인트',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
+                        if (contestData!['reward2nd'] != null)
+                          Text(
+                            '2등 : ${contestData!['reward2nd']}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '3등 : 500포인트',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
+                        if (contestData!['reward3rd'] != null)
+                          Text(
+                            '3등 : ${contestData!['reward3rd']}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 14),
-                  Text(
-                    '*모든 수상작은 공원 설계 및 시공에 반영될 수 있습니다.*',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
+                  if (contestData!['rewardDescription'] != null) ...[
+                    SizedBox(height: 14),
+                    Text(
+                      '*${contestData!['rewardDescription']}*',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               SizedBox(height: 50),
@@ -162,7 +321,16 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   TextButton(
-                    onPressed: () {}, // 챌린지 제안 리스트 페이지로 이동
+                    onPressed: () {
+                      // 챌린지 제안 리스트 페이지로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SuggestionAllScreen(contestId: widget.contestId),
+                        ),
+                      );
+                    },
                     child: Text(
                       '+ 더보기',
                       style: TextStyle(
@@ -175,50 +343,74 @@ class _ChallengeDetailScreen extends State<ChallengeDetailScreen> {
                 ],
               ),
               SizedBox(height: 17),
-
-              SizedBox(
-                height: 100,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                  itemCount: top3Suggestions.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final suggestion = top3Suggestions[index];
-                    return SuggestionTop3(
-                      categoryType: suggestion['categoryType'] as CategoryType,
-                      title: suggestion['title'] as String,
-                      writer: suggestion['writer'] as String,
-                      rank: index + 1,
-                      onTap: () {
-                        // TODO: 제안 상세 화면으로 이동
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => SuggestionDetailScreen(
-                        //       suggestionId: suggestion['id'] as int,
-                        //     ),
-                        //   ),
-                        // );
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SuggestionDetailScreen(
-                              postId: suggestion['id'] as int,
+              if (topPosts.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    '아직 제안이 없습니다.',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                )
+              else
+                SizedBox(
+                  height: 100,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                    itemCount: topPosts.length > 3 ? 3 : topPosts.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 12),
+                    itemBuilder: (context, index) {
+                      final post = topPosts[index];
+                      return SuggestionTop3(
+                        categoryType: _getSuggestionCategoryType(
+                          post['category'],
+                        ),
+                        title: post['title'] ?? '제목 없음',
+                        writer: post['userId'] ?? '익명',
+                        rank: index + 1,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SuggestionDetailScreen(
+                                postId: post['id'] ?? post['postId'] ?? 0,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// SuggestionTop3용 카테고리 변환 (suggestion_item.dart의 CategoryType)
+  suggestion_lib.CategoryType _getSuggestionCategoryType(String? category) {
+    switch (category?.toUpperCase()) {
+      case 'NATURE':
+        return suggestion_lib.CategoryType.NATURE;
+      case 'CULTURE':
+        return suggestion_lib.CategoryType.CULTURE;
+      case 'TRAFFIC':
+        return suggestion_lib.CategoryType.TRAFFIC;
+      case 'RESIDENCE':
+        return suggestion_lib.CategoryType.RESIDENCE;
+      case 'COMMERCE':
+      case 'COMMERCIAL':
+        return suggestion_lib.CategoryType.COMMERCIAL;
+      case 'NIGHT':
+        return suggestion_lib.CategoryType.NIGHT;
+      case 'ENVIRONMENT':
+        return suggestion_lib.CategoryType.ENVIRONMENT;
+      default:
+        return suggestion_lib.CategoryType.NATURE;
+    }
   }
 }

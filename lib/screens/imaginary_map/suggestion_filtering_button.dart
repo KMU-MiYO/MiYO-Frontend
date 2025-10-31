@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 enum FilterType {
   popularity, // 인기순
   latest, // 최신순
-  distance, // 거리순
 }
 
 class SuggestionFilteringButton extends StatelessWidget {
@@ -19,7 +18,6 @@ class SuggestionFilteringButton extends StatelessWidget {
   static const Map<FilterType, String> filterNames = {
     FilterType.popularity: '인기순',
     FilterType.latest: '최신순',
-    FilterType.distance: '거리순',
   };
 
   @override
@@ -32,7 +30,6 @@ class SuggestionFilteringButton extends StatelessWidget {
       itemBuilder: (context) => [
         _buildMenuItem(FilterType.popularity),
         _buildMenuItem(FilterType.latest),
-        _buildMenuItem(FilterType.distance),
       ],
       child: Container(
         // 필터링 버튼
