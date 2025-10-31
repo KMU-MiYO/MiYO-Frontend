@@ -51,7 +51,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('챌린지를 불러오는데 실패했습니다.'),
             backgroundColor: Colors.red,
           ),
@@ -87,14 +87,15 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     // 로딩 중
     if (isLoading) {
       return Scaffold(
         backgroundColor: Colors.white,
-        appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
-        body: Center(
+        appBar: const TitleAppbar(
+          title: '챌린지 정보',
+          leadingType: LeadingType.close,
+        ),
+        body: const Center(
           child: CircularProgressIndicator(color: Color(0xff00AA5D)),
         ),
       );
@@ -104,16 +105,19 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     if (contestData == null) {
       return Scaffold(
         backgroundColor: Colors.white,
-        appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
+        appBar: const TitleAppbar(
+          title: '챌린지 정보',
+          leadingType: LeadingType.close,
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: const [
               Icon(Icons.error_outline, size: 64, color: Colors.grey),
               SizedBox(height: 16),
               Text(
                 '챌린지를 불러올 수 없습니다.',
-                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ],
           ),
@@ -122,9 +126,13 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     }
 
     final topPosts = (contestData!['topPosts'] as List<dynamic>?) ?? [];
+    final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: TitleAppbar(title: '챌린지 정보', leadingType: LeadingType.close),
+      appBar: const TitleAppbar(
+        title: '챌린지 정보',
+        leadingType: LeadingType.close,
+      ),
       backgroundColor: Colors.white,
       bottomNavigationBar: SafeArea(
         child: Container(
@@ -170,7 +178,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 print('❌ 챌린지 참가 실패: $e');
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('챌린지 참가에 실패했습니다.'),
                       backgroundColor: Colors.red,
                     ),
@@ -191,8 +199,10 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          // padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ChallengeItem(
                 categoryType: _parseCategoryType(contestData!['category']),
@@ -201,147 +211,83 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 contestId: widget.contestId,
                 isChallengeDetailTile: true,
               ),
-              SizedBox(
-                width: width,
-                child: Divider(color: Color(0x3E000000), thickness: 1.0),
+              const Divider(color: Color(0x3E000000), thickness: 1.0),
+              const SizedBox(height: 17),
+
+              // 챌린지 정보 섹션
+              const Text(
+                '챌린지 정보',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 17),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '챌린지 정보',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 13),
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '기간',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${contestData!['startDate'] ?? ''} ~ ${contestData!['endDate'] ?? ''}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        SizedBox(height: 7),
-                        const Text(
-                          '설명',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          contestData!['description'] ?? '설명이 없습니다.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        SizedBox(height: 7),
-                        const Text(
-                          '참여자 수',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${contestData!['participantCount'] ?? 0}명',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        SizedBox(height: 7),
-                        const Text(
-                          '제출된 글',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${contestData!['submissionCount'] ?? 0}개',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ],
+              const SizedBox(height: 13),
+
+              Container(
+                padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    _buildInfoRow(
+                      '기간',
+                      '${contestData!['startDate'] ?? ''} ~ ${contestData!['endDate'] ?? ''}',
                     ),
-                  ),
-                  SizedBox(height: 30),
-                  const Text(
-                    '보상',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 13),
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (contestData!['reward1st'] != null)
-                          Text(
-                            '1등 : ${contestData!['reward1st']}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        if (contestData!['reward2nd'] != null)
-                          Text(
-                            '2등 : ${contestData!['reward2nd']}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        if (contestData!['reward3rd'] != null)
-                          Text(
-                            '3등 : ${contestData!['reward3rd']}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                      ],
+                    _buildInfoRow(
+                      '설명',
+                      contestData!['description'] ?? '설명이 없습니다.',
                     ),
-                  ),
-                  if (contestData!['rewardDescription'] != null) ...[
-                    SizedBox(height: 14),
-                    Text(
-                      '*${contestData!['rewardDescription']}*',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                      ),
+                    _buildInfoRow(
+                      '참여자 수',
+                      '${contestData!['participantCount'] ?? 0}명',
+                    ),
+                    _buildInfoRow(
+                      '제출된 글',
+                      '${contestData!['submissionCount'] ?? 0}개',
                     ),
                   ],
-                ],
+                ),
               ),
-              SizedBox(height: 50),
+
+              SizedBox(height: height * 0.02),
+
+              // 보상 섹션
+              const Text(
+                '보상',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 13),
+              Container(
+                padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (contestData!['reward1st'] != null)
+                      Text('1등 : ${contestData!['reward1st']}'),
+                    if (contestData!['reward2nd'] != null)
+                      Text('2등 : ${contestData!['reward2nd']}'),
+                    if (contestData!['reward3rd'] != null)
+                      Text('3등 : ${contestData!['reward3rd']}'),
+                    if (contestData!['rewardDescription'] != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        '*${contestData!['rewardDescription']}*',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              SizedBox(height: height * 0.03),
+
+              // 제안 섹션
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     '제안',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   TextButton(
                     onPressed: () {
-                      // 챌린지 제안 리스트 페이지로 이동
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -352,21 +298,21 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                         ),
                       );
                     },
-                    child: Text(
+                    child: const Text(
                       '+ 더보기',
                       style: TextStyle(
                         color: Color.fromRGBO(97, 117, 138, 1),
                         fontSize: 16,
-                        fontWeight: FontWeight.normal,
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 17),
+              SizedBox(height: height * 0.005),
+
               if (topPosts.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
                   child: Text(
                     '아직 제안이 없습니다.',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
@@ -378,21 +324,23 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     clipBehavior: Clip.none,
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     itemCount: topPosts.length > 3 ? 3 : topPosts.length,
                     separatorBuilder: (context, index) =>
                         const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final post = topPosts[index];
+                      // 게시글 category가 null이면 챌린지 category 사용
+                      final categoryToUse =
+                          post['category'] ?? contestData!['category'];
                       return SuggestionTop3(
                         categoryType: _getSuggestionCategoryType(
-                          post['category'],
+                          categoryToUse,
                         ),
                         title: post['title'] ?? '제목 없음',
                         writer: post['userId'] ?? '익명',
                         rank: index + 1,
                         onTap: () {
-                          print(post);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -414,7 +362,42 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     );
   }
 
-  /// SuggestionTop3용 카테고리 변환 (suggestion_item.dart의 CategoryType)
+  /// 정보 라벨 + 값
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10.0), // 각 블록 간 간격
+      child: Align(
+        alignment: Alignment.centerLeft, // 항상 왼쪽 정렬 유지
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // 자식들도 왼쪽 정렬
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.left,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// SuggestionTop3용 카테고리 변환
   suggestion_lib.CategoryType _getSuggestionCategoryType(String? category) {
     switch (category?.toUpperCase()) {
       case 'NATURE':

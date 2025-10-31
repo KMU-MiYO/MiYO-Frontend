@@ -57,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _userService.getMyEmpathyCnt(), // 1: 좋아요한 글 개수
         _userService.getMyCommentCnt(), // 2: 댓글 쓴 글 개수
         _userService.getMyPostCnt(), // 3: 내가 쓴 글 개수
-        _userService.getMyPostList(size: 6), // 4: 내가 쓴 글 목록 (최대 6개)
+        _userService.getMyPostList(), // 4: 내가 쓴 글 목
       ]);
 
       final userData = results[0] as Map<String, dynamic>;
@@ -193,150 +193,150 @@ class _ProfileScreenState extends State<ProfileScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-            const SizedBox(height: 20),
-            // 프로필 이미지
-            Stack(
-              children: [
-                Container(
-                  width: 128,
-                  height: 128,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xffFFCCBC),
-                  ),
-                  child: _profileImageData != null
-                      ? ClipOval(
-                          child: Image.memory(
-                            _profileImageData!,
-                            width: 128,
-                            height: 128,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : const Center(
-                          child: Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Colors.white,
-                          ),
-                        ),
-                ),
-              ],
-            ),
-            SizedBox(height: height * 0.01),
-            // 닉네임
-            Text(
-              _nickname,
-              style: const TextStyle(
-                fontSize: 22,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: height * 0.001),
-            // ID
-            Text(
-              '@$_id',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xff61758A),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 0.1),
-            // 가입 날짜
-            Text(
-              'Joined $_joinYear',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xff61758A),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            SizedBox(height: height * 0.02),
-            // 통계 (뱃지, 좋아요, 댓글)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
+              const SizedBox(height: 20),
+              // 프로필 이미지
+              Stack(
                 children: [
-                  ProfileStatistics(count: '$_badgeCnt', label: '뱃지'),
-                  const SizedBox(width: 8),
-                  ProfileStatistics(count: '$_empathyCnt', label: '좋아요'),
-                  const SizedBox(width: 8),
-                  ProfileStatistics(count: '$_commentCnt', label: '댓글'),
-                ],
-              ),
-            ),
-            SizedBox(height: height * 0.04),
-            // 나의 제안
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '나의 제안 ($_suggestionCnt)',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: 128,
+                    height: 128,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xffFFCCBC),
                     ),
+                    child: _profileImageData != null
+                        ? ClipOval(
+                            child: Image.memory(
+                              _profileImageData!,
+                              width: 128,
+                              height: 128,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : const Center(
+                            child: Icon(
+                              Icons.person,
+                              size: 60,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
-                  // TextButton(
-                  //   onPressed: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => MySuggestionScreen(),
-                  //       ),
-                  //     );
-                  //   },
-                  //   child: const Text(
-                  //     '모두 보기',
-                  //     style: TextStyle(
-                  //       fontSize: 16,
-                  //       color: Color(0xff61758A),
-                  //       fontWeight: FontWeight.normal,
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
-            ),
-            SizedBox(height: height * 0.03),
-            // 갤러리 격자 (2열)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 2,
-                  childAspectRatio: 0.75,
+              SizedBox(height: height * 0.01),
+              // 닉네임
+              Text(
+                _nickname,
+                style: const TextStyle(
+                  fontSize: 22,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
-                itemCount: _suggestions.length,
-                itemBuilder: (context, index) {
-                  final suggestion = _suggestions[index];
-                  return SuggestionImage(
-                    imageData: suggestion['imageData'],
-                    suggestionTitle: suggestion['title'],
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SuggestionDetailScreen(
-                            postId: suggestion['id'] ?? 1,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
               ),
-            ),
-            const SizedBox(height: 32),
+              SizedBox(height: height * 0.001),
+              // ID
+              Text(
+                '@$_id',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xff61758A),
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+              const SizedBox(height: 0.1),
+              // 가입 날짜
+              Text(
+                'Joined $_joinYear',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xff61758A),
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+              SizedBox(height: height * 0.02),
+              // 통계 (뱃지, 좋아요, 댓글)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    ProfileStatistics(count: '$_badgeCnt', label: '뱃지'),
+                    const SizedBox(width: 8),
+                    ProfileStatistics(count: '$_empathyCnt', label: '좋아요'),
+                    const SizedBox(width: 8),
+                    ProfileStatistics(count: '$_commentCnt', label: '댓글'),
+                  ],
+                ),
+              ),
+              SizedBox(height: height * 0.04),
+              // 나의 제안
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '나의 제안 ($_suggestionCnt)',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    // TextButton(
+                    //   onPressed: () {
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (context) => MySuggestionScreen(),
+                    //       ),
+                    //     );
+                    //   },
+                    //   child: const Text(
+                    //     '모두 보기',
+                    //     style: TextStyle(
+                    //       fontSize: 16,
+                    //       color: Color(0xff61758A),
+                    //       fontWeight: FontWeight.normal,
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ),
+              SizedBox(height: height * 0.03),
+              // 갤러리 격자 (2열)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 2,
+                    childAspectRatio: 0.75,
+                  ),
+                  itemCount: _suggestions.length,
+                  itemBuilder: (context, index) {
+                    final suggestion = _suggestions[index];
+                    return SuggestionImage(
+                      imageData: suggestion['imageData'],
+                      suggestionTitle: suggestion['title'],
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SuggestionDetailScreen(
+                              postId: suggestion['id'] ?? 1,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
