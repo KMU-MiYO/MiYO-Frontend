@@ -1,9 +1,11 @@
 // lib/screens/imaginary_map/imaginary_map_screen.dart
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:miyo/services/imaginary_map_controller.dart';
+import 'package:miyo/services/mobile_imaginary_map_controller.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/screens/imaginary_map/imaginary_map_bottom_sheet.dart';
+import 'package:miyo/screens/imaginary_map/imaginary_map_screen_web.dart';
 
 class ImaginaryMapScreen extends StatefulWidget {
   const ImaginaryMapScreen({super.key});
@@ -13,7 +15,7 @@ class ImaginaryMapScreen extends StatefulWidget {
 }
 
 class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
-  final ImaginaryMapController _mapController = ImaginaryMapController();
+  MobileImaginaryMapController? _mapController;
   final TextEditingController _searchController = TextEditingController();
   VoidCallback? _reloadBottomSheet;
 
@@ -24,21 +26,25 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   @override
   void initState() {
     super.initState();
+    // 웹이 아닌 경우에만 컨트롤러 초기화
+    if (!kIsWeb) {
+      _mapController = MobileImaginaryMapController();
+    }
     _initializeLocation();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _mapController.dispose();
+    _mapController?.dispose();
     super.dispose();
   }
 
   Future<void> _onSearchSubmitted(String address) async {
-    if (_controller == null || address.trim().isEmpty) return;
+    if (_controller == null || address.trim().isEmpty || _mapController == null) return;
 
     try {
-      final success = await _mapController.searchAndMoveToAddress(
+      final success = await _mapController!.searchAndMoveToAddress(
         _controller!,
         address,
       );
@@ -58,16 +64,18 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   }
 
   Future<void> _initializeLocation() async {
-    await _mapController.requestLocationPermission();
+    if (_mapController != null) {
+      await _mapController!.requestLocationPermission();
+    }
     setState(() => _isLoading = false);
   }
 
   Future<void> _loadMarkersForCurrentView() async {
-    if (_controller == null) return;
+    if (_controller == null || _mapController == null) return;
 
     try {
       // 컨트롤러를 사용해서 마커 데이터 가져오기
-      final markers = await _mapController.fetchMarkersForCurrentView(
+      final markers = await _mapController!.fetchMarkersForCurrentView(
         _controller!,
       );
 
@@ -75,7 +83,7 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
 
       // 기존 마커 삭제 후 새로운 마커 추가
       await _controller!.clearOverlays();
-      await _mapController.addMarkersToMap(
+      await _mapController!.addMarkersToMap(
         _controller!,
         _markers,
         onMarkerTap: _onMarkerTap,
@@ -105,6 +113,11 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 웹 플랫폼에서는 구글 지도 사용
+    if (kIsWeb) {
+      return const ImaginaryMapScreenWeb();
+    }
+
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }

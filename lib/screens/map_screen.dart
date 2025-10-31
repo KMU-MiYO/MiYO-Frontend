@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_category_button.dart';
 import 'package:miyo/screens/exchanges/exchange.dart';
@@ -10,6 +11,7 @@ import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/data/services/post_service.dart';
 import 'package:miyo/data/services/exchange_service.dart';
 import 'package:miyo/services/geocoding_service.dart';
+import 'package:miyo/services/web_map_controller.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -19,7 +21,17 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  // Naver Map (mobile)
   final Completer<NaverMapController> _mapControllerCompleter = Completer();
+  final Map<String, Map<String, dynamic>> _markerPostData = {};
+  final Map<String, NMarker> _markerCache = {}; // 마커 캐시
+
+  // Google Map (web)
+  WebMapController? _webMapController;
+  GoogleMapController? _googleMapController;
+  Set<Marker> _googleMarkers = {};
+
+  // Common
   final PostService _postService = PostService();
   final RewardService _rewardService = RewardService();
   final TextEditingController _searchController = TextEditingController();
@@ -27,10 +39,6 @@ class _MapScreenState extends State<MapScreen> {
 
   // 선택된 카테고리들 (빈 Set = 전체 보기)
   Set<CategoryType> selectedCategories = {};
-
-  // 생성된 마커들과 연관된 게시글 데이터 저장
-  final Map<String, Map<String, dynamic>> _markerPostData = {};
-  final Map<String, NMarker> _markerCache = {}; // 마커 캐시
 
   bool _isLoadingPosts = false;
   double _currentZoom = 14.0; // 현재 줌 레벨
@@ -55,10 +63,17 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _loadReward();
-    // 지도가 준비되면 게시글 로드
-    _mapControllerCompleter.future.then((_) {
-      _loadMyPosts();
-    });
+
+    if (kIsWeb) {
+      // 웹: Google Maps 사용
+      _webMapController = WebMapController();
+    } else {
+      // 모바일: Naver Maps 사용
+      // 지도가 준비되면 게시글 로드
+      _mapControllerCompleter.future.then((_) {
+        _loadMyPosts();
+      });
+    }
   }
 
   @override
@@ -67,6 +82,7 @@ class _MapScreenState extends State<MapScreen> {
     _markerCache.clear();
     _markerPostData.clear();
     _searchController.dispose();
+    _webMapController?.dispose();
     super.dispose();
   }
 
@@ -194,45 +210,115 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  // 웹용 게시글 불러오기
+  Future<void> _loadMyPostsWeb() async {
+    if (_isLoadingPosts || _webMapController == null) return;
+
+    setState(() {
+      _isLoadingPosts = true;
+    });
+
+    try {
+      final posts = await _webMapController!.fetchMyPosts();
+
+      print('📦 로드된 게시글 수: ${posts.length}');
+
+      // 마커 생성 및 추가
+      final markers = await _webMapController!.addMarkersToMap(
+        posts,
+        onMarkerTap: (data) {
+          final postId = data['postId'] is int
+              ? data['postId'] as int
+              : int.tryParse(data['postId']?.toString() ?? '1') ?? 1;
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SuggestionDetailScreen(postId: postId),
+            ),
+          );
+        },
+      );
+
+      setState(() {
+        _googleMarkers = markers;
+      });
+
+      print('✅ 웹 마커 로드 완료: ${markers.length}개');
+    } catch (e) {
+      print('❌ 게시글 로드 실패: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('게시글을 불러오는데 실패했습니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingPosts = false;
+        });
+      }
+    }
+  }
+
   // 검색 실행
   Future<void> _onSearchSubmitted(String address) async {
     if (address.trim().isEmpty) return;
 
     try {
-      final controller = await _mapControllerCompleter.future;
+      if (kIsWeb) {
+        // 웹: Google Maps 검색
+        if (_webMapController == null) return;
 
-      print('🔍 주소 검색 시작: $address');
+        print('🔍 주소 검색 시작: $address');
 
-      // 주소 → 좌표 변환
-      final coordinates = await _geocodingService.getCoordinatesFromAddress(address);
+        final success = await _webMapController!.searchAndMoveToAddress(address);
 
-      if (coordinates == null) {
-        print('⚠️ 검색 결과 없음');
-        if (mounted) {
+        if (!success && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')),
           );
         }
-        return;
+      } else {
+        // 모바일: Naver Maps 검색
+        final controller = await _mapControllerCompleter.future;
+
+        print('🔍 주소 검색 시작: $address');
+
+        // 주소 → 좌표 변환
+        final coordinates = await _geocodingService.getCoordinatesFromAddress(address);
+
+        if (coordinates == null) {
+          print('⚠️ 검색 결과 없음');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('검색 결과를 찾을 수 없습니다')),
+            );
+          }
+          return;
+        }
+
+        final lat = coordinates['latitude']!;
+        final lng = coordinates['longitude']!;
+
+        print('📍 좌표 변환 완료: lat=$lat, lng=$lng');
+
+        // 지도 카메라 이동
+        final cameraUpdate = NCameraUpdate.withParams(
+          target: NLatLng(lat, lng),
+          zoom: 15,
+        )..setAnimation(
+          animation: NCameraAnimation.easing,
+          duration: const Duration(milliseconds: 500),
+        );
+
+        await controller.updateCamera(cameraUpdate);
+
+        print('✅ 지도 이동 완료');
       }
-
-      final lat = coordinates['latitude']!;
-      final lng = coordinates['longitude']!;
-
-      print('📍 좌표 변환 완료: lat=$lat, lng=$lng');
-
-      // 지도 카메라 이동
-      final cameraUpdate = NCameraUpdate.withParams(
-        target: NLatLng(lat, lng),
-        zoom: 15,
-      )..setAnimation(
-        animation: NCameraAnimation.easing,
-        duration: const Duration(milliseconds: 500),
-      );
-
-      await controller.updateCamera(cameraUpdate);
-
-      print('✅ 지도 이동 완료');
     } catch (e) {
       print('❌ 주소 검색 오류: $e');
       if (mounted) {
@@ -461,50 +547,51 @@ class _MapScreenState extends State<MapScreen> {
         actions: [],
       ),
       body: kIsWeb
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.map_outlined, size: 80, color: Colors.grey),
-                  SizedBox(height: 20),
-                  Text(
-                    '지도 기능은 모바일에서만 사용 가능합니다.',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-                  ),
-                ],
-              ),
-            )
-          : Stack(
-              children: [
-                // 지도 (전체 화면)
-                NaverMap(
-                  options: const NaverMapViewOptions(
-                    locationButtonEnable: true,
-                    initialCameraPosition: NCameraPosition(
-                      target: NLatLng(37.602, 126.977),
-                      zoom: 14,
-                    ),
-                  ),
-                  onMapReady: (controller) {
-                    _mapControllerCompleter.complete(controller);
-                  },
-                  onMapTapped: (point, latLng) {
-                    _onMapTapped(latLng);
-                  },
-                  onCameraChange: (position, reason) async {
-                    // 줌 레벨 변경 감지
-                    final controller = await _mapControllerCompleter.future;
-                    final cameraPosition = await controller.getCameraPosition();
-                    final newZoom = cameraPosition.zoom;
+          ? _buildWebMapView()
+          : _buildMobileMapView(),
+    );
+  }
 
-                    if ((newZoom - _currentZoom).abs() > 0.5) {
-                      setState(() {
-                        _currentZoom = newZoom;
-                      });
-                      _updateMarkersByZoom();
-                    }
-                  },
-                ),
+  /// 웹용 Google Maps 뷰
+  Widget _buildWebMapView() {
+    return Stack(
+      children: [
+        // Google Maps
+        GoogleMap(
+          initialCameraPosition: const CameraPosition(
+            target: LatLng(37.602, 126.977),
+            zoom: 14,
+          ),
+          markers: _googleMarkers,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: true,
+          onMapCreated: (controller) {
+            _googleMapController = controller;
+            _webMapController?.setMapController(controller);
+
+            // 초기 위치 설정
+            _webMapController?.updateCameraPosition(
+              const LatLng(37.602, 126.977),
+              14,
+            );
+
+            // 초기 마커 로드
+            _loadMyPostsWeb();
+          },
+          onCameraMove: (position) {
+            _webMapController?.updateCameraPosition(
+              position.target,
+              position.zoom,
+            );
+          },
+          onCameraIdle: () {
+            // 카메라 이동이 끝났을 때 필요시 마커 재로드
+          },
+          onTap: (latLng) {
+            // 지도 탭 시 게시글 작성 화면으로 이동
+            _onMapTappedWeb(latLng);
+          },
+        ),
                 // 포인트 표시 및 교환소 버튼 (지도 위에 오버레이)
                 Positioned(
                   top: 0,
@@ -586,32 +673,194 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                // 카테고리 필터 버튼
-                Positioned(
-                  top: 80,
-                  left: 0,
-                  right: 0,
-                  child: SizedBox(
-                    height: 40,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: allCategories.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final category = allCategories[index];
-                        return SuggestionCategoryButton(
-                          categoryType: category,
-                          isSelected: selectedCategories.contains(category),
-                          onTap: () => toggleCategory(category),
-                        );
-                      },
+        // 카테고리 필터 버튼
+        Positioned(
+          top: 80,
+          left: 0,
+          right: 0,
+          child: SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: allCategories.length,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final category = allCategories[index];
+                return SuggestionCategoryButton(
+                  categoryType: category,
+                  isSelected: selectedCategories.contains(category),
+                  onTap: () => toggleCategory(category),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 모바일용 Naver Maps 뷰
+  Widget _buildMobileMapView() {
+    return Stack(
+      children: [
+        // 지도 (전체 화면)
+        NaverMap(
+          options: const NaverMapViewOptions(
+            locationButtonEnable: true,
+            initialCameraPosition: NCameraPosition(
+              target: NLatLng(37.602, 126.977),
+              zoom: 14,
+            ),
+          ),
+          onMapReady: (controller) {
+            _mapControllerCompleter.complete(controller);
+          },
+          onMapTapped: (point, latLng) {
+            _onMapTapped(latLng);
+          },
+          onCameraChange: (position, reason) async {
+            // 줌 레벨 변경 감지
+            final controller = await _mapControllerCompleter.future;
+            final cameraPosition = await controller.getCameraPosition();
+            final newZoom = cameraPosition.zoom;
+
+            if ((newZoom - _currentZoom).abs() > 0.5) {
+              setState(() {
+                _currentZoom = newZoom;
+              });
+              _updateMarkersByZoom();
+            }
+          },
+        ),
+        // 포인트 표시 및 교환소 버튼 (지도 위에 오버레이)
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(0xff00AA5D),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'P',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
                     ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                _isLoadingReward
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xff00AA5D),
+                        ),
+                      )
+                    : Text(
+                        _currentPoint,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                Spacer(),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ExchangeScreen(point: _currentPoint),
+                      ),
+                    );
+                    // 교환소에서 돌아왔을 때 포인트 새로고침
+                    if (result != null) {
+                      _loadReward();
+                    }
+                  },
+                  icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
+                  label: Text(
+                    '교환소',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff00AA5D),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
                 ),
               ],
             ),
+          ),
+        ),
+        // 카테고리 필터 버튼
+        Positioned(
+          top: 80,
+          left: 0,
+          right: 0,
+          child: SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: allCategories.length,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final category = allCategories[index];
+                return SuggestionCategoryButton(
+                  categoryType: category,
+                  isSelected: selectedCategories.contains(category),
+                  onTap: () => toggleCategory(category),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  /// 웹용 지도 탭 핸들러
+  Future<void> _onMapTappedWeb(LatLng latLng) async {
+    // suggestion_screen으로 이동하며 위도, 경도 전달
+    if (mounted) {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SuggestionScreen(
+            latitude: latLng.latitude,
+            longitude: latLng.longitude,
+          ),
+        ),
+      );
+
+      // 게시글이 성공적으로 등록되었으면 마커 재로드
+      if (result != null && result is Map<String, dynamic>) {
+        await _loadMyPostsWeb();
+      }
+    }
   }
 }

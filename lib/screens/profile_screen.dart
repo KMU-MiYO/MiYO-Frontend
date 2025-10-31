@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/components/suggestion_image.dart';
 import 'package:miyo/components/profile_statistics.dart';
+import 'package:miyo/data/services/api_service.dart';
 import 'dart:typed_data';
 import 'package:miyo/screens/suggestion/my_suggestion_list.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
@@ -32,6 +33,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _empathyCnt = 0; // 좋아요한 글
   int _commentCnt = 0; // 댓글 쓴 글
   int _suggestionCnt = 0; // 내가 쓴 글
+
+  ApiService get _apiService => ApiService();
+
 
   // 제안 목록
   List<Map<String, dynamic>> _suggestions = [];
@@ -92,10 +96,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // 이미지 URL이 있으면 다운로드
         if (imagePath != null && imagePath.isNotEmpty) {
           try {
-            final dio = Dio();
-            final response = await dio.get(
-              imagePath,
-              options: Options(responseType: ResponseType.bytes),
+            final response = await _apiService.post(
+              "/v0/images/download",
+              data: {"imagePath": imagePath},
+              responseType: ResponseType.bytes,
             );
             if (response.statusCode == 200) {
               imageData = Uint8List.fromList(response.data);
@@ -147,10 +151,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       print('🖼️ 프로필 이미지 다운로드 시작: $imageUrl');
 
-      final dio = Dio();
-      final response = await dio.get(
-        imageUrl,
-        options: Options(responseType: ResponseType.bytes),
+      final response = await _apiService.post(
+        "/v0/images/download",
+        data: {"imagePath": imageUrl},
+        responseType: ResponseType.bytes,
       );
 
       if (response.statusCode == 200) {

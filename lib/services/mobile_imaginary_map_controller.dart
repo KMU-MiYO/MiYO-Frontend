@@ -1,18 +1,17 @@
-// lib/services/imaginary_map_controller.dart
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
-import 'package:flutter/foundation.dart' show kIsWeb;
+// lib/services/mobile_imaginary_map_controller.dart
+import 'dart:io';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:miyo/services/imaginary_service.dart';
-import 'package:miyo/services/marker_image_generator.dart';
+import 'package:miyo/services/mobile_marker_generator.dart';
 import 'package:miyo/services/geocoding_service.dart';
 
-/// 상상지도 화면의 모든 비즈니스 로직을 담당하는 컨트롤러
-/// 지도 관련 작업(카메라 위치 계산, 마커 로드, 위치 권한 등)을 처리
-class ImaginaryMapController {
+/// 모바일 플랫폼용 상상지도 컨트롤러
+/// 네이버 지도를 사용하여 지도 관련 비즈니스 로직 처리
+class MobileImaginaryMapController {
   final ImaginaryService _service = ImaginaryService();
-  final MarkerImageGenerator _imageGenerator = MarkerImageGenerator();
+  final MobileMarkerGenerator _imageGenerator = MobileMarkerGenerator();
   final GeocodingService _geocodingService = GeocodingService();
 
   /// zoom 레벨에 따라 검색 반경(미터) 계산
@@ -112,13 +111,7 @@ class ImaginaryMapController {
           '📍 마커 추가 시도: id=$markerId, lat=$latitude, lng=$longitude, path=$imagePath',
         );
 
-        // 웹에서는 마커 추가 건너뛰기
-        if (kIsWeb) {
-          print('⚠️ 웹 플랫폼에서는 마커를 지원하지 않습니다');
-          continue;
-        }
-
-        // 파일 존재 확인 (모바일만)
+        // 파일 존재 확인
         final file = File(imagePath);
         final fileExists = await file.exists();
         if (!fileExists) {
@@ -173,11 +166,6 @@ class ImaginaryMapController {
 
   /// 위치 권한 요청
   Future<void> requestLocationPermission() async {
-    if (kIsWeb) {
-      print('⚠️ 웹 플랫폼에서는 위치 권한 요청을 지원하지 않습니다');
-      return;
-    }
-
     var requestStatus = await Permission.location.request();
     var status = await Permission.location.status;
     if (requestStatus.isPermanentlyDenied || status.isPermanentlyDenied) {
@@ -187,11 +175,6 @@ class ImaginaryMapController {
 
   /// 현재 위치 가져오기
   Future<Position?> getCurrentPosition() async {
-    if (kIsWeb) {
-      print('⚠️ 웹 플랫폼에서는 위치 서비스를 지원하지 않습니다');
-      return null;
-    }
-
     try {
       LocationPermission permission = await Geolocator.checkPermission();
 

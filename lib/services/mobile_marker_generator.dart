@@ -1,18 +1,18 @@
-// lib/services/marker_image_generator.dart
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
+// lib/services/mobile_marker_generator.dart
+import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:miyo/components/imaginary_marker_widget.dart';
 
-class MarkerImageGenerator {
-  static final MarkerImageGenerator _instance =
-      MarkerImageGenerator._internal();
-  factory MarkerImageGenerator() => _instance;
-  MarkerImageGenerator._internal();
+/// 모바일 플랫폼용 마커 이미지 생성기
+class MobileMarkerGenerator {
+  static final MobileMarkerGenerator _instance =
+      MobileMarkerGenerator._internal();
+  factory MobileMarkerGenerator() => _instance;
+  MobileMarkerGenerator._internal();
 
   final ScreenshotController _screenshotController = ScreenshotController();
   final Map<String, String> _cacheFilePaths = {};
@@ -23,12 +23,6 @@ class MarkerImageGenerator {
   Future<Map<String, String>> generateBatchMarkerImages(
     List<Map<String, dynamic>> markersData,
   ) async {
-    // 웹 플랫폼에서는 마커 생성 건너뛰기
-    if (kIsWeb) {
-      debugPrint('⚠️ 웹 플랫폼에서는 마커 이미지 생성을 지원하지 않습니다');
-      return {};
-    }
-
     final results = <String, String>{};
 
     debugPrint('📸 마커 이미지 생성 시작: ${markersData.length}개');
@@ -78,21 +72,13 @@ class MarkerImageGenerator {
     required String imageUrl,
     required int favoriteCnt,
   }) async {
-    // 웹 플랫폼에서는 마커 생성 불가
-    if (kIsWeb) {
-      return '';
-    }
-
     final cacheKey = '${imageUrl}_$favoriteCnt';
 
     // 캐시 확인
     if (_cacheFilePaths.containsKey(cacheKey)) {
       final cachedPath = _cacheFilePaths[cacheKey]!;
-      // 파일이 실제로 존재하는지 확인 (모바일만)
-      if (!kIsWeb) {
-        if (await File(cachedPath).exists()) {
-          return cachedPath;
-        }
+      if (await File(cachedPath).exists()) {
+        return cachedPath;
       }
     }
 
