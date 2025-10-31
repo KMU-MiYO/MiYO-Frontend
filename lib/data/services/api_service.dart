@@ -8,7 +8,6 @@ class ApiService {
   final TokenStorageService _tokenStorage = TokenStorageService();
 
   // Spring Boot 서버 URL (나중에 실제 URL로 변경)
-  // static const String baseUrl = 'http://localhost:8080/api';
   static const String baseUrl =
       'http://ing-default-samplealbing-bcdf6-110164755-b48ba1cb3cc4.kr.lb.naverncp.com';
 
@@ -29,9 +28,6 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // 요청 전 로깅
-          print('🚀 REQUEST[${options.method}] => PATH: ${options.path}');
-
           // 저장된 JWT 토큰이 있으면 자동으로 추가
           final token = await _tokenStorage.getAccessToken();
           if (token != null && token.isNotEmpty) {
@@ -43,17 +39,10 @@ class ApiService {
         },
         onResponse: (response, handler) {
           // 응답 로깅
-          print(
-            '✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
-          );
           return handler.next(response);
         },
         onError: (error, handler) {
           // 에러 로깅
-          print(
-            '❌ ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}',
-          );
-          print('MESSAGE: ${error.message}');
           return handler.next(error);
         },
       ),

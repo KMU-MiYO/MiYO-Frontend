@@ -18,14 +18,8 @@ class ChallengeService {
         throw Exception('주간 미션 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
       throw Exception('주간 미션 조회 중 오류가 발생했습니다.');
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -62,14 +56,8 @@ class ChallengeService {
         throw Exception('전체 챌린지 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
       throw Exception('전체 챌린지 조회 중 오류가 발생했습니다.');
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -87,14 +75,8 @@ class ChallengeService {
         );
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
       throw Exception('참여 중인 챌린지 조회 중 오류가 발생했습니다.');
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -141,12 +123,6 @@ class ChallengeService {
         throw Exception('이미지 생성에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
-
       if (e.response?.statusCode == 400) {
         final errorMsg = e.response?.data?.toString() ?? '잘못된 요청입니다.';
         throw Exception('잘못된 요청: $errorMsg');
@@ -162,7 +138,6 @@ class ChallengeService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -211,12 +186,6 @@ class ChallengeService {
         throw Exception('이미지 생성에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
-
       if (e.response?.statusCode == 400) {
         final errorMsg = e.response?.data?.toString() ?? '잘못된 요청입니다.';
         throw Exception('잘못된 요청: $errorMsg');
@@ -232,7 +201,6 @@ class ChallengeService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -265,12 +233,6 @@ class ChallengeService {
         throw Exception('이미지 생성에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-      print('Request Data: ${e.requestOptions.data}');
-
       if (e.response?.statusCode == 400) {
         final errorMsg = e.response?.data?.toString() ?? '잘못된 요청입니다.';
         throw Exception('잘못된 요청: $errorMsg');
@@ -286,7 +248,6 @@ class ChallengeService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -302,20 +263,11 @@ class ChallengeService {
 
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
-        print('✅ getContestById API 응답:');
-        print('  - contestId: ${data['contestId']}');
-        print('  - title: ${data['title']}');
-        print('  - 전체 데이터: $data');
         return data;
       } else {
         throw Exception('챌린지 조회에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       if (e.response?.statusCode == 400) {
         throw Exception('이미 참가한 공모전입니다.');
       } else if (e.response?.statusCode == 401) {
@@ -327,7 +279,6 @@ class ChallengeService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
@@ -351,11 +302,6 @@ class ChallengeService {
         throw Exception('챌린지 참가에 실패했습니다. (Status: ${response.statusCode})');
       }
     } on DioException catch (e) {
-      print('❌ DioException 발생:');
-      print('Status Code: ${e.response?.statusCode}');
-      print('Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       if (e.response?.statusCode == 400) {
         throw Exception('이미 참가한 공모전입니다.');
       } else if (e.response?.statusCode == 401) {
@@ -367,7 +313,6 @@ class ChallengeService {
         '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
       );
     } catch (e) {
-      print('❌ Unexpected Error: $e');
       rethrow;
     }
   }
