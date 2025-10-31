@@ -11,12 +11,14 @@ class ImaginaryMapBottomSheet extends StatefulWidget {
   final NaverMapController mapController;
   final VoidCallback? onMapMoved;
   final Function(VoidCallback)? onReloadCallback;
+  final Function(double)? onSheetHeightChanged;
 
   const ImaginaryMapBottomSheet({
     super.key,
     required this.mapController,
     this.onMapMoved,
     this.onReloadCallback,
+    this.onSheetHeightChanged,
   });
 
   @override
@@ -26,6 +28,7 @@ class ImaginaryMapBottomSheet extends StatefulWidget {
 
 class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
   final PostService _postService = PostService();
+  final DraggableScrollableController _sheetController = DraggableScrollableController();
 
   // 선택된 카테고리들 (빈 Set = 전체 보기)
   Set<CategoryType> selectedCategories = {};
@@ -62,6 +65,24 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
     widget.onReloadCallback?.call(reloadData);
     _loadTop3Posts();
     _loadNearbyPosts();
+
+    // sheet 높이 변화 리스너 추가
+    _sheetController.addListener(_onSheetHeightChanged);
+  }
+
+  @override
+  void dispose() {
+    _sheetController.removeListener(_onSheetHeightChanged);
+    _sheetController.dispose();
+    _suggestionScrollController.dispose();
+    super.dispose();
+  }
+
+  void _onSheetHeightChanged() {
+    if (_sheetController.isAttached) {
+      final currentSize = _sheetController.size;
+      widget.onSheetHeightChanged?.call(currentSize);
+    }
   }
 
   /// zoom 레벨에 따라 검색 반경(미터) 계산
@@ -241,6 +262,7 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
     final height = MediaQuery.of(context).size.height;
 
     return DraggableScrollableSheet(
+      controller: _sheetController,
       initialChildSize: 0.3,
       minChildSize: 0.05,
       maxChildSize: 0.95,

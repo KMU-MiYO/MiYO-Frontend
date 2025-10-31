@@ -226,10 +226,17 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
           ? _replyToPostId!
           : widget.postId;
 
-      await _commentService.writeComment(
-        parentPostId: targetPostId,
-        content: content,
-      );
+      if (widget.isChallenge) {
+        await _commentService.writeChallengeComment(
+          postId: targetPostId,
+          content: content,
+        );
+      } else {
+        await _commentService.writeComment(
+          parentPostId: targetPostId,
+          content: content,
+        );
+      }
 
       // 답글 모드 취소
       if (_isReplyMode) {

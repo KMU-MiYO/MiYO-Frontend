@@ -38,7 +38,7 @@ class CommentService {
     }
   }
 
-  /// 댓글 작성하기
+  /// 댓글(그냥 제안글) 작성하기
   ///
   ///{
   //   "parentPostId": 1,
@@ -50,10 +50,49 @@ class CommentService {
   }) async {
     try {
       print('📤 댓글 작성 요청: parentPostId=$parentPostId, content=$content');
-
       final response = await _apiService.post(
         '/v0/comments',
         data: {'parentPostId': parentPostId, 'content': content},
+      );
+
+      print(
+        '📥 댓글 작성 응답: statusCode=${response.statusCode}, data=${response.data}',
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('댓글 작성에 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 400) {
+        throw Exception('잘못된 요청입니다.');
+      } else if (e.response?.statusCode == 409) {
+        // 서버에서 보낸 에러 메시지가 있으면 사용, 없으면 기본 메시지
+        final errorMessage = e.response?.data?.toString();
+        throw Exception(errorMessage);
+      } else if (e.response?.statusCode == 500) {
+        throw Exception('서버 오류가 발생했습니다.');
+      }
+      print('DioException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  /// 댓글(챌린지) 작성하기
+  ///
+  Future<Map<String, dynamic>> writeChallengeComment({
+    required int postId,
+    required String content,
+  }) async {
+    try {
+      print('📤 댓글 작성 요청: parentPostId=$postId, content=$content');
+      final response = await _apiService.post(
+        '/v0/contests/posts/$postId/comments',
+        data: {'content': content},
       );
 
       print(

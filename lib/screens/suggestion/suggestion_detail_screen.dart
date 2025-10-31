@@ -233,7 +233,7 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
                       backgroundColor: Colors.transparent,
                       builder: (context) => CommentBottomSheet(
                         postId: widget.postId,
-                        isChallenge: true,
+                        isChallenge: widget.isChallenge,
                       ),
                     );
                   },
