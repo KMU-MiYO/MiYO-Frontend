@@ -57,12 +57,6 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
         size: 20,
       );
 
-      // 디버깅: 첫 번째 제안 글 데이터 구조 출력
-      if (suggestions.isNotEmpty) {
-        print('📦 첫 번째 제안글 데이터: ${suggestions[0]}');
-        print('📦 사용 가능한 키들: ${(suggestions[0] as Map).keys.toList()}');
-      }
-
       setState(() {
         _allSuggestions = suggestions;
         _isLoading = false;

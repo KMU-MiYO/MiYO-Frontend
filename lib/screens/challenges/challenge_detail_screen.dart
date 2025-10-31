@@ -39,13 +39,11 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
         contestId: widget.contestId,
       );
 
-      print('📦 챌린지 데이터: $data');
       setState(() {
         contestData = data;
         isLoading = false;
       });
     } catch (e) {
-      print('❌ 챌린지 로드 실패: $e');
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -171,11 +169,9 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
                 // 게시글 작성 완료 후 돌아왔을 때 데이터 새로고침
                 if (result != null) {
-                  print('✅ 게시글 작성 완료, 챌린지 데이터 새로고침');
                   _loadContestData();
                 }
               } catch (e) {
-                print('❌ 챌린지 참가 실패: $e');
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -334,9 +330,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                       final categoryToUse =
                           post['category'] ?? contestData!['category'];
                       return SuggestionTop3(
-                        categoryType: _getSuggestionCategoryType(
-                          categoryToUse,
-                        ),
+                        categoryType: _getSuggestionCategoryType(categoryToUse),
                         title: post['title'] ?? '제목 없음',
                         writer: post['userId'] ?? '익명',
                         rank: index + 1,
@@ -365,11 +359,11 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
   /// 정보 라벨 + 값
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0), // 각 블록 간 간격
+      padding: const EdgeInsets.only(bottom: 10.0),
       child: Align(
-        alignment: Alignment.centerLeft, // 항상 왼쪽 정렬 유지
+        alignment: Alignment.centerLeft,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // 자식들도 왼쪽 정렬
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(

@@ -150,7 +150,6 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
         _isLoading = false;
       });
     } catch (e) {
-      print('댓글 로드 실패: $e');
       setState(() {
         _isLoading = false;
       });
@@ -254,7 +253,6 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
         );
       }
     } catch (e) {
-      print('댓글 작성 실패: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -452,7 +450,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
           },
         ),
 
-        // ✅ 키보드 높이에 반응하는 입력창
+        // 키보드 높이에 반응하는 입력창
         Positioned(
           left: 0,
           right: 0,

@@ -28,7 +28,8 @@ class ImaginaryMapBottomSheet extends StatefulWidget {
 
 class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
   final PostService _postService = PostService();
-  final DraggableScrollableController _sheetController = DraggableScrollableController();
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
 
   // 선택된 카테고리들 (빈 Set = 전체 보기)
   Set<CategoryType> selectedCategories = {};
@@ -104,10 +105,6 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
       final zoom = cameraPosition.zoom;
       final radius = _calculateRadiusFromZoom(zoom);
 
-      print(
-        '📍 Top3 로드: lat=${center.latitude}, lng=${center.longitude}, zoom=$zoom, radius=$radius',
-      );
-
       // API 호출
       final posts = await _postService.getTop3Posts(
         latitude: center.latitude,
@@ -119,10 +116,7 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
         _top3Posts = posts;
         _isLoadingTop3 = false;
       });
-
-      print('✅ Top3 게시글 ${posts.length}개 로드 완료');
     } catch (e) {
-      print('❌ Top3 게시글 로드 실패: $e');
       setState(() {
         _isLoadingTop3 = false;
       });
@@ -204,10 +198,6 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
       // FilterType을 sortBy 문자열로 변환
       final sortBy = _filterTypeToSortBy(selectedFilter);
 
-      print(
-        '📍 내 주변 게시글 로드: lat=${center.latitude}, lng=${center.longitude}, radius=$radius, categories=$categories, sortBy=$sortBy',
-      );
-
       // API 호출
       final posts = await _postService.getNearbyPosts(
         latitude: center.latitude,
@@ -221,10 +211,7 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
         _nearbyPosts = posts;
         _isLoadingNearby = false;
       });
-
-      print('✅ 내 주변 게시글 ${posts.length}개 로드 완료');
     } catch (e) {
-      print('❌ 내 주변 게시글 로드 실패: $e');
       setState(() {
         _isLoadingNearby = false;
       });

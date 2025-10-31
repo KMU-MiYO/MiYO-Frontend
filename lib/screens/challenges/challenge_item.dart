@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:miyo/screens/challenges/challenge_detail_screen.dart';
 
 class ChallengeItem extends StatelessWidget {
-  // final IconData icon;
   final CategoryType? categoryType;
   final String title;
   final String location;

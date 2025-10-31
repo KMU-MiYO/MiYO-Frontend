@@ -1,4 +1,3 @@
-// lib/services/marker_image_generator.dart
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -42,7 +41,8 @@ class MarkerImageGenerator {
         }
 
         // URL 형식 검증
-        if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+        if (!imageUrl.startsWith('http://') &&
+            !imageUrl.startsWith('https://')) {
           debugPrint('⚠️ 잘못된 URL 형식입니다: id=$id, url=$imageUrl');
           continue;
         }

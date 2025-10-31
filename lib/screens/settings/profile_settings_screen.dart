@@ -26,9 +26,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
             children: [
               // 계정 섹션
               SettingsAccountSection(),
-              // // 내 활동 섹션
-              // SizedBox(height: height * 0.02),
-              // SettingsMyactivitySection(),
+
               // 어플리케이션 섹션
               SizedBox(height: height * 0.02),
               SettingsApplicationSection(),

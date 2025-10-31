@@ -3,7 +3,6 @@ import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/components/suggestion_image.dart';
 import 'package:miyo/components/profile_statistics.dart';
 import 'dart:typed_data';
-import 'package:miyo/screens/suggestion/my_suggestion_list.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/data/services/user_service.dart';
 import 'package:dio/dio.dart';
@@ -61,8 +60,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final commentCnt = results[2] as int;
       final suggestionCnt = results[3] as int;
       final postListData = results[4] as Map<String, dynamic>;
-
-      print('📦 받아온 유저 데이터: $userData');
 
       // 닉네임
       _nickname = userData['nickname'] ?? '사용자';
@@ -124,13 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       setState(() => _isLoading = false);
-
-      print('✅ 프로필 데이터 로드 완료');
-      print('   - nickname: $_nickname, id: $_id, joinYear: $_joinYear');
-      print('   - 통계: 좋아요 $_empathyCnt, 댓글 $_commentCnt, 제안 $_suggestionCnt');
-      print('   - 게시글: ${_suggestions.length}개');
     } catch (e) {
-      print('❌ 프로필 데이터 로드 실패: $e');
       setState(() => _isLoading = false);
 
       // 에러 처리
@@ -145,8 +136,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// 프로필 이미지 다운로드
   Future<void> _downloadProfileImage(String imageUrl) async {
     try {
-      print('🖼️ 프로필 이미지 다운로드 시작: $imageUrl');
-
       final dio = Dio();
       final response = await dio.get(
         imageUrl,
@@ -157,7 +146,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _profileImageData = Uint8List.fromList(response.data);
         });
-        print('✅ 프로필 이미지 다운로드 완료');
       }
     } catch (e) {
       print('❌ 프로필 이미지 다운로드 실패: $e');
@@ -278,24 +266,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    // TextButton(
-                    //   onPressed: () {
-                    //     Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //         builder: (context) => MySuggestionScreen(),
-                    //       ),
-                    //     );
-                    //   },
-                    //   child: const Text(
-                    //     '모두 보기',
-                    //     style: TextStyle(
-                    //       fontSize: 16,
-                    //       color: Color(0xff61758A),
-                    //       fontWeight: FontWeight.normal,
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
