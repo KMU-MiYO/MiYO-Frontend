@@ -21,11 +21,11 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
   final List<Map<String, dynamic>> exchangeItems = [
     {
       'localCachePrice': '100,000',
-      'pointPrice': '120,000',
-      'pointValue': 120000,
+      'pointPrice': '100,000',
+      'pointValue': 100000,
     },
-    {'localCachePrice': '50,000', 'pointPrice': '53,000', 'pointValue': 55000},
-    {'localCachePrice': '30,000', 'pointPrice': '35,000', 'pointValue': 33000},
+    {'localCachePrice': '55,000', 'pointPrice': '50,000', 'pointValue': 55000},
+    {'localCachePrice': '33,000', 'pointPrice': '30,000', 'pointValue': 30000},
     {'localCachePrice': '10,000', 'pointPrice': '10,000', 'pointValue': 10000},
   ];
 
