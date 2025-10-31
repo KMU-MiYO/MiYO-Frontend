@@ -20,6 +20,7 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   List<Map<String, dynamic>> _markers = [];
   bool _isLoading = true;
   NaverMapController? _controller;
+  double _bottomSheetHeight = 0.3; // bottom sheet의 현재 높이 비율
 
   @override
   void initState() {
@@ -60,6 +61,34 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
   Future<void> _initializeLocation() async {
     await _mapController.requestLocationPermission();
     setState(() => _isLoading = false);
+  }
+
+  Future<void> _moveToMyLocation() async {
+    if (_controller == null) return;
+
+    try {
+      final position = await _mapController.getCurrentPosition();
+      if (position != null) {
+        await _mapController.moveCamera(
+          _controller!,
+          position.latitude,
+          position.longitude,
+          zoom: 15,
+        );
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('위치 권한을 허용해주세요')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('내 위치를 가져올 수 없습니다: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _loadMarkersForCurrentView() async {
@@ -114,7 +143,7 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
         children: [
           NaverMap(
             options: const NaverMapViewOptions(
-              locationButtonEnable: true,
+              locationButtonEnable: false, // 기본 위치 버튼 비활성화
               initialCameraPosition: NCameraPosition(
                 target: NLatLng(37.602, 126.977),
                 zoom: 14,
@@ -155,11 +184,29 @@ class _ImaginaryMapScreenState extends State<ImaginaryMapScreen> {
               ),
             ),
           ),
+          // 커스텀 위치 버튼
+          Positioned(
+            right: 16,
+            bottom: MediaQuery.of(context).size.height * _bottomSheetHeight + 16,
+            child: FloatingActionButton(
+              onPressed: _moveToMyLocation,
+              backgroundColor: Colors.white,
+              child: const Icon(
+                Icons.my_location,
+                color: Color(0xff00AA5D),
+              ),
+            ),
+          ),
           if (_controller != null)
             ImaginaryMapBottomSheet(
               mapController: _controller!,
               onReloadCallback: (callback) {
                 _reloadBottomSheet = callback;
+              },
+              onSheetHeightChanged: (height) {
+                setState(() {
+                  _bottomSheetHeight = height;
+                });
               },
             ),
         ],
