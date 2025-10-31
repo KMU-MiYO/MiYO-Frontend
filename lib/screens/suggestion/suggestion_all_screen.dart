@@ -79,6 +79,30 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
     return sortedList.take(3).toList();
   }
 
+  /// 카테고리 문자열을 CategoryType enum으로 변환
+  CategoryType? _parseCategoryType(String? category) {
+    if (category == null) return null;
+
+    switch (category.toUpperCase()) {
+      case 'NATURE':
+        return CategoryType.NATURE;
+      case 'CULTURE':
+        return CategoryType.CULTURE;
+      case 'TRAFFIC':
+        return CategoryType.TRAFFIC;
+      case 'RESIDENCE':
+        return CategoryType.RESIDENCE;
+      case 'COMMERCIAL':
+        return CategoryType.COMMERCIAL;
+      case 'NIGHT':
+        return CategoryType.NIGHT;
+      case 'ENVIRONMENT':
+        return CategoryType.ENVIRONMENT;
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,7 +151,7 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: SuggestionItem(
-                          categoryType: null, // 필요시 카테고리 파싱 로직 추가
+                          categoryType: _parseCategoryType(suggestion['category']),
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
@@ -167,7 +191,7 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: SuggestionItem(
-                          categoryType: null, // 필요시 카테고리 파싱 로직 추가
+                          categoryType: _parseCategoryType(suggestion['category']),
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
