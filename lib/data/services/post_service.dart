@@ -565,4 +565,54 @@ class PostService {
       rethrow;
     }
   }
+
+  /// 챌린지 내 제안 글 상세 조회
+  ///
+  /// [postId]: 조회할 게시글 ID
+  Future<Map<String, dynamic>> getContestsPostById({
+    required int contestId,
+  }) async {
+    try {
+      // 프로덕션 모드: 실제 API 호출
+      // Spring Boot 엔드포인트: GET /v0/posts/id
+      final response = await _apiService.get(
+        '/v0/contests/$contestId',
+        queryParameters: {'contestId': contestId},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data as Map<String, dynamic>;
+        print('✅ getPostById API 응답:');
+        print('  - postId: ${data['postId']}');
+        print('  - nickname: ${data['nickname']}');
+        print('  - title: ${data['title']}');
+        print('  - 전체 데이터: $data');
+        return data;
+      } else {
+        throw Exception('게시글 조회에 실패했습니다. (Status: ${response.statusCode})');
+      }
+    } on DioException catch (e) {
+      print('❌ DioException 발생:');
+      print('Status Code: ${e.response?.statusCode}');
+      print('Response Data: ${e.response?.data}');
+      print('Error Message: ${e.message}');
+
+      if (e.response?.statusCode == 404) {
+        throw Exception('게시글을 찾을 수 없습니다.');
+      } else if (e.response?.statusCode == 401) {
+        throw Exception('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+      } else if (e.response?.statusCode == 403) {
+        throw Exception('권한이 없습니다.');
+      } else if (e.response?.statusCode == 500) {
+        final errorMsg = e.response?.data?.toString() ?? '서버 오류가 발생했습니다.';
+        throw Exception('서버 오류: $errorMsg');
+      }
+      throw Exception(
+        '네트워크 오류: ${e.message} (Status: ${e.response?.statusCode})',
+      );
+    } catch (e) {
+      print('❌ Unexpected Error: $e');
+      rethrow;
+    }
+  }
 }

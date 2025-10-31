@@ -7,6 +7,8 @@ class ChallengeItem extends StatelessWidget {
   final String title;
   final String location;
   final int contestId;
+  final VoidCallback? onTap;
+  final bool isChallengeDetailTile;
 
   const ChallengeItem({
     super.key,
@@ -14,6 +16,8 @@ class ChallengeItem extends StatelessWidget {
     required this.title,
     required this.location,
     required this.contestId,
+    this.isChallengeDetailTile = false,
+    this.onTap,
   });
 
   @override
@@ -50,20 +54,23 @@ class ChallengeItem extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right, size: 37),
-            color: const Color(0xff757575),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChallengeDetailScreen(
-                    contestId: contestId,
-                  ),
+          isChallengeDetailTile
+              ? const SizedBox.shrink()
+              : IconButton(
+                  icon: const Icon(Icons.chevron_right, size: 37),
+                  color: const Color(0xff757575),
+                  onPressed:
+                      onTap ??
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ChallengeDetailScreen(contestId: contestId),
+                          ),
+                        );
+                      },
                 ),
-              );
-            },
-          ),
         ],
       ),
     );
@@ -132,5 +139,5 @@ enum CategoryType {
   RESIDENCE, // 주거/생활
   COMMERCIAL, // 상권/시장
   NIGHT, // 야간/경관
-  ENVIRONMENT // 환경/지속가능
+  ENVIRONMENT, // 환경/지속가능
 }

@@ -5,8 +5,13 @@ import 'package:miyo/data/services/post_service.dart';
 
 class SuggestionDetailScreen extends StatefulWidget {
   final int postId;
+  final isChallenge;
 
-  const SuggestionDetailScreen({super.key, required this.postId});
+  const SuggestionDetailScreen({
+    super.key,
+    required this.postId,
+    this.isChallenge = false,
+  });
 
   @override
   State<SuggestionDetailScreen> createState() => _SuggestionDetailScreenState();
@@ -29,15 +34,29 @@ class _SuggestionDetailScreenState extends State<SuggestionDetailScreen> {
     });
 
     try {
-      final data = await _postService.getPostById(postId: widget.postId);
-      print('📦 게시글 데이터: $data');
-      print(
-        '👤 작성자 정보: ${data['nickname']} / ${data['userNickname']} / ${data['author']}',
-      );
-      setState(() {
-        postData = data;
-        isLoading = false;
-      });
+      if (widget.isChallenge) {
+        final data = await _postService.getContestsPostById(
+          contestId: widget.postId,
+        );
+        print('📦 게시글 데이터: $data');
+        print(
+          '👤 작성자 정보: ${data['nickname']} / ${data['userNickname']} / ${data['author']}',
+        );
+        setState(() {
+          postData = data;
+          isLoading = false;
+        });
+      } else {
+        final data = await _postService.getPostById(postId: widget.postId);
+        print('📦 게시글 데이터: $data');
+        print(
+          '👤 작성자 정보: ${data['nickname']} / ${data['userNickname']} / ${data['author']}',
+        );
+        setState(() {
+          postData = data;
+          isLoading = false;
+        });
+      }
     } catch (e) {
       print('❌ 게시글 로드 실패: $e');
       if (mounted) {
