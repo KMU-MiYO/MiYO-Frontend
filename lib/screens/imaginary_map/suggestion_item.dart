@@ -56,9 +56,7 @@ class SuggestionItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SuggestionDetailScreen(
-                    postId: postId,
-                  ),
+                  builder: (context) => SuggestionDetailScreen(postId: postId),
                 ),
               );
             },
@@ -131,5 +129,5 @@ enum CategoryType {
   RESIDENCE, // 주거/생활
   COMMERCIAL, // 상권/시장
   NIGHT, // 야간/경관
-  ENVIRONMENT // 환경/지속가능
+  ENVIRONMENT, // 환경/지속가능
 }

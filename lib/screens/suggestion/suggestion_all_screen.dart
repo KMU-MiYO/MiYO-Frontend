@@ -157,7 +157,7 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                          postId: suggestion['postId'] ?? 0,
+                          postId: suggestion['postId'] as int,
                         ),
                       );
                     })
@@ -199,7 +199,7 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                          postId: suggestion['postId'] ?? 0,
+                          postId: suggestion['postId'] as int,
                         ),
                       );
                     })
