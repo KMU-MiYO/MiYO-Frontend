@@ -185,8 +185,8 @@ class _SuggestionScreenState extends State<SuggestionScreen> {
       return;
     }
 
-    if ((widget.latitude == null && widget.isContest) ||
-        (widget.longitude == null && widget.isContest)) {
+    // 일반 게시글(isContest가 false)일 때만 위치 정보 필수
+    if (!widget.isContest && (widget.latitude == null || widget.longitude == null)) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('위치 정보가 없습니다.')));

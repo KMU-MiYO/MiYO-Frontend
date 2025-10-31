@@ -137,13 +137,28 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               ),
               minimumSize: const Size.fromHeight(50),
             ),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              // 챌린지 참여 화면으로 이동
+              final latitude = contestData?['latitude'] as double?;
+              final longitude = contestData?['longitude'] as double?;
+
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SuggestionScreen(isContent: true),
+                  builder: (context) => SuggestionScreen(
+                    isContest: true,
+                    contestId: widget.contestId,
+                    latitude: latitude,
+                    longitude: longitude,
+                  ),
                 ),
               );
+
+              // 게시글 작성 완료 후 돌아왔을 때 데이터 새로고침
+              if (result != null) {
+                print('✅ 게시글 작성 완료, 챌린지 데이터 새로고침');
+                _loadContestData();
+              }
             },
             child: const Text(
               '참여하기',
