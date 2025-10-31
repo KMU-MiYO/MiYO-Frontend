@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_filtering_button.dart';
+import 'package:miyo/components/challenge_filtering_button.dart';
 import 'package:miyo/data/services/suggestion_service.dart';
 
 class SuggestionAllScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class SuggestionAllScreen extends StatefulWidget {
 class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
   final SuggestionService _suggestionService = SuggestionService();
   FilterType _sortBy = FilterType.latest;
+  ChallengeCategoryType _category = ChallengeCategoryType.all;
 
   List<dynamic> _allSuggestions = [];
   bool _isLoading = true;
@@ -179,8 +181,8 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
 
                   // 필터 드롭다운
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // 정렬 드롭다운
                       SuggestionFilteringButton(
                         selectedFilter: _sortBy,
                         onFilterChanged: (filter) {
@@ -188,6 +190,14 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                             _sortBy = filter;
                           });
                           _loadSuggestions();
+                        },
+                      ),
+                      ChallengeCategoryButton(
+                        selectedCategory: _category,
+                        onCategoryChanged: (category) {
+                          setState(() {
+                            _category = category;
+                          });
                         },
                       ),
                     ],
