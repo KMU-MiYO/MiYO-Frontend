@@ -5,7 +5,7 @@ import 'package:miyo/data/services/post_service.dart';
 
 class SuggestionDetailScreen extends StatefulWidget {
   final int postId;
-  final isChallenge;
+  final bool isChallenge;
 
   const SuggestionDetailScreen({
     super.key,
