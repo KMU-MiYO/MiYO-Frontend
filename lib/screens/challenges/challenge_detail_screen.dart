@@ -141,7 +141,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SuggestionScreen(),
+                  builder: (context) => const SuggestionScreen(isContent: true),
                 ),
               );
             },
@@ -311,9 +311,8 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SuggestionAllScreen(
-                            contestId: widget.contestId,
-                          ),
+                          builder: (context) =>
+                              SuggestionAllScreen(contestId: widget.contestId),
                         ),
                       );
                     },
