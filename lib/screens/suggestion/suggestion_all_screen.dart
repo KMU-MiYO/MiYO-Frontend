@@ -151,7 +151,9 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: SuggestionItem(
-                          categoryType: _parseCategoryType(suggestion['category']),
+                          categoryType: _parseCategoryType(
+                            suggestion['category'],
+                          ),
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
@@ -161,7 +163,7 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                     })
                   else
                     const Padding(
-                      padding: EdgeInsets.all(20.0),
+                      padding: EdgeInsets.all(60.0),
                       child: Center(child: Text('인기 제안이 없습니다')),
                     ),
 
@@ -191,7 +193,9 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: SuggestionItem(
-                          categoryType: _parseCategoryType(suggestion['category']),
+                          categoryType: _parseCategoryType(
+                            suggestion['category'],
+                          ),
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
