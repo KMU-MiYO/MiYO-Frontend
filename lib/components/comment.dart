@@ -1,10 +1,9 @@
 // lib/components/comment.dart
 import 'package:flutter/material.dart';
-import 'dart:typed_data';
 
 // 댓글 위젯
 class CommentWidget extends StatelessWidget {
-  final Uint8List? profileImageData; // 프로필 이미지 (nullable)
+  final String? profileImagePath; // 프로필 이미지 URL (nullable)
   final String nickname;
   final String commentDetail;
   final String createdAt; // 작성 시간
@@ -17,7 +16,7 @@ class CommentWidget extends StatelessWidget {
 
   const CommentWidget({
     super.key,
-    this.profileImageData,
+    this.profileImagePath,
     required this.nickname,
     required this.commentDetail,
     required this.createdAt,
@@ -45,11 +44,14 @@ class CommentWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Color(0xffE0E0E0),
                 ),
-                child: profileImageData != null
+                child: profileImagePath != null && profileImagePath!.isNotEmpty
                     ? ClipOval(
-                        child: Image.memory(
-                          profileImageData!,
+                        child: Image.network(
+                          profileImagePath!,
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.person, color: Colors.white, size: 20);
+                          },
                         ),
                       )
                     : Icon(Icons.person, color: Colors.white, size: 20),

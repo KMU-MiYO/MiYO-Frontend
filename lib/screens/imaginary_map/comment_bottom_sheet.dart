@@ -86,7 +86,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
             replies.add({
               'postId': reply['postId'],
-              'profileImageData': replyProfileImageUrl,
+              'profileImagePath': replyProfileImageUrl,
               'nickname': reply['userNickname'] ?? 'Unknown',
               'commentDetail': reply['content'] ?? '',
               'createdAt': _formatDate(reply['createdAt']),
@@ -98,7 +98,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
 
         comments.add({
           'postId': item['postId'],
-          'profileImageData': profileImageUrl,
+          'profileImagePath': profileImageUrl,
           'nickname': item['userNickname'] ?? 'Unknown',
           'commentDetail': item['content'] ?? '',
           'createdAt': _formatDate(item['createdAt']),
@@ -305,8 +305,8 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                                     return Column(
                                       children: [
                                         CommentWidget(
-                                          profileImageData:
-                                              comment['profileImageData'],
+                                          profileImagePath:
+                                              comment['profileImagePath'],
                                           nickname: comment['nickname'],
                                           commentDetail:
                                               comment['commentDetail'],
@@ -346,8 +346,8 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                                                 final replyIndex = entry.key;
                                                 final reply = entry.value;
                                                 return CommentWidget(
-                                                  profileImageData:
-                                                      reply['profileImageData'],
+                                                  profileImagePath:
+                                                      reply['profileImagePath'],
                                                   nickname: reply['nickname'],
                                                   commentDetail:
                                                       reply['commentDetail'],
