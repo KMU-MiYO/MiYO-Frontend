@@ -8,6 +8,7 @@ import 'package:miyo/screens/exchanges/exchange.dart';
 import 'package:miyo/screens/suggestion/suggestion_screen.dart';
 import 'package:miyo/screens/suggestion/suggestion_detail_screen.dart';
 import 'package:miyo/data/services/post_service.dart';
+import 'package:miyo/data/services/exchange_service.dart';
 import 'package:miyo/services/geocoding_service.dart';
 
 class MapScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   final Completer<NaverMapController> _mapControllerCompleter = Completer();
   final PostService _postService = PostService();
+  final RewardService _rewardService = RewardService();
   final TextEditingController _searchController = TextEditingController();
   final GeocodingService _geocodingService = GeocodingService();
 
@@ -33,6 +35,10 @@ class _MapScreenState extends State<MapScreen> {
   bool _isLoadingPosts = false;
   double _currentZoom = 14.0; // 현재 줌 레벨
   static const double _minZoomForMarkers = 12.0; // 마커 표시 최소 줌 레벨
+
+  // 리워드 포인트
+  String _currentPoint = '0';
+  bool _isLoadingReward = true;
 
   // 모든 카테고리 리스트
   final List<CategoryType> allCategories = [
@@ -48,6 +54,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    _loadReward();
     // 지도가 준비되면 게시글 로드
     _mapControllerCompleter.future.then((_) {
       _loadMyPosts();
@@ -61,6 +68,31 @@ class _MapScreenState extends State<MapScreen> {
     _markerPostData.clear();
     _searchController.dispose();
     super.dispose();
+  }
+
+  /// 리워드 포인트 불러오기
+  Future<void> _loadReward() async {
+    try {
+      final rewardData = await _rewardService.getReward();
+      final reward = rewardData['reward'];
+
+      setState(() {
+        // 천 단위 콤마 추가
+        _currentPoint = reward.toString().replaceAllMapped(
+              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+              (Match m) => '${m[1]},',
+            );
+        _isLoadingReward = false;
+      });
+
+      print('✅ 리워드 포인트: $_currentPoint');
+    } catch (e) {
+      print('❌ 리워드 로드 실패: $e');
+      setState(() {
+        _currentPoint = '0';
+        _isLoadingReward = false;
+      });
+    }
   }
 
   // 내 게시글 불러오기
@@ -501,24 +533,37 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        Text(
-                          '500,000',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        _isLoadingReward
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xff00AA5D),
+                                ),
+                              )
+                            : Text(
+                                _currentPoint,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                         Spacer(),
                         ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    const ExchangeScreen(point: '500, 000'),
+                                    ExchangeScreen(point: _currentPoint),
                               ),
                             );
+                            // 교환소에서 돌아왔을 때 포인트 새로고침
+                            if (result != null) {
+                              _loadReward();
+                            }
                           },
                           icon: Icon(Icons.card_giftcard, color: Colors.white, size: 20),
                           label: Text(
