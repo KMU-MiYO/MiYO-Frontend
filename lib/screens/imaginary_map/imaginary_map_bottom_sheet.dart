@@ -159,6 +159,8 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
         return 'empathy'; // 공감순
       case FilterType.latest:
         return 'latest'; // 최신순
+      case FilterType.distance:
+        return 'distance'; // 거리순
     }
   }
 
@@ -380,34 +382,36 @@ class _ImaginaryMapBottomSheetState extends State<ImaginaryMapBottomSheet> {
                 child: _isLoadingNearby
                     ? const Center(child: CircularProgressIndicator())
                     : _nearbyPosts.isEmpty
-                        ? const Center(
-                            child: Text(
-                              '주변에 게시글이 없습니다',
-                              style: TextStyle(color: Color(0xff61758A)),
-                            ),
-                          )
-                        : Scrollbar(
-                            controller: _suggestionScrollController,
-                            thumbVisibility: true,
-                            thickness: 3,
-                            radius: Radius.circular(2),
-                            child: ListView.separated(
-                              controller: _suggestionScrollController,
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                              itemCount: _nearbyPosts.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 16),
-                              itemBuilder: (context, index) {
-                                final post = _nearbyPosts[index];
-                                return SuggestionItem(
-                                  categoryType: _parseCategoryType(post['category']),
-                                  title: post['title'] ?? '',
-                                  writer: post['nickname'] ?? '익명',
-                                  postId: post['postId'] as int,
-                                );
-                              },
-                            ),
-                          ),
+                    ? const Center(
+                        child: Text(
+                          '주변에 게시글이 없습니다',
+                          style: TextStyle(color: Color(0xff61758A)),
+                        ),
+                      )
+                    : Scrollbar(
+                        controller: _suggestionScrollController,
+                        thumbVisibility: true,
+                        thickness: 3,
+                        radius: Radius.circular(2),
+                        child: ListView.separated(
+                          controller: _suggestionScrollController,
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                          itemCount: _nearbyPosts.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 16),
+                          itemBuilder: (context, index) {
+                            final post = _nearbyPosts[index];
+                            return SuggestionItem(
+                              categoryType: _parseCategoryType(
+                                post['category'],
+                              ),
+                              title: post['title'] ?? '',
+                              writer: post['nickname'] ?? '익명',
+                              postId: post['postId'] as int,
+                            );
+                          },
+                        ),
+                      ),
               ),
             ],
           ),

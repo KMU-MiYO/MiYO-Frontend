@@ -6,6 +6,7 @@ class SuggestionItem extends StatelessWidget {
   final String title;
   final String writer;
   final int postId;
+  final bool isChallenge;
 
   const SuggestionItem({
     super.key,
@@ -13,6 +14,7 @@ class SuggestionItem extends StatelessWidget {
     required this.title,
     required this.writer,
     required this.postId,
+    this.isChallenge = false,
   });
 
   @override
@@ -56,7 +58,10 @@ class SuggestionItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SuggestionDetailScreen(postId: postId),
+                  builder: (context) => SuggestionDetailScreen(
+                    postId: postId,
+                    isChallenge: isChallenge,
+                  ),
                 ),
               );
             },

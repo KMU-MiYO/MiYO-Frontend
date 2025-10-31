@@ -138,26 +138,43 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               minimumSize: const Size.fromHeight(50),
             ),
             onPressed: () async {
-              // 챌린지 참여 화면으로 이동
-              final latitude = contestData?['latitude'] as double?;
-              final longitude = contestData?['longitude'] as double?;
+              try {
+                // 챌린지 참가 API 호출
+                await _challengeService.joinContest(
+                  contestId: widget.contestId,
+                );
 
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SuggestionScreen(
-                    isContest: true,
-                    contestId: widget.contestId,
-                    latitude: latitude,
-                    longitude: longitude,
+                // 챌린지 참여 화면으로 이동
+                final latitude = contestData?['latitude'] as double?;
+                final longitude = contestData?['longitude'] as double?;
+
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SuggestionScreen(
+                      isContest: true,
+                      contestId: widget.contestId,
+                      latitude: latitude,
+                      longitude: longitude,
+                    ),
                   ),
-                ),
-              );
+                );
 
-              // 게시글 작성 완료 후 돌아왔을 때 데이터 새로고침
-              if (result != null) {
-                print('✅ 게시글 작성 완료, 챌린지 데이터 새로고침');
-                _loadContestData();
+                // 게시글 작성 완료 후 돌아왔을 때 데이터 새로고침
+                if (result != null) {
+                  print('✅ 게시글 작성 완료, 챌린지 데이터 새로고침');
+                  _loadContestData();
+                }
+              } catch (e) {
+                print('❌ 챌린지 참가 실패: $e');
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('챌린지 참가에 실패했습니다.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               }
             },
             child: const Text(
@@ -181,6 +198,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 title: contestData!['title'] ?? '제목 없음',
                 location: contestData!['host'] ?? '주최자 미상',
                 contestId: widget.contestId,
+                isChallengeDetailTile: true,
               ),
               SizedBox(
                 width: width,
@@ -326,8 +344,10 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              SuggestionAllScreen(contestId: widget.contestId),
+                          builder: (context) => SuggestionAllScreen(
+                            contestId: widget.contestId,
+                            isChallenge: true,
+                          ),
                         ),
                       );
                     },
@@ -371,11 +391,13 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                         writer: post['userId'] ?? '익명',
                         rank: index + 1,
                         onTap: () {
+                          print(post);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => SuggestionDetailScreen(
-                                postId: post['id'] ?? post['postId'] ?? 0,
+                                postId: post['id'] ?? 0,
+                                isChallenge: true,
                               ),
                             ),
                           );

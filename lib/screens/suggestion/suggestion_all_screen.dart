@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:miyo/components/title_appbar.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_item.dart';
 import 'package:miyo/screens/imaginary_map/suggestion_filtering_button.dart';
+import 'package:miyo/components/challenge_filtering_button.dart';
 import 'package:miyo/data/services/suggestion_service.dart';
 
 class SuggestionAllScreen extends StatefulWidget {
   final int contestId;
+  final bool isChallenge;
 
-  const SuggestionAllScreen({super.key, required this.contestId});
+  const SuggestionAllScreen({
+    super.key,
+    required this.contestId,
+    this.isChallenge = false,
+  });
 
   @override
   State<SuggestionAllScreen> createState() => _SuggestionAllScreenState();
@@ -16,6 +22,7 @@ class SuggestionAllScreen extends StatefulWidget {
 class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
   final SuggestionService _suggestionService = SuggestionService();
   FilterType _sortBy = FilterType.latest;
+  ChallengeCategoryType _category = ChallengeCategoryType.all;
 
   List<dynamic> _allSuggestions = [];
   bool _isLoading = true;
@@ -157,7 +164,10 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                          postId: suggestion['postId'] ?? 0,
+                          postId: widget.isChallenge
+                              ? suggestion['id']
+                              : suggestion['postId'] ?? 0,
+                          isChallenge: widget.isChallenge,
                         ),
                       );
                     })
@@ -171,8 +181,8 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
 
                   // 필터 드롭다운
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // 정렬 드롭다운
                       SuggestionFilteringButton(
                         selectedFilter: _sortBy,
                         onFilterChanged: (filter) {
@@ -180,6 +190,14 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                             _sortBy = filter;
                           });
                           _loadSuggestions();
+                        },
+                      ),
+                      ChallengeCategoryButton(
+                        selectedCategory: _category,
+                        onCategoryChanged: (category) {
+                          setState(() {
+                            _category = category;
+                          });
                         },
                       ),
                     ],
@@ -199,7 +217,10 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                          postId: suggestion['postId'] ?? 0,
+                          postId: widget.isChallenge
+                              ? suggestion['id']
+                              : suggestion['postId'] ?? 0,
+                          isChallenge: widget.isChallenge,
                         ),
                       );
                     })
