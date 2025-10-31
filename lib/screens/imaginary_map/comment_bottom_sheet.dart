@@ -493,6 +493,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                         ],
                       ),
                     ),
+
                   // 입력창
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),

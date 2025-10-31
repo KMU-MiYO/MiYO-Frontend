@@ -569,6 +569,7 @@ class PostService {
   /// 챌린지 내 제안 글 상세 조회
   ///
   /// [postId]: 조회할 게시글 ID
+  ///
   Future<Map<String, dynamic>> getContestsPostById({
     required int contestId,
     required int postId,

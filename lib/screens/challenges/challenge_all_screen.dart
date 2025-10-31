@@ -188,6 +188,7 @@ class _ChallengeAllScreen extends State<ChallengeAllScreen> {
                       // 정렬 드롭다운
                       ChallengeFilterButton(
                         selectedFilter: _sortBy,
+
                         onFilterChanged: (filter) {
                           setState(() {
                             _sortBy = filter;
