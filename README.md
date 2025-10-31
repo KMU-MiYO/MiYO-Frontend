@@ -121,6 +121,7 @@ flutter run --release
 ```
 
 ## 📱 화면 구성
+<img width="3607" height="2188" alt="대표이미지모음" src="https://github.com/user-attachments/assets/396b90ed-e144-4a95-b8ae-bbcea6290f3b" />
 
 1. **홈 화면**: 제안글 추가 및 내 제안 모아보기
 2. **상상지도**: 위치 기반 제안글 탐색
