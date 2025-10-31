@@ -157,13 +157,13 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                          postId: suggestion['postId'] as int,
+                          postId: suggestion['postId'] ?? 0,
                         ),
                       );
                     })
                   else
                     const Padding(
-                      padding: EdgeInsets.all(60.0),
+                      padding: EdgeInsets.all(100.0),
                       child: Center(child: Text('인기 제안이 없습니다')),
                     ),
 
@@ -199,7 +199,7 @@ class _SuggestionAllScreenState extends State<SuggestionAllScreen> {
                           title: suggestion['title']?.toString() ?? '제목 없음',
                           writer:
                               suggestion['userId']?.toString() ?? '작성자 정보 없음',
-                          postId: suggestion['postId'] as int,
+                          postId: suggestion['postId'] ?? 0,
                         ),
                       );
                     })
